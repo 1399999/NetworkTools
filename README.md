@@ -1,2 +1,2 @@
-# NetworkTools
-Protect your website.
+# Network Tools
+Protect your website. Currently a modified copy of WinPcap.

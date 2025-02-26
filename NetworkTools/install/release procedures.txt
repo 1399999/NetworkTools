@@ -1,0 +1,364 @@
+
+20130224-GV: Commented out all the instructions to create a devpack and the online manual, as the compilation of
+the cygwin wpcap.dll is broken now.
+
+WINPCAP RELEASE PROCEDURE
+=========================
+
+This document explain how to
+- update the version
+- compile the winpcap dlls (wpcap.dll, packet.dll) for both x64 and x86
+- compile the NPF driver (npf.sys)
+- create the installer
+
+
+Needed tools/libraries (x86 and x64)
+------------------------------
+
+- Microsoft Visual Studio 2013 Update 4.
+- Microsoft Windows SDK 7.1 installed in the standard place
+- Microsoft Windows Driver Kit 7.1 installed in the standard place.
+- git.
+- Doxygen 1.5.6 installed and on the path
+- If packet.dll is compiled with airpcap support (default), the airpcap developer's
+  pack should be available in the folder
+	%BUILD_TREE%\Airpcap_Devpack
+- If packet.dll is compiled with NpfIm support, the NpfIm developer's pack
+  should be available in the folder
+	%BUILD_TREE%\NpfIm_DevPack
+- Nsis.
+- The Nsis ExecDos plugin (x86-ansi version) (http://nsis.sourceforge.net/ExecDos_plug-in).
+  Downloaded by win-setup.ps1
+
+How to compile WinPcap
+------------------------------------------------
+
+1.  Choose a build directory (%BUILD_TREE%). It will contain the WinPcap source
+    directory and supporting libraries.
+
+    Download winpcap (HEAD) from Git into %BUILD_TREE%.
+
+    NOTE: DO NOT USE A %BUILD_TREE% path containing spaces. The NT4 DDK build
+          gets screwed up with spaces in the paths!!
+
+2.  Modify the version info into these files (version is x.y.0.z for release
+    versions, 1-2 for OEM, 99,98... for previews &co).
+    If necessary, modify the copyright year.
+	  %BUILD_TREE%\winpcap\version.h
+
+3.  Modify the documentation version in the file
+	  %BUILD_TREE%\winpcap\dox\prj\winpcap_noc.dox (the version is repeated once)
+
+4.  Modify the device string into
+	  %BUILD_TREE%\winpcap\common\wpcapnames.h (first two defines). It should be "NPF"
+
+5.  Open
+	  %BUILD_TREE%\winpcap\install\installer\winpcap.nsi with an editor.
+
+6.  Edit the following version defines
+	  !define WINPCAP_PRJ_MAJOR "4"
+	  !define WINPCAP_PRJ_MINOR "1"
+	  !define WINPCAP_PRJ_REV "0"
+	  !define WINPCAP_PRJ_BUILD "4001"
+	  !define WINPCAP_PROJ_VERSION_DOTTED "4.1.0.4001"
+	  !define WINPCAP_LEGAL_COPYRIGHT "© 2005 - 2015 Wireshark Foundation, Inc."
+	  !define WINPCAP_PRODUCT_NAME "WinPcap 4.1.4"
+	  !define WINPCAP_COMPANY_NAME "Wireshark Foundation, Inc."
+	  !define WINPCAP_COMPANY_URL "https://www.wireshark.org/"
+	  !define WINPCAP_FILE_NAME "WinPcap_${WINPCAP_PRJ_MAJOR}_${WINPCAP_PRJ_MINOR}_4.exe"
+
+7.  Update the license year at the beginning of the file:
+	  %BUILd_TREE%\winpcap\install\installer\license.txt
+
+8.  Update the build date and version in %BUILD_TREE%\winpcap\install\npfx86.inf and npfx64.inf
+	  DriverVer   = 07/25/2015,4.1.0.4001
+
+9.  Commit
+	  %BUILD_TREE%\winpcap\version.h
+	  %BUILD_TREE%\winpcap\dox\prj\winpcap_noc.dox
+	  %BUILD_TREE%\winpcap\install\installer\license.txt
+	  %BUILD_TREE%\winpcap\install\installer\winpcap.nsi
+	  %BUILD_TREE%\winpcap\install\npfx86.inf
+	  %BUILD_TREE%\winpcap\install\npfx64.inf
+
+	into git. These should be the *only* modified files in this module.
+
+10. Tag the %BUILD_TREE%\winpcap branch with the tag
+	  WINPCAP_<MAJOR>_<MINOR>_<REV>_<BUILD>
+
+11. Download the libpcap sources (usually libpcap_1_0_rel0b branch on git) into
+	  %BUILD_TREE%\libpcap
+
+    NOTE: in order to download them:
+	git clone git://bpf.tcpdump.org/libpcap
+	in the libpcap folder
+	git checkout -b libpcap_1_0_rel0b origin/libpcap_1_0_rel0b
+
+    If you are using Git for Windows you need to ensure that your checked
+    out text files have LF line endings, otherwise the patch commands in
+    integrate_libpcap.bat will fail. You can do so by running
+
+        git config core.autocrlf false
+        git rm --cached -r .
+        git reset --hard
+
+12. Run `powershell tools\win-setup.ps1 ..`. This will download and unzip
+    the contents of the AirPcap devpack and ExecDos into %BUILD_TREE%
+
+13. On the command line, go to folder
+      %BUILD_TREE%\winpcap
+
+14. Execute integrate_libpcap.bat. The script should not generate any
+    error. The expected output is
+
+    Copying files...
+    Copying files -- Done
+    ---------------------------------------
+    Applying remote code patch...
+    Applying remote code patch -- Done
+    ---------------------------------------
+    Applying TurboCap code patch...
+    Applying TurboCap code patch -- Done
+    ---------------------------------------
+    Applying _snprintf _MSC_VER patch...
+    Applying _snprintf _MSC_VER patch -- Done
+    ---------------------------------------
+    DOS'ifing the libpcap makefile...
+    libpcap.dsp: done.
+    DOS'ifing the libpcap makefile -- Done
+    ---------------------------------------
+    Generating the compiler files...
+    Building the libpcap parser and scanner..
+     --- Done!
+    Generating the compiler files -- Done
+
+15. Check that the version of libpcap in
+      %BUILD_TREE%\winpcap\wpcap\libpcap\pcap.c line 1300
+      "static const char pcap_version_string[] = "libpcap version 0.9[.x]";"
+    makes sense (??? WHAT DOES IT MEAN???)
+
+16. Check that the version of wpcap in
+      %BUILD_TREE%\winpcap\wpcap\libpcap\pcap.c line 1330
+        "static const char wpcap_version_string[] = "3.1";"
+    matches the version of WinPcap.
+
+17. Zip the contents of the three folders
+	  %BUILD_TREE%\winpcap
+	  %BUILD_TREE%\libpcap
+	  %BUILD_TREE%\Airpcap_Devpack
+		  |
+		  V
+	  %BUILD_TREE%\sources.zip
+
+18. Open a Visual Studio 2013 command prompt, go to
+	  %BUILD_TREE%\install\
+	and execute BuildMe.bat
+
+#
+#18. Cygwin compilation (needed for the developer's pack).
+#    Open a cygwin shell.
+#
+#19. Go into
+#	  %BUILD_TREE\winpcap\packetntx\dll\project
+#
+#20. Type "make".
+#
+#21. Go into
+#	 %BUILD_TREE\winpcap\wpcap\PRJ
+#
+#22. Type "make". 1 warning should be generated.
+#
+
+How to sign the binaries and create the installer for WinPcap
+-------------------------------------------------------------
+1.  Open a command prompt, go to
+	  %BUILD_TREE%\winpcap\install
+    and execute "copy_installer_files.bat"
+
+2. Sign the following binaries
+
+		%BUILD_TREE%\winpcap\install\installer\distribution\x86\npf.sys
+		%BUILD_TREE%\winpcap\install\installer\distribution\x86\packet.dll
+		%BUILD_TREE%\winpcap\install\installer\distribution\x86\rpcapd.exe
+		%BUILD_TREE%\winpcap\install\installer\distribution\x86\WinPcapInstall.dll
+		%BUILD_TREE%\winpcap\install\installer\distribution\x86\wpcap.dll
+
+		%BUILD_TREE%\winpcap\install\installer\distribution\x64\npf.sys
+		%BUILD_TREE%\winpcap\install\installer\distribution\x64\packet.dll
+		%BUILD_TREE%\winpcap\install\installer\distribution\x64\wpcap.dll
+
+		%BUILD_TREE%\winpcap\install\installer\distribution\vista_x86\packet.dll
+		%BUILD_TREE%\winpcap\install\installer\distribution\vista_x64\packet.dll
+
+		with the company certificate + cross certificate
+
+		The generic command is
+		   signtool sign /v /ac MSCV-VSClass3.cer /s my /n "Wireshark Foundation, Inc."
+		   /t http://timestamp.verisign.com/scripts/timestamp.dll <binary_name>
+
+3.  Submit the npf.sys driver to MS for counter-signing for both x86 and amd64
+    architectures by creating a .cab file containing the appropriate npf.sys and .inf file.
+
+		makecab /D arch=x86 /F npf.ddf
+		makecab /D arch=x64 /F npf.ddf
+
+4.  Submit the cab files to MS for counter signing, cabs are in NPF_CABS\npfx86.cab & npfx64.cab
+
+		???
+
+6.  On receipt of the counter-signed cab files, extract the npf.sys files to the
+    appropriate location
+
+		???
+
+5.  Open
+	  %BUILD_TREE%\winpcap\install\installer\winpcap.nsi with NSIS and create the installer.
+
+	  (or makensis installer\winpcap.nsi).
+
+    NSIS will fail if not all the binaries have been created correctly.
+
+6. Sign the installer
+		%BUILD_TREE%\winpcap\install\installer\WinPcap_<version>.exe
+		with the company certificate + cross certificate
+
+#How to create the developer's pack for WinPcap
+#----------------------------------------------
+#
+#1.  After the build is completed, in a command prompt go to
+# 	  %BUILD_TREE%\winpcap
+#
+#2.  Run "build_wpdpack.bat". The script will pause after each step of the
+#    build:
+#	a. Creation of the include folder (no errors/warnings)
+#	b. Creation of the lib folder (no errors/warnings)
+#	c. Creation of the Examples and Examples-pcap folders (no errors/warnings)
+#	d. creation of the documentation. Some warnings/errors are generated:
+#	   - a Doxygen warning processing the file winpcap/dox/libpcap/funcs/pcap.h
+#
+
+How to create the public sources zip file
+-----------------------------------------
+1.  Uncompress the file
+	  %BUILD_TREE\Sources.zip into a folder named
+	  %BUILD_TREE\Sources
+
+2.  Delete the following folder:
+	  %BUILD_TREE\Sources\winpcap\install
+
+3.  Delete the following folders:
+	  %BUILD_TREE\Airpcap_Devpack
+
+4.  Delete the following file:
+	  %BUILD_TREE\Sources\winpcap\wpcap\libpcap\remote_overwritten_files.zip
+
+5.  Delete the following folder:
+	  %BUILD_TREE\Sources\libpcap
+
+6.  Perform a search under
+	  %BUILD_TREE%\Sources\winpcap\
+	and delete *all* the folders named "CVS".
+
+7.  Done.
+
+
+SCM procedures part #1
+----------------------
+
+#1.  %BUILD_TREE%\winpcap\wpdpack\
+#		|
+#		v
+#	WinPcap_<version>_WpdPack.zip
+
+2.  %BUILD_TREE%\Sources\winpcap
+        |
+        V
+    WinPcap_<version>_PublicSources.zip
+
+3.  %BUILD_TREE%\winpcap\install\installer\WinPcap_<version>.exe
+        |
+        V
+    WinPcap_<version>_Installer.exe
+
+WEB FOLDER
+----------
+#
+#1. Call the script
+#	%BUILD_TREE%\create_web.bat <version_short>
+#   where <version_short> is something like "40b3"
+#
+#2. Create a file called "index.html" into
+#		%BUILD_TREE%\web\docs\docs_<version_short>\
+#	The content of the file is this one:
+#
+#	.................................................
+#	<SCRIPT language=JavaScript>
+#		function redirt(thisarea) { thisurl = '' + thisarea; window.location=thisurl; }
+#	</SCRIPT>
+#
+#	<HTML>
+#	<head>
+#	<META HTTP-EQUIV=Refresh CONTENT="0; URL=../docs_<version_short>/html/main.html">
+#	</head>
+#	<BODY>
+#	</BODY>
+#	</HTML>
+#	.................................................
+#
+#	Be sure to modify the "URL" attribute with the proper folder name.
+#
+3. Copy the following file
+		%BUILD_TREE%\WinPcap_<version>_Installer.exe
+				|
+				V
+		%BUILD_TREE%\web\install\bin\WinPcap_<version_short>.exe (e.g. WinPcap_4_0_beta3.exe)
+
+#4. Copy the following file
+#		%BUILD_TREE%\WinPcap_<version>_WpdPack.zip
+#				|
+#				V
+#		%BUILD_TREE%\web\install\bin\WpdPack_<version_short>.zip (e.g. WpdPack_4_0_beta3.zip)
+
+5. Copy the following file
+		%BUILD_TREE%\WinPcap_<version>_PublicSources.zip
+				|
+				V
+		%BUILD_TREE%\web\install\bin\WpcapSrc_<version_short>.zip (e.g. WpcapSrc_4_0_beta3.zip)
+
+
+SCM procedures part #2
+----------------------
+
+1. 	%BUILD_TREE%\Sources.zip
+		|
+		V
+	WinPcap_<version>_InternalSources.zip
+
+2.  %BUILD_TREE%\AirPcap_DevPack
+	 %BUILD_TREE%\LibPcap_<libpcap_version>
+	 %BUILD_TREE%\winpcap
+		|
+		V
+	WinPcap_<version>_Build_Tree.zip
+
+3.  %BUILD_TREE%\web\
+			|
+			V
+    WinPcap_<version>_Web.zip
+
+
+MD5/SHA1 checksums
+-------------
+1. Open a command line and go into %BUILD_TREE%\
+2. Execute
+		md5sum.exe WinPcap_<version>* > md5sum.txt
+		sha1sum.exe WinPcap_<version>* > sha1sum.txt
+
+
+
+TODO (20061129)
+===============
+Document:
+- Testing version of files
+- Testing devpack
+- Testing installer
