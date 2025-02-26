@@ -91,7 +91,7 @@ BOOLEAN StartPacketDriver (LPTSTR ServiceName);
 BOOLEAN StopPacketDriver (void);
 BOOLEAN PacketSetMaxLookaheadsize (LPADAPTER AdapterObject);
 
-char PacketLibraryVersion[] = WINPCAP_PACKET9x_STRING_VERSION; 
+char PacketLibraryVersion[] = VERSION_PACKET9x_STRING;
 
 //---------------------------------------------------------------------------
 

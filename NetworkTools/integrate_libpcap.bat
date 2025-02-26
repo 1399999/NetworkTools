@@ -65,10 +65,3 @@ pushd .\wpcap\prj\
 call build_scanner_parser.bat
 popd
 echo Generating the compiler files -- Done
-
-
-
-
-
-
-

@@ -42,16 +42,15 @@
 ;--------------------------------
 ;Project definitions
 
-  !define WINPCAP_PRJ_MAJOR "4"
-  !define WINPCAP_PRJ_MINOR "1"
-  !define WINPCAP_PRJ_REV "0"
-  !define WINPCAP_PRJ_BUILD "4001"
-  !define WINPCAP_PROJ_VERSION_DOTTED "4.1.0.4001"
-  !define WINPCAP_LEGAL_COPYRIGHT "© 2005 - 2015 Wireshark Foundation, Inc."
-  !define WINPCAP_PRODUCT_NAME "WinPcap 4.1.4"
-  !define WINPCAP_COMPANY_NAME "Wireshark Foundation, Inc."
-  !define WINPCAP_COMPANY_URL "https://www.wireshark.org/"
-  !define WINPCAP_FILE_NAME "WinPcap_${WINPCAP_PRJ_MAJOR}_${WINPCAP_PRJ_MINOR}_4.exe"
+  !define WINPCAP_PRJ_MAJOR "0"
+  !define WINPCAP_PRJ_MINOR "0"
+  !define WINPCAP_PRJ_REV "1"
+  !define WINPCAP_PRJ_BUILD "0.0.1"
+  !define WINPCAP_PROJ_VERSION_DOTTED "0.0.1.0"
+  !define WINPCAP_LEGAL_COPYRIGHT "© 2020 - 2025 Mikhail Zhebrunov"
+  !define WINPCAP_PRODUCT_NAME "NetworkTools 0.0.1"
+  !define WINPCAP_COMPANY_NAME "Mikhail Zhebrunov"
+  !define WINPCAP_FILE_NAME "WinPcap_${WINPCAP_PRJ_MAJOR}_${WINPCAP_PRJ_MINOR}_0.exe"
 
 ; letter 'r'
   !define REINSTALL_FLAG "114"
@@ -622,10 +621,6 @@ DontAutoStartDriver:
     WriteRegStr HKLM \
   "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" \
   "Publisher" "${WINPCAP_COMPANY_NAME}"
-
-    WriteRegStr HKLM \
-  "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" \
-  "URLInfoAbout" "${WINPCAP_COMPANY_URL}"
 
     WriteRegStr HKLM \
   "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" \
