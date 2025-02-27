@@ -529,13 +529,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "incs", "incs", "{C4CD0E12-7
 		dox\libpcap\incs\pcap.h = dox\libpcap\incs\pcap.h
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{2ABF3D3E-C046-467B-8316-F3F61701EC8A}"
-	ProjectSection(SolutionItems) = preProject
-		Common\dagc.h = Common\dagc.h
-		Common\Packet32.h = Common\Packet32.h
-		Common\WpcapNames.h = Common\WpcapNames.h
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packetWin7", "packetWin7", "{1F84E634-A65C-4211-BEA0-B62BEBA7A3D6}"
 	ProjectSection(SolutionItems) = preProject
 		packetWin7\version.h = packetWin7\version.h
@@ -577,10 +570,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WanPacket", "WanPacket", "{
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "npf6x", "npf6x", "{259F5C62-7766-4C11-B0B9-9A94C351021C}"
-	ProjectSection(SolutionItems) = preProject
-		packetWin7\npf6x\npf6x.sln = packetWin7\npf6x\npf6x.sln
-		packetWin7\npf6x\npf6x.v11.suo = packetWin7\npf6x\npf6x.v11.suo
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "npf6x", "npf6x", "{8FA137AB-4367-4A8D-8C84-2102D6CBD7F5}"
 	ProjectSection(SolutionItems) = preProject
@@ -622,47 +611,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "npf6x", "npf6x", "{8FA137AB
 		packetWin7\npf6x\npf6x\Write.c = packetWin7\npf6x\npf6x\Write.c
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "npf6x Package", "npf6x Package", "{969460BE-1D08-4912-A7E2-17446ED456C0}"
-	ProjectSection(SolutionItems) = preProject
-		packetWin7\npf6x\npf6x Package\npf6x Package.vcxproj = packetWin7\npf6x\npf6x Package\npf6x Package.vcxproj
-		packetWin7\npf6x\npf6x Package\npf6x Package.vcxproj.filters = packetWin7\npf6x\npf6x Package\npf6x Package.vcxproj.filters
-		packetWin7\npf6x\npf6x Package\npf6x Package.vcxproj.user = packetWin7\npf6x\npf6x Package\npf6x Package.vcxproj.user
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "x64", "x64", "{7209E2AF-3615-4725-B7DD-3D56BFC60376}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Win7Debug", "Win7Debug", "{72DA7B3D-3FFC-4508-A623-39B61F0B893E}"
-	ProjectSection(SolutionItems) = preProject
-		packetWin7\npf6x\npf6x Package\x64\Win7Debug\inf2catOutput.log = packetWin7\npf6x\npf6x Package\x64\Win7Debug\inf2catOutput.log
-		packetWin7\npf6x\npf6x Package\x64\Win7Debug\npf6x Package.lastbuildstate = packetWin7\npf6x\npf6x Package\x64\Win7Debug\npf6x Package.lastbuildstate
-		packetWin7\npf6x\npf6x Package\x64\Win7Debug\npf6x Package.log = packetWin7\npf6x\npf6x Package\x64\Win7Debug\npf6x Package.log
-		packetWin7\npf6x\npf6x Package\x64\Win7Debug\npf6x Package.vcxprojResolveAssemblyReference.cache = packetWin7\npf6x\npf6x Package\x64\Win7Debug\npf6x Package.vcxprojResolveAssemblyReference.cache
-		packetWin7\npf6x\npf6x Package\x64\Win7Debug\npf6xPackage.Build.CppClean.log = packetWin7\npf6x\npf6x Package\x64\Win7Debug\npf6xPackage.Build.CppClean.log
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Win7Release", "Win7Release", "{E5FC64B4-BEAF-4A94-9688-EEEA147FA60B}"
-	ProjectSection(SolutionItems) = preProject
-		packetWin7\npf6x\npf6x Package\x64\Win7Release\inf2catOutput.log = packetWin7\npf6x\npf6x Package\x64\Win7Release\inf2catOutput.log
-		packetWin7\npf6x\npf6x Package\x64\Win7Release\npf6x Package.lastbuildstate = packetWin7\npf6x\npf6x Package\x64\Win7Release\npf6x Package.lastbuildstate
-		packetWin7\npf6x\npf6x Package\x64\Win7Release\npf6x Package.log = packetWin7\npf6x\npf6x Package\x64\Win7Release\npf6x Package.log
-		packetWin7\npf6x\npf6x Package\x64\Win7Release\npf6xPackage.Build.CppClean.log = packetWin7\npf6x\npf6x Package\x64\Win7Release\npf6xPackage.Build.CppClean.log
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Win7Release", "Win7Release", "{81B54E7A-9CEB-4314-802A-40C88C1E4DB1}"
-	ProjectSection(SolutionItems) = preProject
-		packetWin7\npf6x\npf6x Package\Win7Release\inf2cat-expand.5832.read.1.tlog = packetWin7\npf6x\npf6x Package\Win7Release\inf2cat-expand.5832.read.1.tlog
-		packetWin7\npf6x\npf6x Package\Win7Release\inf2cat-expand.5832.write.1.tlog = packetWin7\npf6x\npf6x Package\Win7Release\inf2cat-expand.5832.write.1.tlog
-		packetWin7\npf6x\npf6x Package\Win7Release\inf2cat-expand.read.1.tlog = packetWin7\npf6x\npf6x Package\Win7Release\inf2cat-expand.read.1.tlog
-		packetWin7\npf6x\npf6x Package\Win7Release\inf2cat-expand.write.1.tlog = packetWin7\npf6x\npf6x Package\Win7Release\inf2cat-expand.write.1.tlog
-		packetWin7\npf6x\npf6x Package\Win7Release\Inf2Cat.command.1.tlog = packetWin7\npf6x\npf6x Package\Win7Release\Inf2Cat.command.1.tlog
-		packetWin7\npf6x\npf6x Package\Win7Release\inf2cat.read.1.tlog = packetWin7\npf6x\npf6x Package\Win7Release\inf2cat.read.1.tlog
-		packetWin7\npf6x\npf6x Package\Win7Release\inf2cat.write.1.tlog = packetWin7\npf6x\npf6x Package\Win7Release\inf2cat.write.1.tlog
-		packetWin7\npf6x\npf6x Package\Win7Release\inf2catOutput.log = packetWin7\npf6x\npf6x Package\Win7Release\inf2catOutput.log
-		packetWin7\npf6x\npf6x Package\Win7Release\npf6x Package.lastbuildstate = packetWin7\npf6x\npf6x Package\Win7Release\npf6x Package.lastbuildstate
-		packetWin7\npf6x\npf6x Package\Win7Release\npf6x Package.log = packetWin7\npf6x\npf6x Package\Win7Release\npf6x Package.log
-		packetWin7\npf6x\npf6x Package\Win7Release\npf6x Package.vcxprojResolveAssemblyReference.cache = packetWin7\npf6x\npf6x Package\Win7Release\npf6x Package.vcxprojResolveAssemblyReference.cache
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NPF6xInstall", "NPF6xInstall", "{CAD01A30-E345-4313-9117-EC1C7748C325}"
 	ProjectSection(SolutionItems) = preProject
 		packetWin7\NPF6xInstall\NPF6xInstall.suo = packetWin7\NPF6xInstall\NPF6xInstall.suo
@@ -680,6 +628,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "x64", "x64", "{1A7169C1-B7C
 		..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\x64\npf.sys = ..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\x64\npf.sys
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkTools.Common", "NetworkTools.Common\NetworkTools.Common.vcxproj", "{9726FCEA-BA8E-465A-9E08-41EABB1BA212}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkTools.Examples", "NetworkTools.Examples\NetworkTools.Examples.vcxproj", "{AB714239-007B-438B-BF03-8D83EE3690B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -690,6 +642,14 @@ Global
 		{61388D7B-124F-4A22-858A-FDA13C8FB377}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{61388D7B-124F-4A22-858A-FDA13C8FB377}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{61388D7B-124F-4A22-858A-FDA13C8FB377}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9726FCEA-BA8E-465A-9E08-41EABB1BA212}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{9726FCEA-BA8E-465A-9E08-41EABB1BA212}.Debug|Any CPU.Build.0 = Debug|x64
+		{9726FCEA-BA8E-465A-9E08-41EABB1BA212}.Release|Any CPU.ActiveCfg = Release|x64
+		{9726FCEA-BA8E-465A-9E08-41EABB1BA212}.Release|Any CPU.Build.0 = Release|x64
+		{AB714239-007B-438B-BF03-8D83EE3690B0}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{AB714239-007B-438B-BF03-8D83EE3690B0}.Debug|Any CPU.Build.0 = Debug|x64
+		{AB714239-007B-438B-BF03-8D83EE3690B0}.Release|Any CPU.ActiveCfg = Release|x64
+		{AB714239-007B-438B-BF03-8D83EE3690B0}.Release|Any CPU.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -743,11 +703,6 @@ Global
 		{E6B04DDA-1A81-4193-99DC-3FE1154B03BB} = {6FF23243-3A38-4573-A808-1487D0FFD70B}
 		{259F5C62-7766-4C11-B0B9-9A94C351021C} = {1F84E634-A65C-4211-BEA0-B62BEBA7A3D6}
 		{8FA137AB-4367-4A8D-8C84-2102D6CBD7F5} = {259F5C62-7766-4C11-B0B9-9A94C351021C}
-		{969460BE-1D08-4912-A7E2-17446ED456C0} = {259F5C62-7766-4C11-B0B9-9A94C351021C}
-		{7209E2AF-3615-4725-B7DD-3D56BFC60376} = {969460BE-1D08-4912-A7E2-17446ED456C0}
-		{72DA7B3D-3FFC-4508-A623-39B61F0B893E} = {7209E2AF-3615-4725-B7DD-3D56BFC60376}
-		{E5FC64B4-BEAF-4A94-9688-EEEA147FA60B} = {7209E2AF-3615-4725-B7DD-3D56BFC60376}
-		{81B54E7A-9CEB-4314-802A-40C88C1E4DB1} = {969460BE-1D08-4912-A7E2-17446ED456C0}
 		{CAD01A30-E345-4313-9117-EC1C7748C325} = {1F84E634-A65C-4211-BEA0-B62BEBA7A3D6}
 		{75599702-61DF-431B-85B4-A61546EF98C4} = {CAD01A30-E345-4313-9117-EC1C7748C325}
 		{1A7169C1-B7CC-4132-BE9C-4BE206105069} = {F4C83876-72A0-41B2-8F13-F04B7D9035C8}

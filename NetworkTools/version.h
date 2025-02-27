@@ -1,9 +1,9 @@
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 1
-#define VERSION_REVISION 1
+#define VERSION_REVISION 2
 #define VERSION_BUILD 0
-#define VERSION_STRING  "0.1.1"
-#define VERSION_PACKET9x_STRING "0.1.1"
+#define VERSION_STRING  "0.1.2"
+#define VERSION_PACKET9x_STRING "0.1.2"
 
 #define LIBRARY_CREATOR      "Mikhail Zhebrunov" //
 #define LIBRARY_NAME      "NetworkTools"

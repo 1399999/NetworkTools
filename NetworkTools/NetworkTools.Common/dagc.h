@@ -33,6 +33,7 @@
  *
  */
 
+#include <WinSock2.h>
 #define DAGC_ERRBUF_SIZE   512
 #define FILEBUFSIZE 		65536
 #define MAXDAGCARDS 		32

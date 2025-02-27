@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="PacketDriver">
+      <UniqueIdentifier>{936e8c86-c27a-430d-a636-a4a5a63e42c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetMeter">
+      <UniqueIdentifier>{9abc3fde-cfdf-4827-bc7e-ed57e5d8c653}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Misc">
+      <UniqueIdentifier>{567ce27a-5d3d-4d74-b6d0-147a28193e30}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="KDump.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IfList.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UserBridge.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UDPDump.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TCPTop.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Smp1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PktDump.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SendCap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PCapFOpen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PCapFilter.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketDriver\GetMacAddress.c">
+      <Filter>PacketDriver</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketDriver\TestPacketCapture.c">
+      <Filter>PacketDriver</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketDriver\TestPacketSend.c">
+      <Filter>PacketDriver</Filter>
+    </ClCompile>
+    <ClCompile Include="NETMETER\CaptureThread.cpp">
+      <Filter>NetMeter</Filter>
+    </ClCompile>
+    <ClCompile Include="NETMETER\LineColl.cpp">
+      <Filter>NetMeter</Filter>
+    </ClCompile>
+    <ClCompile Include="NETMETER\MainFrm.cpp">
+      <Filter>NetMeter</Filter>
+    </ClCompile>
+    <ClCompile Include="NETMETER\NETMETER.CPP">
+      <Filter>NetMeter</Filter>
+    </ClCompile>
+    <ClCompile Include="NETMETER\netmeterDoc.cpp">
+      <Filter>NetMeter</Filter>
+    </ClCompile>
+    <ClCompile Include="NETMETER\netmeterView.cpp">
+      <Filter>NetMeter</Filter>
+    </ClCompile>
+    <ClCompile Include="NETMETER\SelectAdapter.cpp">
+      <Filter>NetMeter</Filter>
+    </ClCompile>
+    <ClCompile Include="NETMETER\StdAfx.cpp">
+      <Filter>NetMeter</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\basic_dump.c">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\basic_dump_ex.c">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\readfile.c">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\readfile_ex.c">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\savedump.c">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\sendpack.c">
+      <Filter>Misc</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="PacketDriver\README.txt">
+      <Filter>PacketDriver</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="NETMETER\CapDll.h">
+      <Filter>NetMeter</Filter>
+    </ClInclude>
+    <ClInclude Include="NETMETER\Console.h">
+      <Filter>NetMeter</Filter>
+    </ClInclude>
+    <ClInclude Include="NETMETER\LineColl.h">
+      <Filter>NetMeter</Filter>
+    </ClInclude>
+    <ClInclude Include="NETMETER\MainFrm.h">
+      <Filter>NetMeter</Filter>
+    </ClInclude>
+    <ClInclude Include="NETMETER\NETMETER.H">
+      <Filter>NetMeter</Filter>
+    </ClInclude>
+    <ClInclude Include="NETMETER\netmeterDoc.h">
+      <Filter>NetMeter</Filter>
+    </ClInclude>
+    <ClInclude Include="NETMETER\netmeterView.h">
+      <Filter>NetMeter</Filter>
+    </ClInclude>
+    <ClInclude Include="NETMETER\ProgCaptDlg.h">
+      <Filter>NetMeter</Filter>
+    </ClInclude>
+    <ClInclude Include="NETMETER\resource.h">
+      <Filter>NetMeter</Filter>
+    </ClInclude>
+    <ClInclude Include="NETMETER\SelectAdapter.h">
+      <Filter>NetMeter</Filter>
+    </ClInclude>
+    <ClInclude Include="NETMETER\StdAfx.h">
+      <Filter>NetMeter</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

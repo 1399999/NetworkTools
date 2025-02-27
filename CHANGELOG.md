@@ -21,4 +21,10 @@ Deletes any files related to versions of WinPcap.
 # Version 0.1.1 [26 February 2025]
 
 Adds support for new Windows 7 and 8 drivers in the Common folder.
-Remodels the installer. (not shown in Github).
+Remodels the installer. (Not shown in Github).
+Starts to delete old file logs in the PacketWin7 folder.
+
+# Version 0.1.2 [27 February 2025]
+
+Even futher deletes old file logs in the PacketWin7 folder, as well as yhe npf6x packages folder.
+Converts large parts of the project to VS-recognized projects. (None of the code works yet).
