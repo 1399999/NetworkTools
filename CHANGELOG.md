@@ -14,6 +14,11 @@ Changes this file to the markdown format.
 
 # Version 0.1.0 [26 February 2025]
 
-Deletes the Packet9x folder. (Can now run this with Windows XP - Windows 7).
-Adds the ability to run this library from Windows 7 through the NDIS 6.0 packetWin7 folder.
+Deletes the Packet9x folder. (Can now run this with Windows XP - Windows 8).
+Adds the ability to run this library from Windows 7 and 8 through the NDIS 6.0 packetWin7 folder.
 Deletes any files related to versions of WinPcap.
+
+# Version 0.1.1 [26 February 2025]
+
+Adds support for new Windows 7 and 8 drivers in the Common folder.
+Remodels the installer. (not shown in Github).

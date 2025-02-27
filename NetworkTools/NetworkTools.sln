@@ -172,92 +172,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "driver", "driver", "{1523E3
 		packetNtx\driver\Write.c = packetNtx\driver\Write.c
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "install", "install", "{F4C83876-72A0-41B2-8F13-F04B7D9035C8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Installer", "Installer", "{F4C83876-72A0-41B2-8F13-F04B7D9035C8}"
 	ProjectSection(SolutionItems) = preProject
-		install\BuildMe.bat = install\BuildMe.bat
-		install\copy_installer_files.bat = install\copy_installer_files.bat
-		install\create-driver-signing-cab.ps1 = install\create-driver-signing-cab.ps1
-		install\MakeAll.sln = install\MakeAll.sln
-		install\npf.ddf = install\npf.ddf
-		install\npfx64.inf = install\npfx64.inf
-		install\npfx86.inf = install\npfx86.inf
-		install\release procedures.txt = install\release procedures.txt
-		install\WorksList.xml = install\WorksList.xml
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "daemon_mgm", "daemon_mgm", "{EAB8D5FF-6913-4CD2-9B48-7C3995B6703C}"
-	ProjectSection(SolutionItems) = preProject
-		install\daemon_mgm\daemon_mgm.c = install\daemon_mgm\daemon_mgm.c
-		install\daemon_mgm\daemon_mgm.dsp = install\daemon_mgm\daemon_mgm.dsp
-		install\daemon_mgm\daemon_mgm.dsw = install\daemon_mgm\daemon_mgm.dsw
-		install\daemon_mgm\resource.h = install\daemon_mgm\resource.h
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "installer", "installer", "{566FE60A-804B-46CF-9C3C-E98AAF681096}"
-	ProjectSection(SolutionItems) = preProject
-		install\installer\bootOptions.ini = install\installer\bootOptions.ini
-		install\installer\WinPcap.nsi = install\installer\WinPcap.nsi
-		install\installer\WinPcap_gui.gi2 = install\installer\WinPcap_gui.gi2
-		install\installer\WinPcap_nogui.gi2 = install\installer\WinPcap_nogui.gi2
-		install\installer\WinPcap_nogui_nobanner.gi2 = install\installer\WinPcap_nogui_nobanner.gi2
-		install\installer\WinPcap_nogui_noreboot.gi2 = install\installer\WinPcap_nogui_noreboot.gi2
-		install\installer\WinPcap_nogui_noreboot_nobanner.gi2 = install\installer\WinPcap_nogui_noreboot_nobanner.gi2
-		install\installer\WpBann.htm = install\installer\WpBann.htm
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "distribution", "distribution", "{EBDF1833-8235-4B89-BEE6-3C68E883D45E}"
-	ProjectSection(SolutionItems) = preProject
-		install\installer\distribution\license.txt = install\installer\distribution\license.txt
-		install\installer\distribution\readme.txt = install\installer\distribution\readme.txt
-		install\installer\distribution\winpcap.bmp = install\installer\distribution\winpcap.bmp
-		install\installer\distribution\winpcap_nsis.bmp = install\installer\distribution\winpcap_nsis.bmp
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NetMonInstaller", "NetMonInstaller", "{87321258-11E4-49F2-A5E5-AF3DA3C3BD31}"
-	ProjectSection(SolutionItems) = preProject
-		install\NetMonInstaller\compile.bat = install\NetMonInstaller\compile.bat
-		install\NetMonInstaller\idls.idl = install\NetMonInstaller\idls.idl
-		install\NetMonInstaller\implinc.cpp = install\NetMonInstaller\implinc.cpp
-		install\NetMonInstaller\makefile = install\NetMonInstaller\makefile
-		install\NetMonInstaller\NetMonInstaller.cpp = install\NetMonInstaller\NetMonInstaller.cpp
-		install\NetMonInstaller\NetMonInstaller.h = install\NetMonInstaller\NetMonInstaller.h
-		install\NetMonInstaller\pch.h = install\NetMonInstaller\pch.h
-		install\NetMonInstaller\sources = install\NetMonInstaller\sources
-		install\NetMonInstaller\version.h = install\NetMonInstaller\version.h
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "npf_mgm", "npf_mgm", "{4222E578-DA6A-4E48-80A2-1089CF13D47F}"
-	ProjectSection(SolutionItems) = preProject
-		install\npf_mgm\npf_mgm.c = install\npf_mgm\npf_mgm.c
-		install\npf_mgm\npf_mgm.dsp = install\npf_mgm\npf_mgm.dsp
-		install\npf_mgm\npf_mgm.dsw = install\npf_mgm\npf_mgm.dsw
-		install\npf_mgm\npf_mgm.rc = install\npf_mgm\npf_mgm.rc
-		install\npf_mgm\resource.h = install\npf_mgm\resource.h
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WinPcap Installer Helper", "WinPcap Installer Helper", "{2C9CBC85-E58C-422E-888D-06B71386EC0D}"
-	ProjectSection(SolutionItems) = preProject
-		install\WinPcap Installer Helper\netcfgn.h = install\WinPcap Installer Helper\netcfgn.h
-		install\WinPcap Installer Helper\netcfgx.h = install\WinPcap Installer Helper\netcfgx.h
-		install\WinPcap Installer Helper\NetMonInstaller.cpp = install\WinPcap Installer Helper\NetMonInstaller.cpp
-		install\WinPcap Installer Helper\NetMonInstaller.h = install\WinPcap Installer Helper\NetMonInstaller.h
-		install\WinPcap Installer Helper\NpfDriverInstaller.c = install\WinPcap Installer Helper\NpfDriverInstaller.c
-		install\WinPcap Installer Helper\RpcapdServiceInstaller.c = install\WinPcap Installer Helper\RpcapdServiceInstaller.c
-		install\WinPcap Installer Helper\ServiceInstaller.cpp = install\WinPcap Installer Helper\ServiceInstaller.cpp
-		install\WinPcap Installer Helper\WinPcap Installer Helper.dsp = install\WinPcap Installer Helper\WinPcap Installer Helper.dsp
-		install\WinPcap Installer Helper\WinPcap Installer Helper.dsw = install\WinPcap Installer Helper\WinPcap Installer Helper.dsw
-		install\WinPcap Installer Helper\WinPcap Installer Helper.sln = install\WinPcap Installer Helper\WinPcap Installer Helper.sln
-		install\WinPcap Installer Helper\WinPcap Installer Helper.vcxproj = install\WinPcap Installer Helper\WinPcap Installer Helper.vcxproj
-		install\WinPcap Installer Helper\WinPcap Installer Helper.vcxproj.filters = install\WinPcap Installer Helper\WinPcap Installer Helper.vcxproj.filters
-		install\WinPcap Installer Helper\WinPcapInstallerHelper.def = install\WinPcap Installer Helper\WinPcapInstallerHelper.def
-		install\WinPcap Installer Helper\WinPcapInstallerHelper.h = install\WinPcap Installer Helper\WinPcapInstallerHelper.h
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{400AEDCD-E7E7-470E-AA1B-32C2B9552C7A}"
-	ProjectSection(SolutionItems) = preProject
-		install\WinPcap Installer Helper\test\test.c = install\WinPcap Installer Helper\test\test.c
-		install\WinPcap Installer Helper\test\test.dsp = install\WinPcap Installer Helper\test\test.dsp
-		install\WinPcap Installer Helper\test\test.dsw = install\WinPcap Installer Helper\test\test.dsw
+		..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\final.ini = ..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\final.ini
+		..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\npf.sys = ..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\npf.sys
+		..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\options.ini = ..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\options.ini
+		..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\pthreadVC.dll = ..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\pthreadVC.dll
+		..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\Winpcap.nsi = ..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\Winpcap.nsi
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples-pcap", "Examples-pcap", "{7F3295A3-0E75-4FCC-B4ED-DC0004AA411E}"
@@ -727,15 +648,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Win7Release", "Win7Release"
 		packetWin7\npf6x\npf6x Package\x64\Win7Release\npf6xPackage.Build.CppClean.log = packetWin7\npf6x\npf6x Package\x64\Win7Release\npf6xPackage.Build.CppClean.log
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Win7Debug", "Win7Debug", "{0E1C2839-DBC1-4438-A8D4-F3CC98E2F730}"
-	ProjectSection(SolutionItems) = preProject
-		packetWin7\npf6x\npf6x Package\Win7Debug\inf2catOutput.log = packetWin7\npf6x\npf6x Package\Win7Debug\inf2catOutput.log
-		packetWin7\npf6x\npf6x Package\Win7Debug\npf6x Package.lastbuildstate = packetWin7\npf6x\npf6x Package\Win7Debug\npf6x Package.lastbuildstate
-		packetWin7\npf6x\npf6x Package\Win7Debug\npf6x Package.log = packetWin7\npf6x\npf6x Package\Win7Debug\npf6x Package.log
-		packetWin7\npf6x\npf6x Package\Win7Debug\npf6x Package.vcxprojResolveAssemblyReference.cache = packetWin7\npf6x\npf6x Package\Win7Debug\npf6x Package.vcxprojResolveAssemblyReference.cache
-		packetWin7\npf6x\npf6x Package\Win7Debug\npf6xPackage.Build.CppClean.log = packetWin7\npf6x\npf6x Package\Win7Debug\npf6xPackage.Build.CppClean.log
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Win7Release", "Win7Release", "{81B54E7A-9CEB-4314-802A-40C88C1E4DB1}"
 	ProjectSection(SolutionItems) = preProject
 		packetWin7\npf6x\npf6x Package\Win7Release\inf2cat-expand.5832.read.1.tlog = packetWin7\npf6x\npf6x Package\Win7Release\inf2cat-expand.5832.read.1.tlog
@@ -763,6 +675,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NPF6xInstall", "NPF6xInstal
 		packetWin7\NPF6xInstall\NPF6xInstall\NPF6xInstall.vcproj.akisn0w-pc.Administrator.user = packetWin7\NPF6xInstall\NPF6xInstall\NPF6xInstall.vcproj.akisn0w-pc.Administrator.user
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "x64", "x64", "{1A7169C1-B7CC-4132-BE9C-4BE206105069}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\x64\npf.sys = ..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\x64\npf.sys
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -787,13 +704,6 @@ Global
 		{68A15477-05FF-4204-87CB-1BEDEE0E26D9} = {7AE51527-97D3-4B48-ACC2-A76103FBE270}
 		{88A9862D-B62D-4718-8BDE-59765B8A0B0E} = {7AE51527-97D3-4B48-ACC2-A76103FBE270}
 		{1523E3EC-E189-4C52-B03D-AED28E1B76A0} = {C107C263-5C2B-4F75-994D-8684CD3A1FC2}
-		{EAB8D5FF-6913-4CD2-9B48-7C3995B6703C} = {F4C83876-72A0-41B2-8F13-F04B7D9035C8}
-		{566FE60A-804B-46CF-9C3C-E98AAF681096} = {F4C83876-72A0-41B2-8F13-F04B7D9035C8}
-		{EBDF1833-8235-4B89-BEE6-3C68E883D45E} = {566FE60A-804B-46CF-9C3C-E98AAF681096}
-		{87321258-11E4-49F2-A5E5-AF3DA3C3BD31} = {F4C83876-72A0-41B2-8F13-F04B7D9035C8}
-		{4222E578-DA6A-4E48-80A2-1089CF13D47F} = {F4C83876-72A0-41B2-8F13-F04B7D9035C8}
-		{2C9CBC85-E58C-422E-888D-06B71386EC0D} = {F4C83876-72A0-41B2-8F13-F04B7D9035C8}
-		{400AEDCD-E7E7-470E-AA1B-32C2B9552C7A} = {2C9CBC85-E58C-422E-888D-06B71386EC0D}
 		{16844A4E-A675-410B-9CB7-BD97A67D3D62} = {7F3295A3-0E75-4FCC-B4ED-DC0004AA411E}
 		{750971EC-C840-411C-87C1-BEFE7B6ACD41} = {7F3295A3-0E75-4FCC-B4ED-DC0004AA411E}
 		{93EC9D4D-18EC-4983-86E4-1815866FCA6F} = {7F3295A3-0E75-4FCC-B4ED-DC0004AA411E}
@@ -837,10 +747,10 @@ Global
 		{7209E2AF-3615-4725-B7DD-3D56BFC60376} = {969460BE-1D08-4912-A7E2-17446ED456C0}
 		{72DA7B3D-3FFC-4508-A623-39B61F0B893E} = {7209E2AF-3615-4725-B7DD-3D56BFC60376}
 		{E5FC64B4-BEAF-4A94-9688-EEEA147FA60B} = {7209E2AF-3615-4725-B7DD-3D56BFC60376}
-		{0E1C2839-DBC1-4438-A8D4-F3CC98E2F730} = {969460BE-1D08-4912-A7E2-17446ED456C0}
 		{81B54E7A-9CEB-4314-802A-40C88C1E4DB1} = {969460BE-1D08-4912-A7E2-17446ED456C0}
 		{CAD01A30-E345-4313-9117-EC1C7748C325} = {1F84E634-A65C-4211-BEA0-B62BEBA7A3D6}
 		{75599702-61DF-431B-85B4-A61546EF98C4} = {CAD01A30-E345-4313-9117-EC1C7748C325}
+		{1A7169C1-B7CC-4132-BE9C-4BE206105069} = {F4C83876-72A0-41B2-8F13-F04B7D9035C8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {03057239-B336-4EEB-8C64-EAA9C6C426E9}

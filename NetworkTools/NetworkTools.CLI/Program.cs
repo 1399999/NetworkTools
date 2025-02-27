@@ -4,6 +4,6 @@ public class Program
 {
     static void Main(string[] args)
     {
-        Console.WriteLine("Version 0.1.0");
+        Console.WriteLine("Version 0.1.1");
     }
 }
