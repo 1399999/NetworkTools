@@ -18,158 +18,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionInstall", "Solution
 		version.h = version.h
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wpcap", "wpcap", "{2EE97CF8-F5D3-4714-99D5-1EF954BA120C}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libpcap", "libpcap", "{D48F3707-BB71-4158-A6EF-B3FEC9BBF20C}"
-	ProjectSection(SolutionItems) = preProject
-		wpcap\libpcap\pcap-new.c = wpcap\libpcap\pcap-new.c
-		wpcap\libpcap\pcap-remote.c = wpcap\libpcap\pcap-remote.c
-		wpcap\libpcap\pcap-remote.h = wpcap\libpcap\pcap-remote.h
-		wpcap\libpcap\pcap-tc.c = wpcap\libpcap\pcap-tc.c
-		wpcap\libpcap\pcap-tc.h = wpcap\libpcap\pcap-tc.h
-		wpcap\libpcap\readme-rpcap.txt = wpcap\libpcap\readme-rpcap.txt
-		wpcap\libpcap\remote-ext.h = wpcap\libpcap\remote-ext.h
-		wpcap\libpcap\remote_code.patch = wpcap\libpcap\remote_code.patch
-		wpcap\libpcap\remote_overwritten_files.zip = wpcap\libpcap\remote_overwritten_files.zip
-		wpcap\libpcap\snprintf.patch = wpcap\libpcap\snprintf.patch
-		wpcap\libpcap\sockutils.c = wpcap\libpcap\sockutils.c
-		wpcap\libpcap\sockutils.h = wpcap\libpcap\sockutils.h
-		wpcap\libpcap\tc.patch = wpcap\libpcap\tc.patch
-		wpcap\libpcap\TcApi.h = wpcap\libpcap\TcApi.h
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PRJ", "PRJ", "{90B70A8B-6695-49CA-B693-CD902A44B1E5}"
-	ProjectSection(SolutionItems) = preProject
-		wpcap\PRJ\build_scanner_parser.bat = wpcap\PRJ\build_scanner_parser.bat
-		wpcap\PRJ\GNUmakefile = wpcap\PRJ\GNUmakefile
-		wpcap\PRJ\WPCAP.DEF = wpcap\PRJ\WPCAP.DEF
-		wpcap\PRJ\wpcap.dsp = wpcap\PRJ\wpcap.dsp
-		wpcap\PRJ\WPCAP.dsw = wpcap\PRJ\WPCAP.dsw
-		wpcap\PRJ\wpcap.sln = wpcap\PRJ\wpcap.sln
-		wpcap\PRJ\wpcap.vcxproj = wpcap\PRJ\wpcap.vcxproj
-		wpcap\PRJ\wpcap.vcxproj.filters = wpcap\PRJ\wpcap.vcxproj.filters
-		wpcap\PRJ\Wpcap_no_extensions.def = wpcap\PRJ\Wpcap_no_extensions.def
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Win32-Extensions", "Win32-Extensions", "{0355E8FA-C5AC-4390-9CD5-89A5594E606C}"
-	ProjectSection(SolutionItems) = preProject
-		wpcap\Win32-Extensions\Win32-Extensions.c = wpcap\Win32-Extensions\Win32-Extensions.c
-		wpcap\Win32-Extensions\Win32-Extensions.h = wpcap\Win32-Extensions\Win32-Extensions.h
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rpcapd", "rpcapd", "{4D081182-0E08-4FAA-9F99-309DEA2AF751}"
-	ProjectSection(SolutionItems) = preProject
-		wpcap\libpcap\rpcapd\daemon.c = wpcap\libpcap\rpcapd\daemon.c
-		wpcap\libpcap\rpcapd\daemon.h = wpcap\libpcap\rpcapd\daemon.h
-		wpcap\libpcap\rpcapd\fileconf.c = wpcap\libpcap\rpcapd\fileconf.c
-		wpcap\libpcap\rpcapd\fileconf.h = wpcap\libpcap\rpcapd\fileconf.h
-		wpcap\libpcap\rpcapd\Makefile = wpcap\libpcap\rpcapd\Makefile
-		wpcap\libpcap\rpcapd\resource.h = wpcap\libpcap\rpcapd\resource.h
-		wpcap\libpcap\rpcapd\rpcapd.c = wpcap\libpcap\rpcapd\rpcapd.c
-		wpcap\libpcap\rpcapd\rpcapd.dsp = wpcap\libpcap\rpcapd\rpcapd.dsp
-		wpcap\libpcap\rpcapd\rpcapd.dsw = wpcap\libpcap\rpcapd\rpcapd.dsw
-		wpcap\libpcap\rpcapd\rpcapd.h = wpcap\libpcap\rpcapd\rpcapd.h
-		wpcap\libpcap\rpcapd\rpcapd.vcxproj = wpcap\libpcap\rpcapd\rpcapd.vcxproj
-		wpcap\libpcap\rpcapd\rpcapd.vcxproj.filters = wpcap\libpcap\rpcapd\rpcapd.vcxproj.filters
-		wpcap\libpcap\rpcapd\utils.c = wpcap\libpcap\rpcapd\utils.c
-		wpcap\libpcap\rpcapd\utils.h = wpcap\libpcap\rpcapd\utils.h
-		wpcap\libpcap\rpcapd\win32-svc.c = wpcap\libpcap\rpcapd\win32-svc.c
-		wpcap\libpcap\rpcapd\win32-svc.h = wpcap\libpcap\rpcapd\win32-svc.h
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "win32-pthreads", "win32-pthreads", "{E92C378E-830E-4870-BDAA-BD0C55932D5C}"
-	ProjectSection(SolutionItems) = preProject
-		wpcap\libpcap\rpcapd\win32-pthreads\pthread.h = wpcap\libpcap\rpcapd\win32-pthreads\pthread.h
-		wpcap\libpcap\rpcapd\win32-pthreads\pthreadVC.dll = wpcap\libpcap\rpcapd\win32-pthreads\pthreadVC.dll
-		wpcap\libpcap\rpcapd\win32-pthreads\pthreadVC.lib = wpcap\libpcap\rpcapd\win32-pthreads\pthreadVC.lib
-		wpcap\libpcap\rpcapd\win32-pthreads\sched.h = wpcap\libpcap\rpcapd\win32-pthreads\sched.h
-		wpcap\libpcap\rpcapd\win32-pthreads\semaphore.h = wpcap\libpcap\rpcapd\win32-pthreads\semaphore.h
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{0D184748-84C3-40F5-B1C2-C82BF818CBC2}"
 	ProjectSection(SolutionItems) = preProject
 		tools\win-setup.ps1 = tools\win-setup.ps1
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packetNtx", "packetNtx", "{C107C263-5C2B-4F75-994D-8684CD3A1FC2}"
-	ProjectSection(SolutionItems) = preProject
-		packetNtx\CompileDriver.bat = packetNtx\CompileDriver.bat
-		packetNtx\CompileDriverNew.bat = packetNtx\CompileDriverNew.bat
-		packetNtx\ddkbuild.cmd = packetNtx\ddkbuild.cmd
-		packetNtx\DIRS = packetNtx\DIRS
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dll", "Dll", "{7AE51527-97D3-4B48-ACC2-A76103FBE270}"
-	ProjectSection(SolutionItems) = preProject
-		packetNtx\Dll\AdInfo.c = packetNtx\Dll\AdInfo.c
-		packetNtx\Dll\debug.h = packetNtx\Dll\debug.h
-		packetNtx\Dll\NpfImExt.c = packetNtx\Dll\NpfImExt.c
-		packetNtx\Dll\NpfImExt.h = packetNtx\Dll\NpfImExt.h
-		packetNtx\Dll\Packet.def = packetNtx\Dll\Packet.def
-		packetNtx\Dll\Packet32-Int.h = packetNtx\Dll\Packet32-Int.h
-		packetNtx\Dll\Packet32.c = packetNtx\Dll\Packet32.c
-		packetNtx\Dll\strsafe.h = packetNtx\Dll\strsafe.h
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{68A15477-05FF-4204-87CB-1BEDEE0E26D9}"
-	ProjectSection(SolutionItems) = preProject
-		packetNtx\Dll\Project\GNUmakefile = packetNtx\Dll\Project\GNUmakefile
-		packetNtx\Dll\Project\Packet.dsp = packetNtx\Dll\Project\Packet.dsp
-		packetNtx\Dll\Project\Packet.dsw = packetNtx\Dll\Project\Packet.dsw
-		packetNtx\Dll\Project\Packet.sln = packetNtx\Dll\Project\Packet.sln
-		packetNtx\Dll\Project\Packet.vcxproj = packetNtx\Dll\Project\Packet.vcxproj
-		packetNtx\Dll\Project\Packet.vcxproj.filters = packetNtx\Dll\Project\Packet.vcxproj.filters
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WanPacket", "WanPacket", "{88A9862D-B62D-4718-8BDE-59765B8A0B0E}"
-	ProjectSection(SolutionItems) = preProject
-		packetNtx\Dll\WanPacket\version.rc = packetNtx\Dll\WanPacket\version.rc
-		packetNtx\Dll\WanPacket\version.rc2 = packetNtx\Dll\WanPacket\version.rc2
-		packetNtx\Dll\WanPacket\WanPacket.cpp = packetNtx\Dll\WanPacket\WanPacket.cpp
-		packetNtx\Dll\WanPacket\WanPacket.def = packetNtx\Dll\WanPacket\WanPacket.def
-		packetNtx\Dll\WanPacket\WanPacket.dsp = packetNtx\Dll\WanPacket\WanPacket.dsp
-		packetNtx\Dll\WanPacket\WanPacket.dsw = packetNtx\Dll\WanPacket\WanPacket.dsw
-		packetNtx\Dll\WanPacket\WanPacket.h = packetNtx\Dll\WanPacket\WanPacket.h
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "driver", "driver", "{1523E3EC-E189-4C52-B03D-AED28E1B76A0}"
-	ProjectSection(SolutionItems) = preProject
-		packetNtx\driver\bucket_lookup.c = packetNtx\driver\bucket_lookup.c
-		packetNtx\driver\bucket_lookup.h = packetNtx\driver\bucket_lookup.h
-		packetNtx\driver\count_packets.c = packetNtx\driver\count_packets.c
-		packetNtx\driver\count_packets.h = packetNtx\driver\count_packets.h
-		packetNtx\driver\DEBUG.H = packetNtx\driver\DEBUG.H
-		packetNtx\driver\Driver.vcxproj = packetNtx\driver\Driver.vcxproj
-		packetNtx\driver\Driver.vcxproj.filters = packetNtx\driver\Driver.vcxproj.filters
-		packetNtx\driver\dump.c = packetNtx\driver\dump.c
-		packetNtx\driver\functions.c = packetNtx\driver\functions.c
-		packetNtx\driver\functions.h = packetNtx\driver\functions.h
-		packetNtx\driver\ioctls.h = packetNtx\driver\ioctls.h
-		packetNtx\driver\jitter.c = packetNtx\driver\jitter.c
-		packetNtx\driver\jitter.h = packetNtx\driver\jitter.h
-		packetNtx\driver\MAKEFILE = packetNtx\driver\MAKEFILE
-		packetNtx\driver\memory_t.h = packetNtx\driver\memory_t.h
-		packetNtx\driver\normal_lookup.c = packetNtx\driver\normal_lookup.c
-		packetNtx\driver\normal_lookup.h = packetNtx\driver\normal_lookup.h
-		packetNtx\driver\NPF.RC = packetNtx\driver\NPF.RC
-		packetNtx\driver\Openclos.c = packetNtx\driver\Openclos.c
-		packetNtx\driver\Packet.c = packetNtx\driver\Packet.c
-		packetNtx\driver\Packet.h = packetNtx\driver\Packet.h
-		packetNtx\driver\Read.c = packetNtx\driver\Read.c
-		packetNtx\driver\resource.h = packetNtx\driver\resource.h
-		packetNtx\driver\Sources = packetNtx\driver\Sources
-		packetNtx\driver\tcp_session.c = packetNtx\driver\tcp_session.c
-		packetNtx\driver\tcp_session.h = packetNtx\driver\tcp_session.h
-		packetNtx\driver\time_calls.h = packetNtx\driver\time_calls.h
-		packetNtx\driver\tme.c = packetNtx\driver\tme.c
-		packetNtx\driver\tme.h = packetNtx\driver\tme.h
-		packetNtx\driver\valid_insns.h = packetNtx\driver\valid_insns.h
-		packetNtx\driver\WinPcap NTx Driver_2003.vcproj = packetNtx\driver\WinPcap NTx Driver_2003.vcproj
-		packetNtx\driver\win_bpf.h = packetNtx\driver\win_bpf.h
-		packetNtx\driver\win_bpf_filter.c = packetNtx\driver\win_bpf_filter.c
-		packetNtx\driver\win_bpf_filter_init.c = packetNtx\driver\win_bpf_filter_init.c
-		packetNtx\driver\win_bpf_filter_init.h = packetNtx\driver\win_bpf_filter_init.h
-		packetNtx\driver\Write.c = packetNtx\driver\Write.c
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Installer", "Installer", "{F4C83876-72A0-41B2-8F13-F04B7D9035C8}"
@@ -181,7 +32,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Installer", "Installer", "{
 		..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\Winpcap.nsi = ..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\Winpcap.nsi
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dox", "dox", "{BE06F7BB-158D-457D-813E-5874C4951FFF}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{BE06F7BB-158D-457D-813E-5874C4951FFF}"
 	ProjectSection(SolutionItems) = preProject
 		dox\compile.htm = dox\compile.htm
 		dox\doxygen_groups.txt = dox\doxygen_groups.txt
@@ -249,100 +100,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "incs", "incs", "{C4CD0E12-7
 		dox\libpcap\incs\pcap.h = dox\libpcap\incs\pcap.h
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packetWin7", "packetWin7", "{1F84E634-A65C-4211-BEA0-B62BEBA7A3D6}"
-	ProjectSection(SolutionItems) = preProject
-		packetWin7\version.h = packetWin7\version.h
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dll", "Dll", "{6FF23243-3A38-4573-A808-1487D0FFD70B}"
-	ProjectSection(SolutionItems) = preProject
-		packetWin7\Dll\AdInfo.c = packetWin7\Dll\AdInfo.c
-		packetWin7\Dll\debug.h = packetWin7\Dll\debug.h
-		packetWin7\Dll\netcfgapi.cpp = packetWin7\Dll\netcfgapi.cpp
-		packetWin7\Dll\netcfgapi.h = packetWin7\Dll\netcfgapi.h
-		packetWin7\Dll\NpfImExt.c = packetWin7\Dll\NpfImExt.c
-		packetWin7\Dll\NpfImExt.h = packetWin7\Dll\NpfImExt.h
-		packetWin7\Dll\Packet.def = packetWin7\Dll\Packet.def
-		packetWin7\Dll\Packet32-Int.h = packetWin7\Dll\Packet32-Int.h
-		packetWin7\Dll\Packet32.c = packetWin7\Dll\Packet32.c
-		packetWin7\Dll\ProtInstall.cpp = packetWin7\Dll\ProtInstall.cpp
-		packetWin7\Dll\ProtInstall.h = packetWin7\Dll\ProtInstall.h
-		packetWin7\Dll\strsafe.h = packetWin7\Dll\strsafe.h
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{29449109-B375-4689-919A-505B5EB31A3B}"
-	ProjectSection(SolutionItems) = preProject
-		packetWin7\Dll\Project\GNUmakefile = packetWin7\Dll\Project\GNUmakefile
-		packetWin7\Dll\Project\Packet.dsp = packetWin7\Dll\Project\Packet.dsp
-		packetWin7\Dll\Project\Packet.dsw = packetWin7\Dll\Project\Packet.dsw
-		packetWin7\Dll\Project\Packet.suo = packetWin7\Dll\Project\Packet.suo
-		packetWin7\Dll\Project\Packet.vcproj = packetWin7\Dll\Project\Packet.vcproj
-		packetWin7\Dll\Project\Packet.vcproj.akisn0w-pc.Administrator.user = packetWin7\Dll\Project\Packet.vcproj.akisn0w-pc.Administrator.user
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WanPacket", "WanPacket", "{E6B04DDA-1A81-4193-99DC-3FE1154B03BB}"
-	ProjectSection(SolutionItems) = preProject
-		packetWin7\Dll\WanPacket\WanPacket.cpp = packetWin7\Dll\WanPacket\WanPacket.cpp
-		packetWin7\Dll\WanPacket\WanPacket.def = packetWin7\Dll\WanPacket\WanPacket.def
-		packetWin7\Dll\WanPacket\WanPacket.dsp = packetWin7\Dll\WanPacket\WanPacket.dsp
-		packetWin7\Dll\WanPacket\WanPacket.dsw = packetWin7\Dll\WanPacket\WanPacket.dsw
-		packetWin7\Dll\WanPacket\WanPacket.h = packetWin7\Dll\WanPacket\WanPacket.h
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "npf6x", "npf6x", "{259F5C62-7766-4C11-B0B9-9A94C351021C}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "npf6x", "npf6x", "{8FA137AB-4367-4A8D-8C84-2102D6CBD7F5}"
-	ProjectSection(SolutionItems) = preProject
-		packetWin7\npf6x\npf6x\bucket_lookup.c = packetWin7\npf6x\npf6x\bucket_lookup.c
-		packetWin7\npf6x\npf6x\bucket_lookup.h = packetWin7\npf6x\npf6x\bucket_lookup.h
-		packetWin7\npf6x\npf6x\count_packets.c = packetWin7\npf6x\npf6x\count_packets.c
-		packetWin7\npf6x\npf6x\count_packets.h = packetWin7\npf6x\npf6x\count_packets.h
-		packetWin7\npf6x\npf6x\DEBUG.H = packetWin7\npf6x\npf6x\DEBUG.H
-		packetWin7\npf6x\npf6x\dump.c = packetWin7\npf6x\npf6x\dump.c
-		packetWin7\npf6x\npf6x\functions.c = packetWin7\npf6x\npf6x\functions.c
-		packetWin7\npf6x\npf6x\functions.h = packetWin7\npf6x\npf6x\functions.h
-		packetWin7\npf6x\npf6x\ioctls.h = packetWin7\npf6x\npf6x\ioctls.h
-		packetWin7\npf6x\npf6x\jitter.c = packetWin7\npf6x\npf6x\jitter.c
-		packetWin7\npf6x\npf6x\jitter.h = packetWin7\npf6x\npf6x\jitter.h
-		packetWin7\npf6x\npf6x\macros.h = packetWin7\npf6x\npf6x\macros.h
-		packetWin7\npf6x\npf6x\memory_t.h = packetWin7\npf6x\npf6x\memory_t.h
-		packetWin7\npf6x\npf6x\normal_lookup.c = packetWin7\npf6x\npf6x\normal_lookup.c
-		packetWin7\npf6x\npf6x\normal_lookup.h = packetWin7\npf6x\npf6x\normal_lookup.h
-		packetWin7\npf6x\npf6x\npf6x.inf = packetWin7\npf6x\npf6x\npf6x.inf
-		packetWin7\npf6x\npf6x\npf6x.vcxproj = packetWin7\npf6x\npf6x\npf6x.vcxproj
-		packetWin7\npf6x\npf6x\npf6x.vcxproj.filters = packetWin7\npf6x\npf6x\npf6x.vcxproj.filters
-		packetWin7\npf6x\npf6x\npf6x.vcxproj.user = packetWin7\npf6x\npf6x\npf6x.vcxproj.user
-		packetWin7\npf6x\npf6x\Openclos.c = packetWin7\npf6x\npf6x\Openclos.c
-		packetWin7\npf6x\npf6x\Packet.c = packetWin7\npf6x\npf6x\Packet.c
-		packetWin7\npf6x\npf6x\Packet.h = packetWin7\npf6x\npf6x\Packet.h
-		packetWin7\npf6x\npf6x\Read.c = packetWin7\npf6x\npf6x\Read.c
-		packetWin7\npf6x\npf6x\resource.h = packetWin7\npf6x\npf6x\resource.h
-		packetWin7\npf6x\npf6x\stdafx.h = packetWin7\npf6x\npf6x\stdafx.h
-		packetWin7\npf6x\npf6x\tcp_session.c = packetWin7\npf6x\npf6x\tcp_session.c
-		packetWin7\npf6x\npf6x\tcp_session.h = packetWin7\npf6x\npf6x\tcp_session.h
-		packetWin7\npf6x\npf6x\time_calls.h = packetWin7\npf6x\npf6x\time_calls.h
-		packetWin7\npf6x\npf6x\tme.c = packetWin7\npf6x\npf6x\tme.c
-		packetWin7\npf6x\npf6x\tme.h = packetWin7\npf6x\npf6x\tme.h
-		packetWin7\npf6x\npf6x\valid_insns.h = packetWin7\npf6x\npf6x\valid_insns.h
-		packetWin7\npf6x\npf6x\win_bpf.h = packetWin7\npf6x\npf6x\win_bpf.h
-		packetWin7\npf6x\npf6x\win_bpf_filter.c = packetWin7\npf6x\npf6x\win_bpf_filter.c
-		packetWin7\npf6x\npf6x\win_bpf_filter_init.c = packetWin7\npf6x\npf6x\win_bpf_filter_init.c
-		packetWin7\npf6x\npf6x\win_bpf_filter_init.h = packetWin7\npf6x\npf6x\win_bpf_filter_init.h
-		packetWin7\npf6x\npf6x\Write.c = packetWin7\npf6x\npf6x\Write.c
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NPF6xInstall", "NPF6xInstall", "{CAD01A30-E345-4313-9117-EC1C7748C325}"
-	ProjectSection(SolutionItems) = preProject
-		packetWin7\NPF6xInstall\NPF6xInstall.suo = packetWin7\NPF6xInstall\NPF6xInstall.suo
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NPF6xInstall", "NPF6xInstall", "{75599702-61DF-431B-85B4-A61546EF98C4}"
-	ProjectSection(SolutionItems) = preProject
-		packetWin7\NPF6xInstall\NPF6xInstall\NPF6xInstall.c = packetWin7\NPF6xInstall\NPF6xInstall\NPF6xInstall.c
-		packetWin7\NPF6xInstall\NPF6xInstall\NPF6xInstall.vcproj = packetWin7\NPF6xInstall\NPF6xInstall\NPF6xInstall.vcproj
-		packetWin7\NPF6xInstall\NPF6xInstall\NPF6xInstall.vcproj.akisn0w-pc.Administrator.user = packetWin7\NPF6xInstall\NPF6xInstall\NPF6xInstall.vcproj.akisn0w-pc.Administrator.user
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "x64", "x64", "{1A7169C1-B7CC-4132-BE9C-4BE206105069}"
 	ProjectSection(SolutionItems) = preProject
 		..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\x64\npf.sys = ..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\x64\npf.sys
@@ -351,6 +108,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkTools.Common", "NetworkTools.Common\NetworkTools.Common.vcxproj", "{9726FCEA-BA8E-465A-9E08-41EABB1BA212}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkTools.Examples", "NetworkTools.Examples\NetworkTools.Examples.vcxproj", "{AB714239-007B-438B-BF03-8D83EE3690B0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkTools.PacketWin7", "NetworkTools.PacketWin7\NetworkTools.PacketWin7.vcxproj", "{2134E8ED-33FD-4197-9AA0-2CDCD3685ACA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkTools.WPCap", "NetworkTools.WPCap\NetworkTools.WPCap.vcxproj", "{25022B33-459B-4156-A309-ABE1E5F164AC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -370,33 +131,25 @@ Global
 		{AB714239-007B-438B-BF03-8D83EE3690B0}.Debug|Any CPU.Build.0 = Debug|x64
 		{AB714239-007B-438B-BF03-8D83EE3690B0}.Release|Any CPU.ActiveCfg = Release|x64
 		{AB714239-007B-438B-BF03-8D83EE3690B0}.Release|Any CPU.Build.0 = Release|x64
+		{2134E8ED-33FD-4197-9AA0-2CDCD3685ACA}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{2134E8ED-33FD-4197-9AA0-2CDCD3685ACA}.Debug|Any CPU.Build.0 = Debug|x64
+		{2134E8ED-33FD-4197-9AA0-2CDCD3685ACA}.Release|Any CPU.ActiveCfg = Release|x64
+		{2134E8ED-33FD-4197-9AA0-2CDCD3685ACA}.Release|Any CPU.Build.0 = Release|x64
+		{25022B33-459B-4156-A309-ABE1E5F164AC}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{25022B33-459B-4156-A309-ABE1E5F164AC}.Debug|Any CPU.Build.0 = Debug|x64
+		{25022B33-459B-4156-A309-ABE1E5F164AC}.Release|Any CPU.ActiveCfg = Release|x64
+		{25022B33-459B-4156-A309-ABE1E5F164AC}.Release|Any CPU.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{D48F3707-BB71-4158-A6EF-B3FEC9BBF20C} = {2EE97CF8-F5D3-4714-99D5-1EF954BA120C}
-		{90B70A8B-6695-49CA-B693-CD902A44B1E5} = {2EE97CF8-F5D3-4714-99D5-1EF954BA120C}
-		{0355E8FA-C5AC-4390-9CD5-89A5594E606C} = {2EE97CF8-F5D3-4714-99D5-1EF954BA120C}
-		{4D081182-0E08-4FAA-9F99-309DEA2AF751} = {D48F3707-BB71-4158-A6EF-B3FEC9BBF20C}
-		{E92C378E-830E-4870-BDAA-BD0C55932D5C} = {4D081182-0E08-4FAA-9F99-309DEA2AF751}
 		{0D184748-84C3-40F5-B1C2-C82BF818CBC2} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
-		{7AE51527-97D3-4B48-ACC2-A76103FBE270} = {C107C263-5C2B-4F75-994D-8684CD3A1FC2}
-		{68A15477-05FF-4204-87CB-1BEDEE0E26D9} = {7AE51527-97D3-4B48-ACC2-A76103FBE270}
-		{88A9862D-B62D-4718-8BDE-59765B8A0B0E} = {7AE51527-97D3-4B48-ACC2-A76103FBE270}
-		{1523E3EC-E189-4C52-B03D-AED28E1B76A0} = {C107C263-5C2B-4F75-994D-8684CD3A1FC2}
 		{144BB91E-0553-46C7-8807-5D9831F07D0F} = {BE06F7BB-158D-457D-813E-5874C4951FFF}
 		{1C8E5EF0-BC0F-4927-A01B-69A042DDBCFF} = {144BB91E-0553-46C7-8807-5D9831F07D0F}
 		{EC2FD1CA-F24D-4EEB-AC19-C304A2ECDD31} = {BE06F7BB-158D-457D-813E-5874C4951FFF}
 		{791E57A1-DFD2-4994-B9C8-911F64688EB6} = {BE06F7BB-158D-457D-813E-5874C4951FFF}
 		{C4CD0E12-7007-45FF-9D0D-74B277267C7D} = {144BB91E-0553-46C7-8807-5D9831F07D0F}
-		{6FF23243-3A38-4573-A808-1487D0FFD70B} = {1F84E634-A65C-4211-BEA0-B62BEBA7A3D6}
-		{29449109-B375-4689-919A-505B5EB31A3B} = {6FF23243-3A38-4573-A808-1487D0FFD70B}
-		{E6B04DDA-1A81-4193-99DC-3FE1154B03BB} = {6FF23243-3A38-4573-A808-1487D0FFD70B}
-		{259F5C62-7766-4C11-B0B9-9A94C351021C} = {1F84E634-A65C-4211-BEA0-B62BEBA7A3D6}
-		{8FA137AB-4367-4A8D-8C84-2102D6CBD7F5} = {259F5C62-7766-4C11-B0B9-9A94C351021C}
-		{CAD01A30-E345-4313-9117-EC1C7748C325} = {1F84E634-A65C-4211-BEA0-B62BEBA7A3D6}
-		{75599702-61DF-431B-85B4-A61546EF98C4} = {CAD01A30-E345-4313-9117-EC1C7748C325}
 		{1A7169C1-B7CC-4132-BE9C-4BE206105069} = {F4C83876-72A0-41B2-8F13-F04B7D9035C8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="NPF6xInstall\NPF6xInstall.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6x\count_packets.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6x\dump.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6x\functions.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6x\jitter.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6x\normal_lookup.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6x\Openclos.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6x\Packet.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6x\Read.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6x\tcp_session.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6x\tme.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6x\win_bpf_filter.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6x\win_bpf_filter_init.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6x\Write.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="NPF6x\bucket_lookup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6x\count_packets.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6x\DEBUG.H">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6x\functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6x\ioctls.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6x\jitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6x\macros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6x\memory_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6x\normal_lookup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6x\Packet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6x\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6x\stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6x\tcp_session.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6x\time_calls.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6x\tme.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6x\valid_insns.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6x\win_bpf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6x\win_bpf_filter_init.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -32,3 +32,10 @@ Converts large parts of the project to VS-recognized projects. (None of the code
 # Version 0.1.2.1 [27 February 2025]
 
 Continues to remove old code, finishes with the examples folder (Still does not run).
+
+# Version 0.1.2.2 [27 February 2025]
+
+Finishes the first major refactoring of the code.
+Gets rid of support for Windows XP and Vista by deleting the folder "PacketNtx".
+Finishes standardizing the names of all folders, as well as deleting old unneeded code.
+Code still does not work, however.
