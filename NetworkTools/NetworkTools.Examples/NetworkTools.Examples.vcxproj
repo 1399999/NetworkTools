@@ -129,12 +129,12 @@
   <ItemGroup>
     <ClCompile Include="IfList.c" />
     <ClCompile Include="KDump.c" />
-    <ClCompile Include="misc\basic_dump.c" />
-    <ClCompile Include="misc\basic_dump_ex.c" />
-    <ClCompile Include="misc\readfile.c" />
-    <ClCompile Include="misc\readfile_ex.c" />
-    <ClCompile Include="misc\savedump.c" />
-    <ClCompile Include="misc\sendpack.c" />
+    <ClCompile Include="Misc\BasicDump.c" />
+    <ClCompile Include="Misc\BasicDumpEx.c" />
+    <ClCompile Include="Misc\ReadFile.c" />
+    <ClCompile Include="Misc\ReadFileEx.c" />
+    <ClCompile Include="Misc\SaveDump.c" />
+    <ClCompile Include="Misc\SendPack.c" />
     <ClCompile Include="NETMETER\CaptureThread.cpp" />
     <ClCompile Include="NETMETER\LineColl.cpp" />
     <ClCompile Include="NETMETER\MainFrm.cpp" />

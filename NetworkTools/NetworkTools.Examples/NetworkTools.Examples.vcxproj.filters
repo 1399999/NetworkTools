@@ -87,22 +87,22 @@
     <ClCompile Include="NETMETER\StdAfx.cpp">
       <Filter>NetMeter</Filter>
     </ClCompile>
-    <ClCompile Include="misc\basic_dump.c">
+    <ClCompile Include="Misc\BasicDump.c">
       <Filter>Misc</Filter>
     </ClCompile>
-    <ClCompile Include="misc\basic_dump_ex.c">
+    <ClCompile Include="Misc\BasicDumpEx.c">
       <Filter>Misc</Filter>
     </ClCompile>
-    <ClCompile Include="misc\readfile.c">
+    <ClCompile Include="Misc\ReadFile.c">
       <Filter>Misc</Filter>
     </ClCompile>
-    <ClCompile Include="misc\readfile_ex.c">
+    <ClCompile Include="Misc\ReadFileEx.c">
       <Filter>Misc</Filter>
     </ClCompile>
-    <ClCompile Include="misc\savedump.c">
+    <ClCompile Include="Misc\SaveDump.c">
       <Filter>Misc</Filter>
     </ClCompile>
-    <ClCompile Include="misc\sendpack.c">
+    <ClCompile Include="Misc\SendPack.c">
       <Filter>Misc</Filter>
     </ClCompile>
   </ItemGroup>

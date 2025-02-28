@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -44,68 +44,67 @@
 void usage();
 
 
-void main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-pcap_t *fp;
-char errbuf[PCAP_ERRBUF_SIZE];
-char *source=NULL;
-char *ofilename=NULL;
-char *filter=NULL;
-int i;
-pcap_dumper_t *dumpfile;
-struct bpf_program fcode;
-bpf_u_int32 NetMask;
-int res;
-struct pcap_pkthdr *header;
-const u_char *pkt_data;
+	pcap_t* fp;
+	char errbuf[PCAP_ERRBUF_SIZE];
+	char* source = NULL;
+	char* ofilename = NULL;
+	char* filter = NULL;
+	int i;
+	pcap_dumper_t* dumpfile;
+	struct bpf_program fcode;
+	bpf_u_int32 NetMask;
+	int res;
+	struct pcap_pkthdr* header;
+	const u_char* pkt_data;
 
 	if (argc == 1)
 	{
 		usage();
-		return;
+		return -1;
 	}
 
-	for(i=1;i < argc; i+= 2)
+	/* Parse parameters */
+	for (i = 1; i < argc; i += 2)
 	{
-
-		switch (argv[i] [1])
+		switch (argv[i][1])
 		{
-			case 's':
-			{
-				source=argv[i+1];
-			};
-			break;
+		case 's':
+		{
+			source = argv[i + 1];
+		};
+		break;
 
-			case 'o':
-			{
-				ofilename=argv[i+1];
-			};
-			break;
+		case 'o':
+		{
+			ofilename = argv[i + 1];
+		};
+		break;
 
-			case 'f':
-			{
-				filter=argv[i+1];
-			};
-			break;
+		case 'f':
+		{
+			filter = argv[i + 1];
+		};
+		break;
 		}
 	}
 
 	// open a capture from the network
 	if (source != NULL)
 	{
-		if ( (fp= pcap_open(source,
-							1514 /*snaplen*/,
-							PCAP_OPENFLAG_PROMISCUOUS /*flags*/,
-							20 /*read timeout*/,
-							NULL /* remote authentication */,
-							errbuf)
-							) == NULL)
+		if ((fp = pcap_open_live(source,		// name of the device
+			65536,								// portion of the packet to capture. 
+			// 65536 grants that the whole packet will be captured on all the MACs.
+			1,									// promiscuous mode (nonzero means promiscuous)
+			1000,								// read timeout
+			errbuf								// error buffer
+		)) == NULL)
 		{
-			fprintf(stderr,"\nUnable to open the adapter.\n");
-			return;
+			fprintf(stderr, "\nUnable to open the adapter.\n");
+			return -2;
 		}
 	}
-
 	else usage();
 
 	if (filter != NULL)
@@ -114,20 +113,24 @@ const u_char *pkt_data;
 		// in order to locate the correct one.
 		//
 		// Let's do things simpler: we suppose to be in a C class network ;-)
-		NetMask=0xffffff;
+		NetMask = 0xffffff;
 
 		//compile the filter
-		if(pcap_compile(fp, &fcode, filter, 1, NetMask) < 0)
+		if (pcap_compile(fp, &fcode, filter, 1, NetMask) < 0)
 		{
-			fprintf(stderr,"\nError compiling filter: wrong syntax.\n");
-			return;
+			fprintf(stderr, "\nError compiling filter: wrong syntax.\n");
+
+			pcap_close(fp);
+			return -3;
 		}
 
 		//set the filter
-		if(pcap_setfilter(fp, &fcode)<0)
+		if (pcap_setfilter(fp, &fcode) < 0)
 		{
-			fprintf(stderr,"\nError setting the filter\n");
-			return;
+			fprintf(stderr, "\nError setting the filter\n");
+
+			pcap_close(fp);
+			return -4;
 		}
 
 	}
@@ -135,28 +138,35 @@ const u_char *pkt_data;
 	//open the dump file
 	if (ofilename != NULL)
 	{
-		dumpfile= pcap_dump_open(fp, ofilename);
+		dumpfile = pcap_dump_open(fp, ofilename);
 
 		if (dumpfile == NULL)
 		{
-			fprintf(stderr,"\nError opening output file\n");
-			return;
+			fprintf(stderr, "\nError opening output file\n");
+
+			pcap_close(fp);
+			return -5;
 		}
 	}
 	else usage();
 
 	//start the capture
- 	while((res = pcap_next_ex( fp, &header, &pkt_data)) >= 0)
+	while ((res = pcap_next_ex(fp, &header, &pkt_data)) >= 0)
 	{
 
-		if(res == 0)
-		/* Timeout elapsed */
-		continue;
+		if (res == 0)
+			/* Timeout elapsed */
+			continue;
 
 		//save the packet on the dump file
-		pcap_dump((unsigned char *) dumpfile, header, pkt_data);
+		pcap_dump((unsigned char*)dumpfile, header, pkt_data);
 
 	}
+
+	pcap_close(fp);
+	pcap_dump_close(dumpfile);
+
+	return 0;
 }
 
 
