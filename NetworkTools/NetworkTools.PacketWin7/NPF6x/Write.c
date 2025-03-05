@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -39,11 +39,13 @@
 #include "debug.h"
 #include "packet.h"
 
-//-------------------------------------------------------------------
+ //-------------------------------------------------------------------
 
 NTSTATUS NPF_Write(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 {
 	POPEN_INSTANCE Open;
+	POPEN_INSTANCE		GroupOpen;
+	POPEN_INSTANCE		TempOpen;
 	PIO_STACK_LOCATION IrpSp;
 	ULONG SendFlags = 0;
 	PNET_BUFFER_LIST pNetBufferList;
@@ -122,7 +124,7 @@ NTSTATUS NPF_Write(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 
 		TRACE_EXIT();
 		return STATUS_INVALID_DEVICE_REQUEST;
-	} 
+	}
 
 	NdisAcquireSpinLock(&Open->WriteLock);
 	if (Open->WriteInProgress)
@@ -178,10 +180,10 @@ NTSTATUS NPF_Write(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 			// Currently, the only situation in which we set the flags is to disable the reception of loopback
 			// packets, i.e. of the packets sent by us.
 			//
-			if (Open->SkipSentPackets)
-			{
-				NPF6XSetNBLFlags(pNetBufferList, g_SendPacketFlags);
-			}
+			//if (Open->SkipSentPackets)
+			//{
+			//	NPF6XSetNBLFlags(pNetBufferList, g_SendPacketFlags);
+			//}
 
 
 			// The packet hasn't a buffer that needs not to be freed after every single write
@@ -200,20 +202,33 @@ NTSTATUS NPF_Write(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 			//
 			//  Call the MAC
 			//
-
 			ASSERT(Open->GroupHead != NULL);
+			if (Open->GroupHead != NULL)
+			{
+				GroupOpen = Open->GroupHead->GroupNext;
+			}
+			else
+			{
+				GroupOpen = Open->GroupNext;
+			}
+
+			while (GroupOpen != NULL)
+			{
+				TempOpen = GroupOpen;
+				if (TempOpen->AdapterBindingStatus == ADAPTER_BOUND)
+				{
+					NPF_tapExForEachOpen(TempOpen, pNetBufferList);
+				}
+
+				GroupOpen = TempOpen->GroupNext;
+			}
+
 			pNetBufferList->SourceHandle = Open->AdapterHandle;
 			NPF6XSetNBLChildOpen(pNetBufferList, Open);
+			//SendFlags |= NDIS_SEND_FLAGS_CHECK_FOR_LOOPBACK;
+			NdisFSendNetBufferLists(Open->AdapterHandle, pNetBufferList, NDIS_DEFAULT_PORT_NUMBER, SendFlags);
 
-			SendFlags |= NDIS_SEND_FLAGS_CHECK_FOR_LOOPBACK;
-
-			NdisSendNetBufferLists(Open->AdapterHandle, pNetBufferList, NDIS_DEFAULT_PORT_NUMBER, SendFlags);
-			//Status = NDIS_STATUS_SUCCESS;
-
-			//  The send didn't pend so call the completion handler now
-			//NPF_SendCompleteEx(Open, pNetBufferList, Status);
-
-			numSentPackets ++;
+			numSentPackets++;
 		}
 		else
 		{
@@ -264,6 +279,8 @@ NTSTATUS NPF_Write(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 INT NPF_BufferedWrite(IN PIRP Irp, IN PCHAR UserBuff, IN ULONG UserBuffSize, BOOLEAN Sync)
 {
 	POPEN_INSTANCE Open;
+	POPEN_INSTANCE		GroupOpen;
+	POPEN_INSTANCE		TempOpen;
 	PIO_STACK_LOCATION IrpSp;
 	//PNDIS_PACKET		pPacket;
 	PNET_BUFFER_LIST pNetBufferList;
@@ -281,19 +298,20 @@ INT NPF_BufferedWrite(IN PIRP Irp, IN PCHAR UserBuff, IN ULONG UserBuffSize, BOO
 	//	PCHAR				EndOfUserBuff = UserBuff + UserBuffSize;
 	INT result;
 
-	//return 0; //aki
+	TRACE_ENTER();
 
 	IF_LOUD(DbgPrint("NPF: BufferedWrite, UserBuff=%p, Size=%u\n", UserBuff, UserBuffSize);)
 
-	IrpSp = IoGetCurrentIrpStackLocation(Irp);
+		IrpSp = IoGetCurrentIrpStackLocation(Irp);
 
-	Open = (POPEN_INSTANCE) IrpSp->FileObject->FsContext;
+	Open = (POPEN_INSTANCE)IrpSp->FileObject->FsContext;
 
 	if (NPF_StartUsingBinding(Open) == FALSE)
 	{
 		// The Network adapter was removed. 
+		TRACE_EXIT();
 		return 0;
-	} 
+	}
 
 	// Sanity check on the user buffer
 	if (UserBuff == NULL)
@@ -302,7 +320,7 @@ INT NPF_BufferedWrite(IN PIRP Irp, IN PCHAR UserBuff, IN ULONG UserBuffSize, BOO
 		// release ownership of the NdisAdapter binding
 		//
 		NPF_StopUsingBinding(Open);
-
+		TRACE_EXIT();
 		return 0;
 	}
 
@@ -311,10 +329,11 @@ INT NPF_BufferedWrite(IN PIRP Irp, IN PCHAR UserBuff, IN ULONG UserBuffSize, BOO
 	{
 		IF_LOUD(DbgPrint("BufferedWrite: Open->MaxFrameSize not initialized, probably because of a problem in the OID query\n");)
 
-		// 
-		// release ownership of the NdisAdapter binding
-		//
-		NPF_StopUsingBinding(Open);
+			// 
+			// release ownership of the NdisAdapter binding
+			//
+			NPF_StopUsingBinding(Open);
+		TRACE_EXIT();
 		return 0;
 	}
 
@@ -346,18 +365,18 @@ INT NPF_BufferedWrite(IN PIRP Irp, IN PCHAR UserBuff, IN ULONG UserBuffSize, BOO
 			// Malformed header
 			IF_LOUD(DbgPrint("NPF_BufferedWrite: malformed or bogus user buffer, aborting write.\n");)
 
-			result = -1;
+				result = -1;
 			break;
 		}
 
-		pWinpcapHdr = (struct sf_pkthdr *)(UserBuff + Pos);
+		pWinpcapHdr = (struct sf_pkthdr*)(UserBuff + Pos);
 
 		if (pWinpcapHdr->caplen == 0 || pWinpcapHdr->caplen > Open->MaxFrameSize)
 		{
 			// Malformed header
 			IF_LOUD(DbgPrint("NPF_BufferedWrite: malformed or bogus user buffer, aborting write.\n");)
 
-			result = -1;
+				result = -1;
 			break;
 		}
 
@@ -378,7 +397,7 @@ INT NPF_BufferedWrite(IN PIRP Irp, IN PCHAR UserBuff, IN ULONG UserBuffSize, BOO
 			//
 			IF_LOUD(DbgPrint("NPF_BufferedWrite: malformed or bogus user buffer, aborting write.\n");)
 
-			result = -1;
+				result = -1;
 			break;
 		}
 
@@ -390,7 +409,7 @@ INT NPF_BufferedWrite(IN PIRP Irp, IN PCHAR UserBuff, IN ULONG UserBuffSize, BOO
 			// Unable to map the memory: packet lost
 			IF_LOUD(DbgPrint("NPF_BufferedWrite: unable to allocate the MDL.\n");)
 
-			result = -1;
+				result = -1;
 			break;
 		}
 
@@ -412,9 +431,9 @@ INT NPF_BufferedWrite(IN PIRP Irp, IN PCHAR UserBuff, IN ULONG UserBuffSize, BOO
 			//  No more free packets
 			IF_LOUD(DbgPrint("NPF_BufferedWrite: no more free packets, returning.\n");)
 
-			NdisResetEvent(&Open->WriteEvent);
+				NdisResetEvent(&Open->WriteEvent);
 
-			NdisWaitEvent(&Open->WriteEvent, 1000);  
+			NdisWaitEvent(&Open->WriteEvent, 1000);
 
 			// Try again to allocate a packet
 			pNetBufferList = NdisAllocateNetBufferAndNetBufferList(
@@ -438,37 +457,48 @@ INT NPF_BufferedWrite(IN PIRP Irp, IN PCHAR UserBuff, IN ULONG UserBuffSize, BOO
 		// If asked, set the flags for this packet.
 		// Currently, the only situation in which we set the flags is to disable the reception of loopback
 		// packets, i.e. of the packets sent by us.
-		if (Open->SkipSentPackets)
-		{
-			NPF6XSetNBLFlags(pNetBufferList, g_SendPacketFlags);
-		}
+		//if (Open->SkipSentPackets)
+		//{
+		//	NPF6XSetNBLFlags(pNetBufferList, g_SendPacketFlags);
+		//}
 
 		// The packet has a buffer that needs to be freed after every single write
 		RESERVED(pNetBufferList)->FreeBufAfterWrite = TRUE;
 
 		TmpMdl->Next = NULL;
 
-		// Attach the MDL to the packet
-		//NdisChainBufferAtFront(pPacket, TmpMdl);
-
 		// Increment the number of pending sends
 		InterlockedIncrement(&Open->Multiple_Write_Counter);
 
+		//
+		// Call the MAC
+		//
 		ASSERT(Open->GroupHead != NULL);
+		if (Open->GroupHead != NULL)
+		{
+			GroupOpen = Open->GroupHead->GroupNext;
+		}
+		else
+		{
+			GroupOpen = Open->GroupNext;
+		}
+
+		GroupOpen = Open->GroupNext;
+		while (GroupOpen != NULL)
+		{
+			TempOpen = GroupOpen;
+			if (TempOpen->AdapterBindingStatus == ADAPTER_BOUND)
+			{
+				NPF_tapExForEachOpen(TempOpen, pNetBufferList);
+			}
+
+			GroupOpen = TempOpen->GroupNext;
+		}
+
 		pNetBufferList->SourceHandle = Open->AdapterHandle;
 		NPF6XSetNBLChildOpen(pNetBufferList, Open);
-
-		// Call the MAC
-		SendFlags |= NDIS_SEND_FLAGS_CHECK_FOR_LOOPBACK;
-
-		NdisSendNetBufferLists(Open->AdapterHandle, pNetBufferList, NDIS_DEFAULT_PORT_NUMBER, SendFlags);
-// 		Status = NDIS_STATUS_SUCCESS;
-// 
-// 		if (Status != NDIS_STATUS_PENDING)
-// 		{
-// 			// The send didn't pend so call the completion handler now
-// 			NPF_SendCompleteEx(Open, pNetBufferList, Status);
-// 		}
+		//SendFlags |= NDIS_SEND_FLAGS_CHECK_FOR_LOOPBACK;
+		NdisFSendNetBufferLists(Open->AdapterHandle, pNetBufferList, NDIS_DEFAULT_PORT_NUMBER, SendFlags);
 
 		if (Sync)
 		{
@@ -483,18 +513,18 @@ INT NPF_BufferedWrite(IN PIRP Irp, IN PCHAR UserBuff, IN ULONG UserBuffSize, BOO
 				// Malformed header
 				IF_LOUD(DbgPrint("NPF_BufferedWrite: malformed or bogus user buffer, aborting write.\n");)
 
-				result = -1;
+					result = -1;
 				break;
 			}
 
-			pWinpcapHdr = (struct sf_pkthdr *)(UserBuff + Pos);
+			pWinpcapHdr = (struct sf_pkthdr*)(UserBuff + Pos);
 
 			if (pWinpcapHdr->caplen == 0 || pWinpcapHdr->caplen > Open->MaxFrameSize || pWinpcapHdr->caplen > (UserBuffSize - Pos - sizeof(*pWinpcapHdr)))
 			{
 				// Malformed header
 				IF_LOUD(DbgPrint("NPF_BufferedWrite: malformed or bogus user buffer, aborting write.\n");)
 
-				result = -1;
+					result = -1;
 				break;
 			}
 
@@ -503,7 +533,7 @@ INT NPF_BufferedWrite(IN PIRP Irp, IN PCHAR UserBuff, IN ULONG UserBuffSize, BOO
 			{
 				IF_LOUD(DbgPrint("NPF_BufferedWrite: timestamp elapsed, returning.\n");)
 
-				result = Pos;
+					result = Pos;
 				break;
 			}
 
@@ -524,6 +554,7 @@ INT NPF_BufferedWrite(IN PIRP Irp, IN PCHAR UserBuff, IN ULONG UserBuffSize, BOO
 	//
 	NPF_StopUsingBinding(Open);
 
+	TRACE_EXIT();
 	return result;
 }
 
@@ -532,92 +563,200 @@ INT NPF_BufferedWrite(IN PIRP Irp, IN PCHAR UserBuff, IN ULONG UserBuffSize, BOO
 VOID NPF_WaitEndOfBufferedWrite(POPEN_INSTANCE Open)
 {
 	UINT i;
+	TRACE_ENTER();
 
 	NdisResetEvent(&Open->WriteEvent);
 
 	for (i = 0; Open->Multiple_Write_Counter > 0 && i < TRANSMIT_PACKETS; i++)
 	{
-		NdisWaitEvent(&Open->WriteEvent, 100);  
+		NdisWaitEvent(&Open->WriteEvent, 100);
 		NdisResetEvent(&Open->WriteEvent);
 	}
 
-	return;
+	TRACE_EXIT();
 }
 
-VOID NPF_SendCompleteEx(IN NDIS_HANDLE   ProtocolBindingContext, IN PNET_BUFFER_LIST pNetBufferList, IN ULONG SendCompleteFlags)
+_Use_decl_annotations_
+VOID
+NPF_SendCompleteEx(
+	NDIS_HANDLE         FilterModuleContext,
+	PNET_BUFFER_LIST    NetBufferLists,
+	ULONG               SendCompleteFlags
+)
+/*++
+
+Routine Description:
+
+	Send complete handler
+
+	This routine is invoked whenever the lower layer is finished processing
+	sent NET_BUFFER_LISTs.  If the filter does not need to be involved in the
+	send path, you should remove this routine and the FilterSendNetBufferLists
+	routine.  NDIS will pass along send packets on behalf of your filter more
+	efficiently than the filter can.
+
+Arguments:
+
+	FilterModuleContext     - our filter context
+	NetBufferLists          - a chain of NBLs that are being returned to you
+	SendCompleteFlags       - flags (see documentation)
+
+Return Value:
+
+	 NONE
+
+--*/
 {
-	POPEN_INSTANCE		Open;
 	POPEN_INSTANCE		ChildOpen;
 	POPEN_INSTANCE		GroupOpen;
 	POPEN_INSTANCE		TempOpen;
 	BOOLEAN				FreeBufAfterWrite;
 
-	PNET_BUFFER_LIST    CurrNbl,nextNbl= NULL;
+	PNET_BUFFER_LIST    pNetBufList;
+	PNET_BUFFER_LIST    pNextNetBufList;
+	PNET_BUFFER_LIST    CurrNbl, nextNbl = NULL;
 	PNET_BUFFER         Currbuff;
 	PMDL                pMdl;
+	int					Count = 0;
+
+	POPEN_INSTANCE     Open = (POPEN_INSTANCE)FilterModuleContext;
 
 	TRACE_ENTER();
 
-	Open = (POPEN_INSTANCE) ProtocolBindingContext;
-	ChildOpen = NPF6XGetNBLChildOpen(pNetBufferList);
-	FreeBufAfterWrite = RESERVED(pNetBufferList)->FreeBufAfterWrite;
+	//
+	// If your filter injected any send packets into the datapath to be sent,
+	// you must identify their NBLs here and remove them from the chain.  Do not
+	// attempt to send-complete your NBLs up to the higher layer.
+	//
 
-	if (FreeBufAfterWrite)
+	pNetBufList = NetBufferLists;
+
+	while (pNetBufList != NULL)
 	{
-		//
-		// Packet sent by NPF_BufferedWrite()
-		//
-		
-		//Free all the NBLs allocate by myself
-		CurrNbl = pNetBufferList;
-		while (CurrNbl)
+		Count++;
+		pNextNetBufList = NET_BUFFER_LIST_NEXT_NBL(pNetBufList);
+		NET_BUFFER_LIST_NEXT_NBL(pNetBufList) = NULL;
+
+		if (pNetBufList->SourceHandle == Open->AdapterHandle)
 		{
-			Currbuff = NET_BUFFER_LIST_FIRST_NB(CurrNbl);
-			while (Currbuff)
+			ChildOpen = NPF6XGetNBLChildOpen(pNetBufList);
+			FreeBufAfterWrite = RESERVED(pNetBufList)->FreeBufAfterWrite;
+
+			if (FreeBufAfterWrite)
 			{
-				pMdl = NET_BUFFER_FIRST_MDL(Currbuff);
-				NdisFreeMdl(pMdl); //Free MDL
-				Currbuff = NET_BUFFER_NEXT_NB(Currbuff);
+				//
+				// Packet sent by NPF_BufferedWrite()
+				//
+
+				//Free the NBL allocate by myself
+				Currbuff = NET_BUFFER_LIST_FIRST_NB(pNetBufList);
+				while (Currbuff)
+				{
+					pMdl = NET_BUFFER_FIRST_MDL(Currbuff);
+					NdisFreeMdl(pMdl); //Free MDL
+					Currbuff = NET_BUFFER_NEXT_NB(Currbuff);
+				}
+				NdisFreeNetBufferList(pNetBufList); //Free NBL
 			}
-			nextNbl = NET_BUFFER_LIST_NEXT_NBL(CurrNbl); //get Next MBL
-			NdisFreeNetBufferList(CurrNbl); //Free CurrentNBL
-			CurrNbl = nextNbl;
-		}
-	}
-	else
-	{
-		//
-		// Packet sent by NPF_Write()
-		//
+			else
+			{
+				//
+				// Packet sent by NPF_Write()
+				//
 
-		//Free all the NBLs allocate by myself
-		CurrNbl = pNetBufferList;
-		while (CurrNbl)
+				//Free the NBL allocate by myself
+				NdisFreeNetBufferList(pNetBufList); //Free NBL
+			}
+
+			GroupOpen = Open->GroupNext;
+			while (GroupOpen != NULL)
+			{
+				TempOpen = GroupOpen;
+				if (ChildOpen == TempOpen)
+				{
+					NPF_SendCompleteExForEachOpen(TempOpen, FreeBufAfterWrite);
+					break;
+				}
+
+				GroupOpen = TempOpen->GroupNext;
+			}
+		}
+		else
 		{
-			nextNbl = NET_BUFFER_LIST_NEXT_NBL(CurrNbl); //get Next MBL
-			NdisFreeNetBufferList(CurrNbl); //Free CurrentNBL
-			CurrNbl = nextNbl;
+			// Send complete the NBLs.  If you removed any NBLs from the chain, make
+			// sure the chain isn't empty (i.e., NetBufferLists!=NULL).
+			NdisFSendNetBufferListsComplete(Open->AdapterHandle, pNetBufList, SendCompleteFlags);
 		}
+
+		pNetBufList = pNextNetBufList;
 	}
 
-	GroupOpen = Open->GroupNext;
-	while (GroupOpen != NULL)
-	{
-		TempOpen = GroupOpen;
-		//if (ChildOpen == TempOpen)
-		//{
-			NPF_SendCompleteExForEachOpen(TempOpen, FreeBufAfterWrite);
-			//break;
-		//}
 
-		GroupOpen = TempOpen->GroupNext;
-	}
+	// 	if (NetBufferLists->SourceHandle != NULL && NetBufferLists->SourceHandle == Open->AdapterHandle)
+	// 	{
+	// 		ChildOpen = NPF6XGetNBLChildOpen(NetBufferLists);
+	// 		FreeBufAfterWrite = RESERVED(NetBufferLists)->FreeBufAfterWrite;
+	// 
+	// 		if (FreeBufAfterWrite)
+	// 		{
+	// 			//
+	// 			// Packet sent by NPF_BufferedWrite()
+	// 			//
+	// 
+	// 			//Free all the NBLs allocate by myself
+	// 			CurrNbl = NetBufferLists;
+	// 			while (CurrNbl)
+	// 			{
+	// 				Currbuff = NET_BUFFER_LIST_FIRST_NB(CurrNbl);
+	// 				while (Currbuff)
+	// 				{
+	// 					pMdl = NET_BUFFER_FIRST_MDL(Currbuff);
+	// 					NdisFreeMdl(pMdl); //Free MDL
+	// 					Currbuff = NET_BUFFER_NEXT_NB(Currbuff);
+	// 				}
+	// 				nextNbl = NET_BUFFER_LIST_NEXT_NBL(CurrNbl); //get Next MBL
+	// 				NdisFreeNetBufferList(CurrNbl); //Free CurrentNBL
+	// 				CurrNbl = nextNbl;
+	// 			}
+	// 		}
+	// 		else
+	// 		{
+	// 			//
+	// 			// Packet sent by NPF_Write()
+	// 			//
+	// 
+	// 			//Free all the NBLs allocate by myself
+	// 			CurrNbl = NetBufferLists;
+	// 			while (CurrNbl)
+	// 			{
+	// 				nextNbl = NET_BUFFER_LIST_NEXT_NBL(CurrNbl); //get Next MBL
+	// 				NdisFreeNetBufferList(CurrNbl); //Free CurrentNBL
+	// 				CurrNbl = nextNbl;
+	// 			}
+	// 		}
+	// 
+	// 		GroupOpen = Open->GroupNext;
+	// 		while (GroupOpen != NULL)
+	// 		{
+	// 			TempOpen = GroupOpen;
+	// 			if (ChildOpen == TempOpen)
+	// 			{
+	// 				NPF_SendCompleteExForEachOpen(TempOpen, FreeBufAfterWrite);
+	// 				break;
+	// 			}
+	// 
+	// 			GroupOpen = TempOpen->GroupNext;
+	// 		}
+	// 	}
+	// 	else
+	// 	{
+	// 		// Send complete the NBLs.  If you removed any NBLs from the chain, make
+	// 		// sure the chain isn't empty (i.e., NetBufferLists!=NULL).
+	// 		NdisFSendNetBufferListsComplete(Open->AdapterHandle, NetBufferLists, SendCompleteFlags);
+	// 	}
 
 	TRACE_EXIT();
-	return;
-
 }
-
 
 VOID NPF_SendCompleteExForEachOpen(IN POPEN_INSTANCE Open, BOOLEAN FreeBufAfterWrite)
 {
@@ -646,7 +785,7 @@ VOID NPF_SendCompleteExForEachOpen(IN POPEN_INSTANCE Open, BOOLEAN FreeBufAfterW
 		// packets in the TX pool, wake up any transmitter waiting for available packets in the TX
 		// packet pool
 		//
-		if (stillPendingPackets < TRANSMIT_PACKETS/2)
+		if (stillPendingPackets < TRANSMIT_PACKETS / 2)
 		{
 			NdisSetEvent(&Open->WriteEvent);
 		}
@@ -654,12 +793,12 @@ VOID NPF_SendCompleteExForEachOpen(IN POPEN_INSTANCE Open, BOOLEAN FreeBufAfterW
 		{
 			//
 			// otherwise, reset the event, so that we are sure that the NPF_Write will eventually block to
-			// waitg for availability of packets in the TX packet pool
+			// wait for availability of packets in the TX packet pool
 			//
 			NdisResetEvent(&Open->WriteEvent);
 		}
 
-		if(stillPendingPackets == 0)
+		if (stillPendingPackets == 0)
 		{
 			NdisSetEvent(&Open->NdisWriteCompleteEvent);
 		}

@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dagc.h">
+    <ClInclude Include="Dagc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Packet32.h">

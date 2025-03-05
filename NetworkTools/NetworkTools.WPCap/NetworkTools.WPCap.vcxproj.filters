@@ -14,4 +14,97 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="LibPCap\rpcapd\win32-pthreads\pthread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LibPCap\rpcapd\win32-pthreads\sched.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LibPCap\rpcapd\win32-pthreads\semaphore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LibPCap\rpcapd\win32-svc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LibPCap\rpcapd\fileconf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LibPCap\rpcapd\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LibPCap\rpcapd\rpcapd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LibPCap\rpcapd\utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LibPCap\rpcapd\daemon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LibPCap\pcap-remote.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LibPCap\pcap-tc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LibPCap\remote-ext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LibPCap\sockutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LibPCap\TcApi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32-Extensions\Win32-Extensions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="LibPCap\rpcapd\daemon.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LibPCap\rpcapd\fileconf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LibPCap\rpcapd\rpcapd.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LibPCap\rpcapd\utils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LibPCap\rpcapd\win32-svc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LibPCap\pcap-new.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LibPCap\pcap-remote.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LibPCap\pcap-tc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LibPCap\sockutils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32-Extensions\Win32-Extensions.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LibPCap\rpcapd\Makefile" />
+    <None Include="PRJ\build_scanner_parser.bat">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="PRJ\GNUmakefile" />
+    <None Include="LibPCap\rpcapd\win32-pthreads\pthreadVC.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="LibPCap\readme-rpcap.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="LibPCap\rpcapd\win32-pthreads\pthreadVC.lib" />
+  </ItemGroup>
 </Project>

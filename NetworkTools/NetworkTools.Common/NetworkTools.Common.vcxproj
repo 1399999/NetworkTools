@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dagc.h" />
+    <ClInclude Include="Dagc.h" />
     <ClInclude Include="Packet32.h" />
     <ClInclude Include="WpcapNames.h" />
   </ItemGroup>

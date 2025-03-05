@@ -18,6 +18,47 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="LibPCap\pcap-remote.h" />
+    <ClInclude Include="LibPCap\pcap-tc.h" />
+    <ClInclude Include="LibPCap\remote-ext.h" />
+    <ClInclude Include="LibPCap\rpcapd\daemon.h" />
+    <ClInclude Include="LibPCap\rpcapd\fileconf.h" />
+    <ClInclude Include="LibPCap\rpcapd\resource.h" />
+    <ClInclude Include="LibPCap\rpcapd\rpcapd.h" />
+    <ClInclude Include="LibPCap\rpcapd\utils.h" />
+    <ClInclude Include="LibPCap\rpcapd\win32-pthreads\semaphore.h" />
+    <ClInclude Include="LibPCap\rpcapd\win32-pthreads\pthread.h" />
+    <ClInclude Include="LibPCap\rpcapd\win32-pthreads\sched.h" />
+    <ClInclude Include="LibPCap\rpcapd\win32-svc.h" />
+    <ClInclude Include="LibPCap\sockutils.h" />
+    <ClInclude Include="LibPCap\TcApi.h" />
+    <ClInclude Include="Win32-Extensions\Win32-Extensions.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="LibPCap\pcap-new.c" />
+    <ClCompile Include="LibPCap\pcap-remote.c" />
+    <ClCompile Include="LibPCap\pcap-tc.c" />
+    <ClCompile Include="LibPCap\rpcapd\daemon.c" />
+    <ClCompile Include="LibPCap\rpcapd\fileconf.c" />
+    <ClCompile Include="LibPCap\rpcapd\rpcapd.c" />
+    <ClCompile Include="LibPCap\rpcapd\utils.c" />
+    <ClCompile Include="LibPCap\rpcapd\win32-svc.c" />
+    <ClCompile Include="LibPCap\sockutils.c" />
+    <ClCompile Include="Win32-Extensions\Win32-Extensions.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LibPCap\rpcapd\Makefile" />
+    <None Include="LibPCap\rpcapd\win32-pthreads\pthreadVC.dll" />
+    <None Include="PRJ\build_scanner_parser.bat" />
+    <None Include="PRJ\GNUmakefile" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="LibPCap\readme-rpcap.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="LibPCap\rpcapd\win32-pthreads\pthreadVC.lib" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

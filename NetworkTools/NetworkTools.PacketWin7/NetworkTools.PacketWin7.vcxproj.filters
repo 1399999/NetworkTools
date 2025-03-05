@@ -57,6 +57,24 @@
     <ClCompile Include="NPF6x\Write.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Dll\WanPacket\WanPacket.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dll\AdInfo.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dll\netcfgapi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dll\NpflmExt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dll\Packet32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dll\ProtInstall.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NPF6x\bucket_lookup.h">
@@ -111,6 +129,27 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="NPF6x\win_bpf_filter_init.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dll\WanPacket\WanPacket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dll\debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dll\netcfgapi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dll\NpflmExt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dll\Packet32-Int.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dll\ProtInstall.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dll\strsafe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

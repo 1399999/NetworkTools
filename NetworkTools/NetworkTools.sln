@@ -23,88 +23,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{0D184748
 		tools\win-setup.ps1 = tools\win-setup.ps1
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Installer", "Installer", "{F4C83876-72A0-41B2-8F13-F04B7D9035C8}"
-	ProjectSection(SolutionItems) = preProject
-		..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\final.ini = ..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\final.ini
-		..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\npf.sys = ..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\npf.sys
-		..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\options.ini = ..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\options.ini
-		..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\pthreadVC.dll = ..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\pthreadVC.dll
-		..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\Winpcap.nsi = ..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\Winpcap.nsi
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{BE06F7BB-158D-457D-813E-5874C4951FFF}"
-	ProjectSection(SolutionItems) = preProject
-		dox\compile.htm = dox\compile.htm
-		dox\doxygen_groups.txt = dox\doxygen_groups.txt
-		dox\doxygen_groups_packetdll.txt = dox\doxygen_groups_packetdll.txt
-		dox\footer.htm = dox\footer.htm
-		dox\internals-arch.gif = dox\internals-arch.gif
-		dox\internals.htm = dox\internals.htm
-		dox\intro.htm = dox\intro.htm
-		dox\language.htm = dox\language.htm
-		dox\main.txt = dox\main.txt
-		dox\main_packetdll.txt = dox\main_packetdll.txt
-		dox\note.txt = dox\note.txt
-		dox\npf-dump.gif = dox\npf-dump.gif
-		dox\npf-ndis.gif = dox\npf-ndis.gif
-		dox\npf-npf.gif = dox\npf-npf.gif
-		dox\npf.htm = dox\npf.htm
-		dox\packet.htm = dox\packet.htm
-		dox\packet_samp.htm = dox\packet_samp.htm
-		dox\slides.ppt = dox\slides.ppt
-		dox\style.css = dox\style.css
-		dox\WinPcap_docs.html = dox\WinPcap_docs.html
-		dox\wpcap.htm = dox\wpcap.htm
-		dox\wpcap_remote.htm = dox\wpcap_remote.htm
-		dox\wpcap_samp.htm = dox\wpcap_samp.htm
-		dox\wpcap_samp1.htm = dox\wpcap_samp1.htm
-		dox\wpcap_samp2.htm = dox\wpcap_samp2.htm
-		dox\wpcap_tut.txt = dox\wpcap_tut.txt
-		dox\wpcap_tut1.txt = dox\wpcap_tut1.txt
-		dox\wpcap_tut2.txt = dox\wpcap_tut2.txt
-		dox\wpcap_tut3.txt = dox\wpcap_tut3.txt
-		dox\wpcap_tut4.txt = dox\wpcap_tut4.txt
-		dox\wpcap_tut5.txt = dox\wpcap_tut5.txt
-		dox\wpcap_tut6.txt = dox\wpcap_tut6.txt
-		dox\wpcap_tut7.txt = dox\wpcap_tut7.txt
-		dox\wpcap_tut8.txt = dox\wpcap_tut8.txt
-		dox\wpcap_tut9.txt = dox\wpcap_tut9.txt
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libpcap", "libpcap", "{144BB91E-0553-46C7-8807-5D9831F07D0F}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "funcs", "funcs", "{1C8E5EF0-BC0F-4927-A01B-69A042DDBCFF}"
-	ProjectSection(SolutionItems) = preProject
-		dox\libpcap\funcs\pcap.h = dox\libpcap\funcs\pcap.h
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pics", "pics", "{EC2FD1CA-F24D-4EEB-AC19-C304A2ECDD31}"
-	ProjectSection(SolutionItems) = preProject
-		dox\pics\dump.gif = dox\pics\dump.gif
-		dox\pics\encoding.gif = dox\pics\encoding.gif
-		dox\pics\stats.gif = dox\pics\stats.gif
-		dox\pics\stats_wpcap.gif = dox\pics\stats_wpcap.gif
-		dox\pics\winpcap.gif = dox\pics\winpcap.gif
-		dox\pics\winpcap_small.gif = dox\pics\winpcap_small.gif
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "prj", "prj", "{791E57A1-DFD2-4994-B9C8-911F64688EB6}"
-	ProjectSection(SolutionItems) = preProject
-		dox\prj\winpcap_c.dox = dox\prj\winpcap_c.dox
-		dox\prj\winpcap_c_packetdll.dox = dox\prj\winpcap_c_packetdll.dox
-		dox\prj\winpcap_noc.dox = dox\prj\winpcap_noc.dox
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "incs", "incs", "{C4CD0E12-7007-45FF-9D0D-74B277267C7D}"
-	ProjectSection(SolutionItems) = preProject
-		dox\libpcap\incs\pcap.h = dox\libpcap\incs\pcap.h
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "x64", "x64", "{1A7169C1-B7CC-4132-BE9C-4BE206105069}"
-	ProjectSection(SolutionItems) = preProject
-		..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\x64\npf.sys = ..\..\..\..\Downloads\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\npcap-ea29099526b06e0b377e657bd7363b5ff5b11555\installer\x64\npf.sys
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkTools.Common", "NetworkTools.Common\NetworkTools.Common.vcxproj", "{9726FCEA-BA8E-465A-9E08-41EABB1BA212}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkTools.Examples", "NetworkTools.Examples\NetworkTools.Examples.vcxproj", "{AB714239-007B-438B-BF03-8D83EE3690B0}"
@@ -112,6 +30,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkTools.PacketWin7", "NetworkTools.PacketWin7\NetworkTools.PacketWin7.vcxproj", "{2134E8ED-33FD-4197-9AA0-2CDCD3685ACA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkTools.WPCap", "NetworkTools.WPCap\NetworkTools.WPCap.vcxproj", "{25022B33-459B-4156-A309-ABE1E5F164AC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkTools.Documentation", "NetworkTools.Documentation\NetworkTools.Documentation.vcxproj", "{AAFD349B-693D-467C-9D28-84C671909973}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -139,18 +59,16 @@ Global
 		{25022B33-459B-4156-A309-ABE1E5F164AC}.Debug|Any CPU.Build.0 = Debug|x64
 		{25022B33-459B-4156-A309-ABE1E5F164AC}.Release|Any CPU.ActiveCfg = Release|x64
 		{25022B33-459B-4156-A309-ABE1E5F164AC}.Release|Any CPU.Build.0 = Release|x64
+		{AAFD349B-693D-467C-9D28-84C671909973}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{AAFD349B-693D-467C-9D28-84C671909973}.Debug|Any CPU.Build.0 = Debug|x64
+		{AAFD349B-693D-467C-9D28-84C671909973}.Release|Any CPU.ActiveCfg = Release|x64
+		{AAFD349B-693D-467C-9D28-84C671909973}.Release|Any CPU.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0D184748-84C3-40F5-B1C2-C82BF818CBC2} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
-		{144BB91E-0553-46C7-8807-5D9831F07D0F} = {BE06F7BB-158D-457D-813E-5874C4951FFF}
-		{1C8E5EF0-BC0F-4927-A01B-69A042DDBCFF} = {144BB91E-0553-46C7-8807-5D9831F07D0F}
-		{EC2FD1CA-F24D-4EEB-AC19-C304A2ECDD31} = {BE06F7BB-158D-457D-813E-5874C4951FFF}
-		{791E57A1-DFD2-4994-B9C8-911F64688EB6} = {BE06F7BB-158D-457D-813E-5874C4951FFF}
-		{C4CD0E12-7007-45FF-9D0D-74B277267C7D} = {144BB91E-0553-46C7-8807-5D9831F07D0F}
-		{1A7169C1-B7CC-4132-BE9C-4BE206105069} = {F4C83876-72A0-41B2-8F13-F04B7D9035C8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {03057239-B336-4EEB-8C64-EAA9C6C426E9}

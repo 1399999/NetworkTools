@@ -127,6 +127,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ExamplesPCap\Stats.c" />
+    <ClCompile Include="ExamplesPCap\winpcap_stress.cpp" />
     <ClCompile Include="IfList.c" />
     <ClCompile Include="KDump.c" />
     <ClCompile Include="Misc\BasicDump.c" />
@@ -170,6 +172,17 @@
     <ClInclude Include="NETMETER\resource.h" />
     <ClInclude Include="NETMETER\SelectAdapter.h" />
     <ClInclude Include="NETMETER\StdAfx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NetworkTools.Common\NetworkTools.Common.vcxproj">
+      <Project>{9726fcea-ba8e-465a-9e08-41eabb1ba212}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\NetworkTools.PacketWin7\NetworkTools.PacketWin7.vcxproj">
+      <Project>{2134e8ed-33fd-4197-9aa0-2cdcd3685aca}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\NetworkTools.WPCap\NetworkTools.WPCap.vcxproj">
+      <Project>{25022b33-459b-4156-a309-abe1e5f164ac}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

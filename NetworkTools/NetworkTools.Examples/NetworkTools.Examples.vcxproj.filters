@@ -105,6 +105,12 @@
     <ClCompile Include="Misc\SendPack.c">
       <Filter>Misc</Filter>
     </ClCompile>
+    <ClCompile Include="ExamplesPCap\Stats.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExamplesPCap\winpcap_stress.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="PacketDriver\README.txt">

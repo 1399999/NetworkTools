@@ -127,6 +127,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Dll\AdInfo.c" />
+    <ClCompile Include="Dll\netcfgapi.cpp" />
+    <ClCompile Include="Dll\NpflmExt.c" />
+    <ClCompile Include="Dll\Packet32.c" />
+    <ClCompile Include="Dll\ProtInstall.cpp" />
+    <ClCompile Include="Dll\WanPacket\WanPacket.cpp" />
     <ClCompile Include="NPF6xInstall\NPF6xInstall.cpp" />
     <ClCompile Include="NPF6x\count_packets.c" />
     <ClCompile Include="NPF6x\dump.c" />
@@ -143,6 +149,13 @@
     <ClCompile Include="NPF6x\Write.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Dll\debug.h" />
+    <ClInclude Include="Dll\netcfgapi.h" />
+    <ClInclude Include="Dll\NpflmExt.h" />
+    <ClInclude Include="Dll\Packet32-Int.h" />
+    <ClInclude Include="Dll\ProtInstall.h" />
+    <ClInclude Include="Dll\strsafe.h" />
+    <ClInclude Include="Dll\WanPacket\WanPacket.h" />
     <ClInclude Include="NPF6x\bucket_lookup.h" />
     <ClInclude Include="NPF6x\count_packets.h" />
     <ClInclude Include="NPF6x\DEBUG.H" />

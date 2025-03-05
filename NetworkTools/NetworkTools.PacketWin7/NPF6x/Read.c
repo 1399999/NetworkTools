@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -68,8 +68,7 @@ NTSTATUS NPF_Read(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 	ULONG i;
 	ULONG Occupation;
 
-	IF_LOUD(DbgPrint("NPF: Read\n");)
-
+	TRACE_ENTER();
 
 	IrpSp = IoGetCurrentIrpStackLocation(Irp);
 	Open = IrpSp->FileObject->FsContext;
@@ -130,7 +129,7 @@ NTSTATUS NPF_Read(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 				KeWaitForSingleObject(Open->ReadEvent, UserRequest, KernelMode, TRUE, (Open->TimeOut.QuadPart == (LONGLONG)0) ? NULL : &(Open->TimeOut));
 
 			KeClearEvent(Open->ReadEvent);
-		}		
+		}
 
 		if (Open->mode & MODE_STAT)
 		{
@@ -165,12 +164,12 @@ NTSTATUS NPF_Read(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 			}
 
 			//fill the bpf header for this packet
-			header = (struct bpf_hdr *)CurrBuff;
+			header = (struct bpf_hdr*)CurrBuff;
 			GET_TIME(&header->bh_tstamp, &G_Start_Time);
 
 			if (Open->mode & MODE_DUMP)
 			{
-				*(LONGLONG *)(CurrBuff + sizeof(struct bpf_hdr) + 16) = Open->DumpOffset.QuadPart;
+				*(LONGLONG*)(CurrBuff + sizeof(struct bpf_hdr) + 16) = Open->DumpOffset.QuadPart;
 				header->bh_caplen = 24;
 				header->bh_datalen = 24;
 				Irp->IoStatus.Information = 24 + sizeof(struct bpf_hdr);
@@ -183,8 +182,8 @@ NTSTATUS NPF_Read(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 				Irp->IoStatus.Information = 16 + sizeof(struct bpf_hdr);
 			}
 
-			*(LONGLONG *)(CurrBuff + sizeof(struct bpf_hdr)) = Open->Npackets.QuadPart;
-			*(LONGLONG *)(CurrBuff + sizeof(struct bpf_hdr) + 8) = Open->Nbytes.QuadPart;
+			*(LONGLONG*)(CurrBuff + sizeof(struct bpf_hdr)) = Open->Npackets.QuadPart;
+			*(LONGLONG*)(CurrBuff + sizeof(struct bpf_hdr) + 8) = Open->Nbytes.QuadPart;
 
 			//reset the countetrs
 			NdisAcquireSpinLock(&Open->CountersLock);
@@ -231,7 +230,7 @@ NTSTATUS NPF_Read(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 				EXIT_FAILURE(0);
 			}
 
-			header = (struct bpf_hdr *)UserPointer;
+			header = (struct bpf_hdr*)UserPointer;
 
 			GET_TIME(&header->bh_tstamp, &G_Start_Time);
 
@@ -286,8 +285,8 @@ NTSTATUS NPF_Read(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 
 
 		if (Occupation == 0 || Open->mode & MODE_DUMP)
-							// The timeout has expired, but the buffer is still empty (or the packets must be written to file).
-							// We must awake the application, returning an empty buffer.
+			// The timeout has expired, but the buffer is still empty (or the packets must be written to file).
+			// We must awake the application, returning an empty buffer.
 		{
 			NPF_StopUsingOpenInstance(Open);
 			EXIT_SUCCESS(0);
@@ -350,7 +349,7 @@ NTSTATUS NPF_Read(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 
 				//				FIX_TIMESTAMPS(&Header->header.bh_tstamp);
 
-				*((struct bpf_hdr *)(&packp[copied])) = Header->header;
+				*((struct bpf_hdr*)(&packp[copied])) = Header->header;
 
 				copied += sizeof(struct bpf_hdr);
 				LocalData->C += sizeof(struct PacketHeader);
@@ -406,24 +405,118 @@ NTSTATUS NPF_Read(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 		EXIT_SUCCESS(copied);
 	}
 
-	//------------------------------------------------------------------------------
+	TRACE_EXIT();
 }
 
-VOID NPF_tapEx(
-	NDIS_HANDLE ProtocolBindingContext,
-	IN PNET_BUFFER_LIST pNetBufferLists,
-	IN NDIS_PORT_NUMBER PortNumber,
-	IN ULONG NumberOfNetBufferLists,
-	IN ULONG ReceiveFlags)
+//-------------------------------------------------------------------
+
+_Use_decl_annotations_
+VOID
+NPF_SendEx(
+	NDIS_HANDLE         FilterModuleContext,
+	PNET_BUFFER_LIST    NetBufferLists,
+	NDIS_PORT_NUMBER    PortNumber,
+	ULONG               SendFlags
+)
+/*++
+
+Routine Description:
+
+	Send Net Buffer List handler
+	This function is an optional function for filter drivers. If provided, NDIS
+	will call this function to transmit a linked list of NetBuffers, described by a
+	NetBufferList, over the network. If this handler is NULL, NDIS will skip calling
+	this filter when sending a NetBufferList and will call the next lower
+	driver in the stack.  A filter that doesn't provide a FilerSendNetBufferList
+	handler can not originate a send on its own.
+
+Arguments:
+
+	FilterModuleContext     - our filter context area
+	NetBufferLists          - a List of NetBufferLists to send
+	PortNumber              - Port Number to which this send is targeted
+	SendFlags               - specifies if the call is at DISPATCH_LEVEL
+
+--*/
 {
-	POPEN_INSTANCE Open;
-	POPEN_INSTANCE GroupOpen;
-	POPEN_INSTANCE TempOpen;
-	ULONG ReturnFlags = 0;
+	POPEN_INSTANCE		Open = (POPEN_INSTANCE)FilterModuleContext;
+	POPEN_INSTANCE		GroupOpen;
+	POPEN_INSTANCE		TempOpen;
+	PVOID i = 0;
+	PVOID j = 0;
 
 	TRACE_ENTER();
 
-	Open = (POPEN_INSTANCE) ProtocolBindingContext;
+	if (Open->GroupHead != NULL)
+	{
+		GroupOpen = Open->GroupHead->GroupNext;
+	}
+	else
+	{
+		GroupOpen = Open->GroupNext;
+	}
+
+	while (GroupOpen != NULL)
+	{
+		TempOpen = GroupOpen;
+		if (TempOpen->AdapterBindingStatus == ADAPTER_BOUND)
+		{
+			NPF_tapExForEachOpen(TempOpen, NetBufferLists);
+		}
+
+		GroupOpen = TempOpen->GroupNext;
+	}
+
+	NdisFSendNetBufferLists(Open->AdapterHandle, NetBufferLists, PortNumber, SendFlags);
+
+	TRACE_EXIT();
+}
+
+//-------------------------------------------------------------------
+
+_Use_decl_annotations_
+VOID
+NPF_TapEx(
+	NDIS_HANDLE         FilterModuleContext,
+	PNET_BUFFER_LIST    NetBufferLists,
+	NDIS_PORT_NUMBER    PortNumber,
+	ULONG               NumberOfNetBufferLists,
+	ULONG               ReceiveFlags
+)
+/*++
+
+Routine Description:
+
+	FilerReceiveNetBufferLists is an optional function for filter drivers.
+	If provided, this function processes receive indications made by underlying
+	NIC or lower level filter drivers. This function  can also be called as a
+	result of loopback. If this handler is NULL, NDIS will skip calling this
+	filter when processing a receive indication and will call the next higher
+	driver in the stack. A filter that doesn't provide a
+	FilterReceiveNetBufferLists handler cannot provide a
+	FilterReturnNetBufferLists handler and cannot a initiate an original receive
+	indication on its own.
+
+Arguments:
+
+	FilterModuleContext      - our filter context area.
+	NetBufferLists           - a linked list of NetBufferLists
+	PortNumber               - Port on which the receive is indicated
+	ReceiveFlags             -
+
+N.B.: It is important to check the ReceiveFlags in NDIS_TEST_RECEIVE_CANNOT_PEND.
+	This controls whether the receive indication is an synchronous or
+	asynchronous function call.
+
+--*/
+{
+
+	POPEN_INSTANCE      Open = (POPEN_INSTANCE)FilterModuleContext;
+	POPEN_INSTANCE		GroupOpen;
+	POPEN_INSTANCE		TempOpen;
+	ULONG				ReturnFlags = 0;
+
+	TRACE_ENTER();
 
 	UNREFERENCED_PARAMETER(PortNumber);
 	UNREFERENCED_PARAMETER(NumberOfNetBufferLists);
@@ -432,26 +525,34 @@ VOID NPF_tapEx(
 	{
 		NDIS_SET_RETURN_FLAG(ReturnFlags, NDIS_RETURN_FLAGS_DISPATCH_LEVEL);
 	}
-	
-	GroupOpen = Open->GroupNext;
+
+	if (Open->GroupHead != NULL)
+	{
+		GroupOpen = Open->GroupHead->GroupNext;
+	}
+	else
+	{
+		GroupOpen = Open->GroupNext;
+	}
+
 	while (GroupOpen != NULL)
 	{
 		TempOpen = GroupOpen;
 		if (TempOpen->AdapterBindingStatus == ADAPTER_BOUND)
 		{
-			NPF_tapExForEachOpen(TempOpen, pNetBufferLists);
+			NPF_tapExForEachOpen(TempOpen, NetBufferLists);
 		}
 
 		GroupOpen = TempOpen->GroupNext;
 	}
 
-	if (!(ReceiveFlags & NDIS_RECEIVE_FLAGS_RESOURCES))
-	{
-		NdisReturnNetBufferLists(
-			Open->AdapterHandle,
-			pNetBufferLists,
-			ReturnFlags);
-	}
+	NdisFIndicateReceiveNetBufferLists(
+		Open->AdapterHandle,
+		NetBufferLists,
+		PortNumber,
+		NumberOfNetBufferLists,
+		ReceiveFlags);
+
 	TRACE_EXIT();
 }
 
@@ -505,7 +606,7 @@ VOID NPF_tapExForEachOpen(IN POPEN_INSTANCE Open, IN PNET_BUFFER_LIST pNetBuffer
 
 	while (pNetBufList != NULL)
 	{
-		pNextNetBufList = NET_BUFFER_LIST_NEXT_NBL (pNetBufList);
+		pNextNetBufList = NET_BUFFER_LIST_NEXT_NBL(pNetBufList);
 
 		Cpu = KeGetCurrentProcessorNumber();
 		LocalData = &Open->CpuData[Cpu];
@@ -513,9 +614,9 @@ VOID NPF_tapExForEachOpen(IN POPEN_INSTANCE Open, IN PNET_BUFFER_LIST pNetBuffer
 		LocalData->Received++;
 
 		IF_LOUD(DbgPrint("Received on CPU %d \t%d\n", Cpu, LocalData->Received);)
-		//	Open->Received++;		// Number of packets received by filter ++
+			//	Open->Received++;		// Number of packets received by filter ++
 
-		NdisAcquireSpinLock(&Open->MachineLock);
+			NdisAcquireSpinLock(&Open->MachineLock);
 
 
 		//NBL_CLEAR_PROT_RSVD_FLAG(pNetBufList, NBL_PROT_RSVD_FLAGS);
@@ -560,27 +661,27 @@ VOID NPF_tapExForEachOpen(IN POPEN_INSTANCE Open, IN PNET_BUFFER_LIST pNetBuffer
 			BufferLength -= Offset;
 			pEthHeader = (PNDISPROT_ETH_HEADER)((PUCHAR)pEthHeader + Offset);
 
-// 			if (BufferLength < sizeof(NDISPROT_ETH_HEADER))
-// 			{
-// 				IF_LOUD(DbgPrint("ReceiveNetBufferList: Open %p, runt nbl %p, first buffer length %d\n",
-// 					Open, pNetBufList, BufferLength);)
-// 				NdisReleaseSpinLock(&Open->MachineLock);
-// 				break;
-// 			}
+			// 			if (BufferLength < sizeof(NDISPROT_ETH_HEADER))
+			// 			{
+			// 				IF_LOUD(DbgPrint("ReceiveNetBufferList: Open %p, runt nbl %p, first buffer length %d\n",
+			// 					Open, pNetBufList, BufferLength);)
+			// 				NdisReleaseSpinLock(&Open->MachineLock);
+			// 				break;
+			// 			}
 
-			//bAcceptedReceive = TRUE;
-			//IF_LOUD(DbgPrint("ReceiveNetBufferList: Open %p, interesting nbl %p\n",
-			//	Open, pNetBufList);)
+						//bAcceptedReceive = TRUE;
+						//IF_LOUD(DbgPrint("ReceiveNetBufferList: Open %p, interesting nbl %p\n",
+						//	Open, pNetBufList);)
 
-			//
-			//  If the miniport is out of resources, we can't queue
-			//  this list of net buffer list - make a copy if this is so.
-			//
-			//DispatchLevel = NDIS_TEST_RECEIVE_AT_DISPATCH_LEVEL(ReceiveFlags);
+						//
+						//  If the miniport is out of resources, we can't queue
+						//  this list of net buffer list - make a copy if this is so.
+						//
+						//DispatchLevel = NDIS_TEST_RECEIVE_AT_DISPATCH_LEVEL(ReceiveFlags);
 
-			HeaderBuffer = (PUCHAR) pEthHeader;
+			HeaderBuffer = (PUCHAR)pEthHeader;
 			HeaderBufferSize = sizeof(NDISPROT_ETH_HEADER);
-			LookaheadBuffer = (PUCHAR) pEthHeader + sizeof(NDISPROT_ETH_HEADER);
+			LookaheadBuffer = (PUCHAR)pEthHeader + sizeof(NDISPROT_ETH_HEADER);
 			LookaheadBufferSize = BufferLength - HeaderBufferSize;
 			PacketSize = LookaheadBufferSize;
 
@@ -594,7 +695,7 @@ VOID NPF_tapExForEachOpen(IN POPEN_INSTANCE Open, IN PNET_BUFFER_LIST pNetBuffer
 				if (Open->bpfprogram != NULL && Open->Filter->Function != NULL)
 				{
 					fres = Open->Filter->Function(
-						(PVOID) HeaderBuffer,
+						(PVOID)HeaderBuffer,
 						PacketSize + HeaderBufferSize,
 						LookaheadBufferSize + HeaderBufferSize);
 				}
@@ -605,7 +706,7 @@ VOID NPF_tapExForEachOpen(IN POPEN_INSTANCE Open, IN PNET_BUFFER_LIST pNetBuffer
 			}
 			else
 #endif //_X86_
-				fres = bpf_filter((struct bpf_insn *)(Open->bpfprogram), HeaderBuffer, PacketSize + HeaderBufferSize, LookaheadBufferSize + HeaderBufferSize);
+				fres = bpf_filter((struct bpf_insn*)(Open->bpfprogram), HeaderBuffer, PacketSize + HeaderBufferSize, LookaheadBufferSize + HeaderBufferSize);
 
 
 			NdisReleaseSpinLock(&Open->MachineLock);
@@ -624,7 +725,7 @@ VOID NPF_tapExForEachOpen(IN POPEN_INSTANCE Open, IN PNET_BUFFER_LIST pNetBuffer
 
 			//if the filter returns -1 the whole packet must be accepted
 			if (fres == -1 || fres > PacketSize + HeaderBufferSize)
-				fres = PacketSize + HeaderBufferSize; 
+				fres = PacketSize + HeaderBufferSize;
 
 			if (Open->mode & MODE_STAT)
 			{
@@ -711,7 +812,7 @@ VOID NPF_tapExForEachOpen(IN POPEN_INSTANCE Open, IN PNET_BUFFER_LIST pNetBuffer
 					// contains what we need
 					//
 
-					Header = (struct PacketHeader *)(LocalData->Buffer + LocalData->P);
+					Header = (struct PacketHeader*)(LocalData->Buffer + LocalData->P);
 					LocalData->Accepted++;
 					GET_TIME(&Header->header.bh_tstamp, &G_Start_Time);
 					Header->SN = InterlockedIncrement(&Open->WriterSN) - 1;
@@ -765,7 +866,7 @@ VOID NPF_tapExForEachOpen(IN POPEN_INSTANCE Open, IN PNET_BUFFER_LIST pNetBuffer
 								{
 									//the fragmentation of the packet in the buffer is the same fragmentation
 									//in HeaderBuffer+LookaheadBuffer
-									LocalData->P = 0;	
+									LocalData->P = 0;
 									NdisMoveMappedMemory(LocalData->Buffer + 0, LookaheadBuffer, fres - HeaderBufferSize);
 									LocalData->P += (fres - HeaderBufferSize);
 								}
@@ -803,7 +904,7 @@ VOID NPF_tapExForEachOpen(IN POPEN_INSTANCE Open, IN PNET_BUFFER_LIST pNetBuffer
 							NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, LookaheadBuffer, fres - HeaderBufferSize);
 							LocalData->P += (fres - HeaderBufferSize);
 						}
-					}		
+					}
 
 					increment = fres + sizeof(struct PacketHeader);
 					if (Open->Size - LocalData->P < sizeof(struct PacketHeader))  //we check that the available, AND contiguous, space in the buffer will fit
@@ -832,12 +933,11 @@ VOID NPF_tapExForEachOpen(IN POPEN_INSTANCE Open, IN PNET_BUFFER_LIST pNetBuffer
 				else
 				{
 					IF_LOUD(DbgPrint("NPF_tapExForEachOpen: This is an error !!!!\n");)
-					//ndisTransferData required
-					//This is an error !!
-					break;
+						//ndisTransferData required
+						//This is an error !!
+						break;
 				}
-			}
-			while (FALSE);
+			} while (FALSE);
 
 			if (ShouldReleaseBufferLock)
 			{
@@ -845,8 +945,7 @@ VOID NPF_tapExForEachOpen(IN POPEN_INSTANCE Open, IN PNET_BUFFER_LIST pNetBuffer
 				NdisReleaseSpinLock(&LocalData->BufferLock);
 			}
 
-		}
-		while (FALSE);
+		} while (FALSE);
 
 		//
 		// Ndisprot is not interested this NetBufferList, return the
@@ -868,7 +967,7 @@ VOID NPF_tapExForEachOpen(IN POPEN_INSTANCE Open, IN PNET_BUFFER_LIST pNetBuffer
 		// 			NET_BUFFER_LIST_NEXT_NBL(pNetBufList) = NULL;
 		// 
 		// 		}
-NPF_TapEx_ForEachOpen_End:;
+	NPF_TapEx_ForEachOpen_End:;
 		pNetBufList = pNextNetBufList;
 	} // end of the for loop
 
