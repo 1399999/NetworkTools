@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -35,11 +35,11 @@
 #include "netmeterDoc.h"
 #include "netmeterView.h"
 
-UINT MyThreadProc( LPVOID pParam );
+UINT MyThreadProc(LPVOID pParam);
 
 typedef struct CCapPars
 {
 	CNetmeterView* prg;	//CNetmeterView class that launched the capture thread
-	pcap_t *fp;			//libpcap adapter
+	pcap_t* fp;			//libpcap adapter
 	struct timeval lasttime;	//last capture time (internal)
 }CCapPars;

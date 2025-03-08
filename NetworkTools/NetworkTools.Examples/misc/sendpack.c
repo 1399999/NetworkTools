@@ -4,7 +4,7 @@
 #include <pcap.h>
 
 
-int main(int argc, char** argv)
+void main(int argc, char** argv)
 {
 	pcap_t* fp;
 	char errbuf[PCAP_ERRBUF_SIZE];
@@ -14,20 +14,21 @@ int main(int argc, char** argv)
 	/* Check the validity of the command line */
 	if (argc != 2)
 	{
-		printf("usage: %s interface", argv[0]);
-		return 1;
+		printf("usage: %s interface (e.g. 'rpcap://eth0')", argv[0]);
+		return;
 	}
 
-	/* Open the adapter */
-	if ((fp = pcap_open_live(argv[1],		// name of the device
-		65536,			// portion of the packet to capture. It doesn't matter in this case 
-		1,				// promiscuous mode (nonzero means promiscuous)
-		1000,			// read timeout
-		errbuf			// error buffer
+	/* Open the output device */
+	if ((fp = pcap_open(argv[1],			// name of the device
+		100,				// portion of the packet to capture (only the first 100 bytes)
+		PCAP_OPENFLAG_PROMISCUOUS, 	// promiscuous mode
+		1000,				// read timeout
+		NULL,				// authentication on the remote machine
+		errbuf				// error buffer
 	)) == NULL)
 	{
 		fprintf(stderr, "\nUnable to open the adapter. %s is not supported by WinPcap\n", argv[1]);
-		return 2;
+		return;
 	}
 
 	/* Supposing to be on ethernet, set mac destination to 1:1:1:1:1:1 */
@@ -53,15 +54,11 @@ int main(int argc, char** argv)
 	}
 
 	/* Send down the packet */
-	if (pcap_sendpacket(fp,	// Adapter
-		packet,				// buffer with the packet
-		100					// size
-	) != 0)
+	if (pcap_sendpacket(fp, packet, 100 /* size */) != 0)
 	{
 		fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(fp));
-		return 3;
+		return;
 	}
 
-	pcap_close(fp);
-	return 0;
+	return;
 }

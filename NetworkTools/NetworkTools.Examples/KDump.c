@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -38,11 +38,11 @@
 
 #error At the moment the kernel dump feature is not supported in the driver
 
-main(int argc, char **argv) {
-	
-	pcap_if_t *alldevs, *d;
-	pcap_t *fp;
-	u_int inum, i=0;
+main(int argc, char** argv) {
+
+	pcap_if_t* alldevs, * d;
+	pcap_t* fp;
+	u_int inum, i = 0;
 	char errbuf[PCAP_ERRBUF_SIZE];
 
 	printf("kdump: saves the network traffic to file using WinPcap kernel-level dump faeature.\n");
@@ -51,17 +51,17 @@ main(int argc, char **argv) {
 	printf("\t Where: max_packs is the maximum number of packets that will be saved (0 means no limit)\n\n");
 
 
-	if(argc < 5){
+	if (argc < 5) {
 
 		/* The user didn't provide a packet source: Retrieve the device list */
 		if (pcap_findalldevs(&alldevs, errbuf) == -1)
 		{
-			fprintf(stderr,"Error in pcap_findalldevs: %s\n", errbuf);
+			fprintf(stderr, "Error in pcap_findalldevs: %s\n", errbuf);
 			exit(1);
 		}
-		
+
 		/* Print the list */
-		for(d=alldevs; d; d=d->next)
+		for (d = alldevs; d; d = d->next)
 		{
 			printf("%d. %s", ++i, d->name);
 			if (d->description)
@@ -69,30 +69,30 @@ main(int argc, char **argv) {
 			else
 				printf(" (No description available)\n");
 		}
-		
-		if(i==0)
+
+		if (i == 0)
 		{
 			printf("\nNo interfaces found! Make sure WinPcap is installed.\n");
 			return -1;
 		}
-		
-		printf("Enter the interface number (1-%d):",i);
+
+		printf("Enter the interface number (1-%d):", i);
 		scanf("%d", &inum);
-		
-		if(inum < 1 || inum > i)
+
+		if (inum < 1 || inum > i)
 		{
 			printf("\nInterface number out of range.\n");
 			/* Free the device list */
 			return -1;
 		}
-		
+
 		/* Jump to the selected adapter */
-		for(d=alldevs, i=0; i< inum-1 ;d=d->next, i++);
-		
+		for (d = alldevs, i = 0; i < inum - 1; d = d->next, i++);
+
 		/* Open the device */
-		if ( (fp = pcap_open_live(d->name, 100, 1, 20, errbuf) ) == NULL)
+		if ((fp = pcap_open_live(d->name, 100, 1, 20, errbuf)) == NULL)
 		{
-			fprintf(stderr,"\nError opening adapter\n");
+			fprintf(stderr, "\nError opening adapter\n");
 			return -1;
 		}
 
@@ -100,22 +100,22 @@ main(int argc, char **argv) {
 		pcap_freealldevs(alldevs);
 
 		/* Start the dump */
-		if(pcap_live_dump(fp, argv[1], atoi(argv[2]), atoi(argv[3]))==-1){
+		if (pcap_live_dump(fp, argv[1], atoi(argv[2]), atoi(argv[3])) == -1) {
 			printf("Unable to start the dump, %s\n", pcap_geterr(fp));
 			return -1;
 		}
 	}
-	else{
-		
+	else {
+
 		/* Open the device */
-		if ( (fp= pcap_open_live(argv[1], 100, 1, 20, errbuf) ) == NULL)
+		if ((fp = pcap_open_live(argv[1], 100, 1, 20, errbuf)) == NULL)
 		{
-			fprintf(stderr,"\nError opening adapter\n");
+			fprintf(stderr, "\nError opening adapter\n");
 			return -1;
 		}
 
 		/* Start the dump */
-		if(pcap_live_dump(fp, argv[0], atoi(argv[1]), atoi(argv[2]))==-1){
+		if (pcap_live_dump(fp, argv[0], atoi(argv[1]), atoi(argv[2])) == -1) {
 			printf("Unable to start the dump, %s\n", pcap_geterr(fp));
 			return -1;
 		}
@@ -123,7 +123,7 @@ main(int argc, char **argv) {
 
 	/* Wait until the dump finishes, i.e. when  max_size or max_packs is reached*/
 	pcap_live_dump_ended(fp, TRUE);
-	
+
 	/* Close the adapter, so that the file is correctly flushed */
 	pcap_close(fp);
 

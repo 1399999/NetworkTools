@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -41,21 +41,21 @@
 #include <afx.h>
 #include <afxtempl.h>
 
-class LineCollection  
+class LineCollection
 {
 public:
 	void clear();
-	CString & operator =(CString &);
+	CString& operator =(CString&);
 	int GetSize();
-	int getLineCount(){return GetSize();};
-	const char* line(int i){if (i<GetSize()) return (LPCTSTR) vect[i];else return NULL;};
-	LineCollection(CString *s=NULL,int skip=0);
-	LineCollection(CArchive &ar,int skip=0);
+	int getLineCount() { return GetSize(); };
+	const char* line(int i) { if (i < GetSize()) return (LPCTSTR)vect[i]; else return NULL; };
+	LineCollection(CString* s = NULL, int skip = 0);
+	LineCollection(CArchive& ar, int skip = 0);
 	virtual ~LineCollection();
-	void Insert(CString& s){vect.SetSize(vect.GetSize()+1);vect[vect.GetSize()-1]=s;}
+	void Insert(CString& s) { vect.SetSize(vect.GetSize() + 1); vect[vect.GetSize() - 1] = s; }
 private:
 	int m_Skip;
-	CArray<CString,CString&> vect;
+	CArray<CString, CString&> vect;
 };
 
 #endif // !defined(AFX_LINECOLL_H__EE11D4A3_ED58_11D1_939A_000000000000__INCLUDED_)

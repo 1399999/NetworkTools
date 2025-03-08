@@ -40,7 +40,7 @@
 #define UNUSED(_x) (_x)
 #endif
 
-/* resizes extended memory */ 
+ /* resizes extended memory */
 uint32 init_extended_memory(uint32 size, MEM_TYPE* mem_ex)
 {
 	uint8* tmp;
@@ -177,7 +177,7 @@ uint32 lookup_frontend(MEM_TYPE* mem_ex, TME_CORE* tme, uint32 mem_ex_offset, st
 	if (tme->active == TME_NONE_ACTIVE)
 		return TME_FALSE;
 
-	return (tme->block_data[tme->active].lookup_code)(mem_ex_offset + mem_ex->buffer, & tme->block_data[tme->active], mem_ex, time_ref);
+	return (tme->block_data[tme->active].lookup_code)(mem_ex_offset + mem_ex->buffer, &tme->block_data[tme->active], mem_ex, time_ref);
 }
 
 /* I/F between the bpf machine and the callbacks, just some checks */
@@ -202,15 +202,15 @@ uint32 execute_frontend(MEM_TYPE* mem_ex, TME_CORE* tme, uint32 pkt_size, uint32
 	else
 	{
 		/*checks if last_found is valid */
-		if ((data->last_found< data->lut_base_address) || (data->last_found >= data->shared_memory_base_address))
+		if ((data->last_found < data->lut_base_address) || (data->last_found >= data->shared_memory_base_address))
 			return TME_ERROR;
 		else
 		{
-			tmp = exec_fcn_mapper(SW_ULONG_AT(&((RECORD *)data->last_found)->exec_fcn, 0));
+			tmp = exec_fcn_mapper(SW_ULONG_AT(&((RECORD*)data->last_found)->exec_fcn, 0));
 			if (tmp == NULL)
 				return TME_ERROR;
-			block = SW_ULONG_AT(&((RECORD *)data->last_found)->block, 0) + mem_ex->buffer;
-			if ((block< data->shared_memory_base_address) || (block >= data->extra_segment_base_address))
+			block = SW_ULONG_AT(&((RECORD*)data->last_found)->block, 0) + mem_ex->buffer;
+			if ((block < data->shared_memory_base_address) || (block >= data->extra_segment_base_address))
 				return TME_ERROR;
 		}
 	}
@@ -228,7 +228,7 @@ uint32 reset_tme(TME_CORE* tme)
 {
 	if (tme == NULL)
 		return TME_ERROR;
-	ZERO_MEMORY(tme, sizeof(TME_CORE));	
+	ZERO_MEMORY(tme, sizeof(TME_CORE));
 	return TME_SUCCESS;
 }
 
@@ -313,7 +313,7 @@ uint32 set_tme_block_register(TME_DATA* data, MEM_TYPE* mem_ex, uint32 rgstr, ui
 		data->filled_entries = value;
 		return TME_SUCCESS;
 	case TME_FILLED_BLOCKS:
-		if (value<= data->shared_memory_blocks)
+		if (value <= data->shared_memory_blocks)
 		{
 			data->filled_blocks = value;
 			return TME_SUCCESS;

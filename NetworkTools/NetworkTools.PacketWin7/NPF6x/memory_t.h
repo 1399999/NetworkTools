@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -43,7 +43,7 @@
 #define		uint64	ULONGLONG
 #define		int64	LONGLONG
 
-/*memory type*/
+ /*memory type*/
 typedef struct __MEM_TYPE
 {
 	uint8* buffer;
@@ -60,31 +60,31 @@ typedef struct __MEM_TYPE
 
 __inline int32 SW_LONG_AT(void* b, uint32 c)
 {
-	return	((int32)*((uint8 *)b + c) << 24 | (int32)*((uint8 *)b + c + 1) << 16 | (int32)*((uint8 *)b + c + 2) << 8 | (int32)*((uint8 *)b + c + 3) << 0);
+	return	((int32) * ((uint8*)b + c) << 24 | (int32) * ((uint8*)b + c + 1) << 16 | (int32) * ((uint8*)b + c + 2) << 8 | (int32) * ((uint8*)b + c + 3) << 0);
 }
 
 
 __inline uint32 SW_ULONG_AT(void* b, uint32 c)
 {
-	return	((uint32)*((uint8 *)b + c) << 24 | (uint32)*((uint8 *)b + c + 1) << 16 | (uint32)*((uint8 *)b + c + 2) << 8 | (uint32)*((uint8 *)b + c + 3) << 0);
+	return	((uint32) * ((uint8*)b + c) << 24 | (uint32) * ((uint8*)b + c + 1) << 16 | (uint32) * ((uint8*)b + c + 2) << 8 | (uint32) * ((uint8*)b + c + 3) << 0);
 }
 
 __inline int16 SW_SHORT_AT(void* b, uint32 os)
 {
-	return ((int16)((int16)*((uint8 *)b + os + 0) << 8 | (int16)*((uint8 *)b + os + 1) << 0));
+	return ((int16)((int16) * ((uint8*)b + os + 0) << 8 | (int16) * ((uint8*)b + os + 1) << 0));
 }
 
 __inline uint16 SW_USHORT_AT(void* b, uint32 os)
 {
-	return ((uint16)((uint16)*((uint8 *)b + os + 0) << 8 | (uint16)*((uint8 *)b + os + 1) << 0));
+	return ((uint16)((uint16) * ((uint8*)b + os + 0) << 8 | (uint16) * ((uint8*)b + os + 1) << 0));
 }
 
 __inline VOID SW_ULONG_ASSIGN(void* dst, uint32 src)
 {
-	*((uint8 *)dst + 0) = *((uint8 *)&src + 3);
-	*((uint8 *)dst + 1) = *((uint8 *)&src + 2);
-	*((uint8 *)dst + 2) = *((uint8 *)&src + 1);
-	*((uint8 *)dst + 3) = *((uint8 *)&src + 0);
+	*((uint8*)dst + 0) = *((uint8*)&src + 3);
+	*((uint8*)dst + 1) = *((uint8*)&src + 2);
+	*((uint8*)dst + 2) = *((uint8*)&src + 1);
+	*((uint8*)dst + 3) = *((uint8*)&src + 0);
 }
 
 #ifdef WIN_NT_DRIVER
@@ -119,4 +119,3 @@ __inline VOID SW_ULONG_ASSIGN(void* dst, uint32 src)
 
 
 #endif 
-

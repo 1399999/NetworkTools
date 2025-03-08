@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -31,11 +31,8 @@
  *
  */
 
-// stdafx.cpp : source file that includes just the standard includes
-//	netmeter.pch will be the pre-compiled header
-//	stdafx.obj will contain the pre-compiled type information
+ // stdafx.cpp : source file that includes just the standard includes
+ //	netmeter.pch will be the pre-compiled header
+ //	stdafx.obj will contain the pre-compiled type information
 
 #include "stdafx.h"
-
-
-

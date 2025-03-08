@@ -7,6 +7,7 @@ int main(int argc, char** argv)
 {
 	pcap_t* fp;
 	char errbuf[PCAP_ERRBUF_SIZE];
+	char source[PCAP_BUF_SIZE];
 	struct pcap_pkthdr* header;
 	const u_char* pkt_data;
 	u_int i = 0;
@@ -16,15 +17,32 @@ int main(int argc, char** argv)
 	{
 		printf("usage: %s filename", argv[0]);
 		return -1;
+	}
 
+	/* Create the source string according to the new WinPcap syntax */
+	if (pcap_createsrcstr(source,			// variable that will keep the source string
+		PCAP_SRC_FILE,	// we want to open a file
+		NULL,			// remote host
+		NULL,			// port on the remote host
+		argv[1],		// name of the file we want to open
+		errbuf			// error buffer
+	) != 0)
+	{
+		fprintf(stderr, "\nError creating a source string\n");
+		return -1;
 	}
 
 	/* Open the capture file */
-	if ((fp = pcap_open_offline(argv[1],			// name of the device
-		errbuf					// error buffer
+	if ((fp = pcap_open(source,			// name of the device
+		65536,			// portion of the packet to capture
+		// 65536 guarantees that the whole packet will be captured on all the link layers
+		PCAP_OPENFLAG_PROMISCUOUS, 	// promiscuous mode
+		1000,				// read timeout
+		NULL,				// authentication on the remote machine
+		errbuf			// error buffer
 	)) == NULL)
 	{
-		fprintf(stderr, "\nUnable to open the file %s.\n", argv[1]);
+		fprintf(stderr, "\nUnable to open the file %s.\n", source);
 		return -1;
 	}
 
@@ -50,6 +68,5 @@ int main(int argc, char** argv)
 		printf("Error reading the packets: %s\n", pcap_geterr(fp));
 	}
 
-	pcap_close(fp);
 	return 0;
 }

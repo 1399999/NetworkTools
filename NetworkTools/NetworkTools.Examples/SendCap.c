@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -38,17 +38,17 @@
 
 void usage();
 
-void main(int argc, char **argv)
+void main(int argc, char** argv)
 {
-	pcap_t *indesc,*outdesc;
+	pcap_t* indesc, * outdesc;
 	char errbuf[PCAP_ERRBUF_SIZE];
 	char source[PCAP_BUF_SIZE];
-	FILE *capfile;
+	FILE* capfile;
 	int caplen, sync;
 	u_int res;
-	pcap_send_queue *squeue;
-	struct pcap_pkthdr *pktheader;
-	u_char *pktdata;
+	pcap_send_queue* squeue;
+	struct pcap_pkthdr* pktheader;
+	u_char* pktdata;
 	float cpu_time;
 	u_int npacks = 0;
 	errno_t fopen_error;
@@ -59,49 +59,49 @@ void main(int argc, char **argv)
 		usage();
 		return;
 	}
-		
+
 	/* Retrieve the length of the capture file */
-	fopen_error = fopen_s(&capfile, argv[1],"rb");
-	if(fopen_error != 0){
+	fopen_error = fopen_s(&capfile, argv[1], "rb");
+	if (fopen_error != 0) {
 		printf("Error opening the file, errno %d.\n", fopen_error);
 		return;
 	}
-	
-	fseek(capfile , 0, SEEK_END);
-	caplen= ftell(capfile)- sizeof(struct pcap_file_header);
+
+	fseek(capfile, 0, SEEK_END);
+	caplen = ftell(capfile) - sizeof(struct pcap_file_header);
 	fclose(capfile);
-			
+
 	/* Chek if the timestamps must be respected */
-	if(argc == 4 && argv[3][0] == 's')
+	if (argc == 4 && argv[3][0] == 's')
 		sync = TRUE;
 	else
 		sync = FALSE;
 
 	/* Open the capture */
 	/* Create the source string according to the new WinPcap syntax */
-	if ( pcap_createsrcstr(	source,			// variable that will keep the source string
-							PCAP_SRC_FILE,	// we want to open a file
-							NULL,			// remote host
-							NULL,			// port on the remote host
-							argv[1],		// name of the file we want to open
-							errbuf			// error buffer
-							) != 0)
+	if (pcap_createsrcstr(source,			// variable that will keep the source string
+		PCAP_SRC_FILE,	// we want to open a file
+		NULL,			// remote host
+		NULL,			// port on the remote host
+		argv[1],		// name of the file we want to open
+		errbuf			// error buffer
+	) != 0)
 	{
-		fprintf(stderr,"\nError creating a source string\n");
+		fprintf(stderr, "\nError creating a source string\n");
 		return;
 	}
-	
+
 	/* Open the capture file */
-	if ( (indesc= pcap_open(source, 65536, PCAP_OPENFLAG_PROMISCUOUS, 1000, NULL, errbuf) ) == NULL)
+	if ((indesc = pcap_open(source, 65536, PCAP_OPENFLAG_PROMISCUOUS, 1000, NULL, errbuf)) == NULL)
 	{
-		fprintf(stderr,"\nUnable to open the file %s.\n", source);
+		fprintf(stderr, "\nUnable to open the file %s.\n", source);
 		return;
 	}
 
 	/* Open the output adapter */
-	if ( (outdesc= pcap_open(argv[2], 100, PCAP_OPENFLAG_PROMISCUOUS, 1000, NULL, errbuf) ) == NULL)
+	if ((outdesc = pcap_open(argv[2], 100, PCAP_OPENFLAG_PROMISCUOUS, 1000, NULL, errbuf)) == NULL)
 	{
-		fprintf(stderr,"\nUnable to open adapter %s.\n", source);
+		fprintf(stderr, "\nUnable to open adapter %s.\n", source);
 		return;
 	}
 
@@ -117,7 +117,7 @@ void main(int argc, char **argv)
 	squeue = pcap_sendqueue_alloc(caplen);
 
 	/* Fill the queue with the packets from the file */
-	while ((res = pcap_next_ex( indesc, &pktheader, &pktdata)) == 1)
+	while ((res = pcap_next_ex(indesc, &pktheader, &pktdata)) == 1)
 	{
 		if (pcap_sendqueue_queue(squeue, pktheader, pktdata) == -1)
 		{
@@ -136,20 +136,20 @@ void main(int argc, char **argv)
 	}
 
 	/* Transmit the queue */
-	
-	cpu_time = (float)clock ();
+
+	cpu_time = (float)clock();
 
 	if ((res = pcap_sendqueue_transmit(outdesc, squeue, sync)) < squeue->len)
 	{
 		printf("An error occurred sending the packets: %s. Only %d bytes were sent\n", pcap_geterr(outdesc), res);
 	}
-	
-	cpu_time = (clock() - cpu_time)/CLK_TCK;
-	
-	printf ("\n\nElapsed time: %5.3f\n", cpu_time);
-	printf ("\nTotal packets generated = %d", npacks);
-	printf ("\nAverage packets per second = %d", (int)((double)npacks/cpu_time));
-	printf ("\n");
+
+	cpu_time = (clock() - cpu_time) / CLK_TCK;
+
+	printf("\n\nElapsed time: %5.3f\n", cpu_time);
+	printf("\nTotal packets generated = %d", npacks);
+	printf("\nAverage packets per second = %d", (int)((double)npacks / cpu_time));
+	printf("\n");
 
 	/* free the send queue */
 	pcap_sendqueue_destroy(squeue);
@@ -157,9 +157,9 @@ void main(int argc, char **argv)
 	/* Close the input file */
 	pcap_close(indesc);
 
-	/* 
-	 * lose the output adapter 
-	 * IMPORTANT: remember to close the adapter, otherwise there will be no guarantee that all the 
+	/*
+	 * lose the output adapter
+	 * IMPORTANT: remember to close the adapter, otherwise there will be no guarantee that all the
 	 * packets will be sent!
 	 */
 	pcap_close(outdesc);
@@ -171,7 +171,7 @@ void main(int argc, char **argv)
 
 void usage()
 {
-	
+
 	printf("\nSendcap, sends a libpcap/tcpdump capture file to the net. Copyright (C) 2002 Loris Degioanni.\n");
 	printf("\nUsage:\n");
 	printf("\t sendcap file_name adapter [s]\n");

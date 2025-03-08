@@ -31,21 +31,18 @@
  *
  */
 
-#ifdef _MSC_VER
- /*
-  * we do not want the warnings about the old deprecated and unsecure CRT functions
-  * since these examples can be compiled under *nix as well
-  */
-#define _CRT_SECURE_NO_WARNINGS
-#endif
 
 #include <stdlib.h>
 #include <stdio.h>
 
+ //
+ // NOTE: remember to include WPCAP and HAVE_REMOTE among your
+ // preprocessor definitions.
+ //
+
 #include <pcap.h>
 
 #define LINE_LEN 16
-
 
 int main(int argc, char** argv)
 {
@@ -60,17 +57,18 @@ int main(int argc, char** argv)
 	printf("pktdump_ex: prints the packets of the network using WinPcap.\n");
 	printf("   Usage: pktdump_ex [-s source]\n\n"
 		"   Examples:\n"
-		"      pktdump_ex -s file.acp\n"
-		"      pktdump_ex -s \\Device\\NPF_{C8736017-F3C3-4373-94AC-9A34B7DAD998}\n\n");
+		"      pktdump_ex -s file://c:/temp/file.acp\n"
+		"      pktdump_ex -s rpcap://\\Device\\NPF_{C8736017-F3C3-4373-94AC-9A34B7DAD998}\n\n");
 
 	if (argc < 3)
 	{
+
 		printf("\nNo adapter selected: printing the device list:\n");
 		/* The user didn't provide a packet source: Retrieve the local device list */
-		if (pcap_findalldevs(&alldevs, errbuf) == -1)
+		if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1)
 		{
 			fprintf(stderr, "Error in pcap_findalldevs_ex: %s\n", errbuf);
-			exit(1);
+			return -1;
 		}
 
 		/* Print the list */
@@ -86,12 +84,12 @@ int main(int argc, char** argv)
 
 		if (i == 0)
 		{
-			printf("\nNo interfaces found! Make sure WinPcap is installed.\n");
+			fprintf(stderr, "No interfaces found! Exiting.\n");
 			return -1;
 		}
 
 		printf("Enter the interface number (1-%d):", i);
-		scanf("%d", &inum);
+		scanf_s("%d", &inum);
 
 		if (inum < 1 || inum > i)
 		{
@@ -105,14 +103,14 @@ int main(int argc, char** argv)
 		/* Jump to the selected adapter */
 		for (d = alldevs, i = 0; i < inum - 1; d = d->next, i++);
 
-		/* Open the adapter */
-		if ((fp = pcap_open_live(d->name,	// name of the device
-			65536,							// portion of the packet to capture. 
-			// 65536 grants that the whole packet will be captured on all the MACs.
-			1,								// promiscuous mode (nonzero means promiscuous)
-			1000,							// read timeout
-			errbuf							// error buffer
-		)) == NULL)
+		/* Open the device */
+		if ((fp = pcap_open(d->name,
+			100 /*snaplen*/,
+			PCAP_OPENFLAG_PROMISCUOUS /*flags*/,
+			20 /*read timeout*/,
+			NULL /* remote authentication */,
+			errbuf)
+			) == NULL)
 		{
 			fprintf(stderr, "\nError opening adapter\n");
 			return -1;
@@ -120,16 +118,16 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		/* Do not check for the switch type ('-s') */
-		if ((fp = pcap_open_live(argv[2],	// name of the device
-			65536,							// portion of the packet to capture. 
-			// 65536 grants that the whole packet will be captured on all the MACs.
-			1,								// promiscuous mode (nonzero means promiscuous)
-			1000,							// read timeout
-			errbuf							// error buffer
-		)) == NULL)
+		// Do not check for the switch type ('-s')
+		if ((fp = pcap_open(argv[2],
+			100 /*snaplen*/,
+			PCAP_OPENFLAG_PROMISCUOUS /*flags*/,
+			20 /*read timeout*/,
+			NULL /* remote authentication */,
+			errbuf)
+			) == NULL)
 		{
-			fprintf(stderr, "\nError opening adapter\n");
+			fprintf(stderr, "\nError opening source: %s\n", errbuf);
 			return -1;
 		}
 	}
@@ -157,10 +155,9 @@ int main(int argc, char** argv)
 
 	if (res == -1)
 	{
-		printf("Error reading the packets: %s\n", pcap_geterr(fp));
+		fprintf(stderr, "Error reading the packets: %s\n", pcap_geterr(fp));
 		return -1;
 	}
 
-	pcap_close(fp);
 	return 0;
 }

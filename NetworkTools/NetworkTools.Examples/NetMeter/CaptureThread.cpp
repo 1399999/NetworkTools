@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -36,48 +36,48 @@
 #include "capdll.h"
 #include "console.h"
 
-HANDLE in,out,err;
+HANDLE in, out, err;
 
 DWORD d;
 CCapPars* pObject;
 CRITICAL_SECTION Crit;
 
 // callback routine called by libpcap for every incoming packet
-void dispatcher_handler(u_char *pParam,const struct pcap_pkthdr *header, const u_char *pkt_data)
+void dispatcher_handler(u_char* pParam, const struct pcap_pkthdr* header, const u_char* pkt_data)
 {
-UINT delay;
-LARGE_INTEGER Bps,Pps;
-CCapPars* pObject;
+	UINT delay;
+	LARGE_INTEGER Bps, Pps;
+	CCapPars* pObject;
 
-	pObject=(CCapPars*)pParam;
+	pObject = (CCapPars*)pParam;
 	//Calculate the delay in microseconds from the last sample.
 	//This value is obtained from the timestamp that the capture driver
 	//associates to the sample.
-	delay=(header->ts.tv_sec-pObject->lasttime.tv_sec)*1000000-pObject->lasttime.tv_usec+header->ts.tv_usec;
+	delay = (header->ts.tv_sec - pObject->lasttime.tv_sec) * 1000000 - pObject->lasttime.tv_usec + header->ts.tv_usec;
 	//get the number of Bits per second
-	Bps.QuadPart=(((LONGLONG)(*(LONGLONG*)(pkt_data+8))*80)/(delay));
+	Bps.QuadPart = (((LONGLONG)(*(LONGLONG*)(pkt_data + 8)) * 80) / (delay));
 	//get the number of Packets per second
-	Pps.QuadPart=(((LONGLONG)(*(LONGLONG*)(pkt_data))*100000000)/((LONGLONG)delay*14880));
+	Pps.QuadPart = (((LONGLONG)(*(LONGLONG*)(pkt_data)) * 100000000) / ((LONGLONG)delay * 14880));
 
 	//store current timestamp
-	pObject->lasttime.tv_sec=header->ts.tv_sec;
-	pObject->lasttime.tv_usec=header->ts.tv_usec;
+	pObject->lasttime.tv_sec = header->ts.tv_sec;
+	pObject->lasttime.tv_usec = header->ts.tv_usec;
 
-	pObject->prg->DrawBoard(&(pObject->prg->DrawBuffer),pObject->prg->wrett,Bps.LowPart,Pps.LowPart);
+	pObject->prg->DrawBoard(&(pObject->prg->DrawBuffer), pObject->prg->wrett, Bps.LowPart, Pps.LowPart);
 }
 
 //main thread procedure: launches the capture and wait
-UINT MyThreadProc( LPVOID pParam )
-{   
+UINT MyThreadProc(LPVOID pParam)
+{
 	int i;
 
-    if (pParam == NULL)
-    return -1;    // illegal parameter
-	pObject=(CCapPars*)pParam;
+	if (pParam == NULL)
+		return -1;    // illegal parameter
+	pObject = (CCapPars*)pParam;
 
 	//reset the timer
-	pObject->lasttime.tv_sec=0;
-	pObject->lasttime.tv_usec=0;
+	pObject->lasttime.tv_sec = 0;
+	pObject->lasttime.tv_usec = 0;
 
 	//start the capture loop
 	i = pcap_loop(pObject->fp, 0, dispatcher_handler, (PUCHAR)pParam);
@@ -86,4 +86,3 @@ UINT MyThreadProc( LPVOID pParam )
 
 	return 0;
 }
-

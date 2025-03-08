@@ -60,6 +60,168 @@
     <ClInclude Include="Win32-Extensions\Win32-Extensions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Downloads\npcap-c1c1e12f85f0daf414dd9ef1647f83d4eee10106\npcap-c1c1e12f85f0daf414dd9ef1647f83d4eee10106\wpcap\libpcap\bpf\net\bpf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\bpf\net\bpf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\lbl\gnuc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\lbl\os-aix4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\lbl\os-hpux11.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\lbl\os-osf4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\lbl\os-osf5.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\lbl\os-solaris2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\lbl\os-sunos4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\lbl\os-ultrix4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\linux-include\netinet\if_ether.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\linux-include\netinet\ip_var.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap\bluetooth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap\bpf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap\namedb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap\pcap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap\sll.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap\usb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap\vlan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\Win32\Include\net\if.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\Win32\Include\net\netdb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\Win32\Include\net\paths.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\Win32\Include\addrinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\Win32\Include\bittypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\Win32\Include\cdecl_ext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\Win32\Include\Gnuc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\Win32\Include\inetprivate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\Win32\Include\ip6_misc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\Win32\Include\sockstorage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\acconfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\arcnet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\atmuni31.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\dlpisubs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\ethertype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\gencode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\ieee80211.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\llc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\nlpid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap-bpf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap-bt-linux.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap-dag.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap-dos.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap-int.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap-namedb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap-septel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap-sita.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap-stdinc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\pcap-usb-linux.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\ppp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\sunatmpos.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\tokdefs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libpcap\Win32\Include\arpa\nameser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LibPCap\rpcapd\daemon.c">
@@ -92,6 +254,156 @@
     <ClCompile Include="Win32-Extensions\Win32-Extensions.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Downloads\npcap-c1c1e12f85f0daf414dd9ef1647f83d4eee10106\npcap-c1c1e12f85f0daf414dd9ef1647f83d4eee10106\wpcap\libpcap\bpf\net\bpf_filter.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\bpf\net\bpf_filter.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\missing\snprintf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\Win32\Src\ffs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\Win32\Src\gai_strerror.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\Win32\Src\getaddrinfo.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\Win32\Src\getnetbynm.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\Win32\Src\getnetent.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\Win32\Src\getopt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\Win32\Src\getservent.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\Win32\Src\inet_aton.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\Win32\Src\inet_net.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\Win32\Src\inet_pton.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\bpf_dump.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\bpf_image.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\dlpisubs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\etherent.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\fad-getad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\fad-gifc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\fad-glifc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\fad-null.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\fad-sita.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\fad-win32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\filtertest.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\findalldevstest.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\gencode.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\grammar.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\inet.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\nametoaddr.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\optimize.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\pcap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\pcap-bpf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\pcap-bt-linux.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\pcap-dag.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\pcap-dlpi.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\pcap-dos.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\pcap-enet.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\pcap-libdlpi.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\pcap-linux.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\pcap-nit.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\pcap-null.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\pcap-pf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\pcap-septel.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\pcap-sita.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\pcap-snit.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\pcap-snoop.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\pcap-usb-linux.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\pcap-win32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\savefile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libpcap\scanner.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LibPCap\rpcapd\Makefile" />
@@ -100,9 +412,106 @@
     </None>
     <None Include="PRJ\GNUmakefile" />
     <None Include="LibPCap\rpcapd\win32-pthreads\pthreadVC.dll" />
+    <None Include="libpcap\pcap-sita.html" />
+    <None Include="libpcap\.cvsignore" />
+    <None Include="libpcap\aclocal.m4" />
+    <None Include="libpcap\CHANGES" />
+    <None Include="libpcap\chmod_bpf" />
+    <None Include="libpcap\config.guess" />
+    <None Include="libpcap\config.h.in" />
+    <None Include="libpcap\config.sub" />
+    <None Include="libpcap\configure" />
+    <None Include="libpcap\configure.in" />
+    <None Include="libpcap\CREDITS" />
+    <None Include="libpcap\grammar.y" />
+    <None Include="libpcap\INSTALL" />
+    <None Include="libpcap\install-sh" />
+    <None Include="libpcap\LICENSE" />
+    <None Include="libpcap\mkdep" />
+    <None Include="libpcap\Makefile.in" />
+    <None Include="libpcap\org.tcpdump.chmod_bpf.plist" />
+    <None Include="libpcap\pcap.3pcap.in" />
+    <None Include="libpcap\pcap_activate.3pcap" />
+    <None Include="libpcap\pcap_breakloop.3pcap" />
+    <None Include="libpcap\pcap_can_set_rfmon.3pcap" />
+    <None Include="libpcap\pcap_close.3pcap" />
+    <None Include="libpcap\pcap_compile.3pcap.in" />
+    <None Include="libpcap\pcap_create.3pcap" />
+    <None Include="libpcap\pcap_datalink.3pcap.in" />
+    <None Include="libpcap\pcap_datalink_name_to_val.3pcap" />
+    <None Include="libpcap\pcap_datalink_val_to_name.3pcap" />
+    <None Include="libpcap\pcap_dump.3pcap" />
+    <None Include="libpcap\pcap_dump_close.3pcap" />
+    <None Include="libpcap\pcap_dump_file.3pcap" />
+    <None Include="libpcap\pcap_dump_flush.3pcap" />
+    <None Include="libpcap\pcap_dump_ftell.3pcap" />
+    <None Include="libpcap\pcap_dump_open.3pcap.in" />
+    <None Include="libpcap\pcap_file.3pcap" />
+    <None Include="libpcap\pcap_fileno.3pcap" />
+    <None Include="libpcap\pcap_findalldevs.3pcap" />
+    <None Include="libpcap\pcap_free_datalinks.3pcap" />
+    <None Include="libpcap\pcap_freealldevs.3pcap" />
+    <None Include="libpcap\pcap_freecode.3pcap" />
+    <None Include="libpcap\pcap_get_selectable_fd.3pcap" />
+    <None Include="libpcap\pcap_geterr.3pcap" />
+    <None Include="libpcap\pcap_inject.3pcap" />
+    <None Include="libpcap\pcap_is_swapped.3pcap" />
+    <None Include="libpcap\pcap_lib_version.3pcap" />
+    <None Include="libpcap\pcap_list_datalinks.3pcap.in" />
+    <None Include="libpcap\pcap_lookupdev.3pcap" />
+    <None Include="libpcap\pcap_lookupnet.3pcap" />
+    <None Include="libpcap\pcap_loop.3pcap" />
+    <None Include="libpcap\pcap_major_version.3pcap" />
+    <None Include="libpcap\pcap_next_ex.3pcap" />
+    <None Include="libpcap\pcap_offline_filter.3pcap" />
+    <None Include="libpcap\pcap_open_dead.3pcap.in" />
+    <None Include="libpcap\pcap_open_live.3pcap" />
+    <None Include="libpcap\pcap_open_offline.3pcap.in" />
+    <None Include="libpcap\pcap_set_buffer_size.3pcap" />
+    <None Include="libpcap\pcap_set_datalink.3pcap" />
+    <None Include="libpcap\pcap_set_promisc.3pcap" />
+    <None Include="libpcap\pcap_set_rfmon.3pcap" />
+    <None Include="libpcap\pcap_set_snaplen.3pcap" />
+    <None Include="libpcap\pcap_set_timeout.3pcap" />
+    <None Include="libpcap\pcap_setdirection.3pcap" />
+    <None Include="libpcap\pcap_setfilter.3pcap" />
+    <None Include="libpcap\pcap_setnonblock.3pcap" />
+    <None Include="libpcap\pcap_snapshot.3pcap" />
+    <None Include="libpcap\pcap_stats.3pcap" />
+    <None Include="libpcap\pcap_statustostr.3pcap" />
+    <None Include="libpcap\pcap_strerror.3pcap" />
+    <None Include="libpcap\pcap-config.1" />
+    <None Include="libpcap\pcap-config.in" />
+    <None Include="libpcap\pcap-linktype.manmisc.in" />
+    <None Include="libpcap\pcap-filter.manmisc.in" />
+    <None Include="libpcap\pcap-savefile.manfile.in" />
+    <None Include="libpcap\README" />
+    <None Include="libpcap\README.aix" />
+    <None Include="libpcap\README.dag" />
+    <None Include="libpcap\README.hpux" />
+    <None Include="libpcap\README.linux" />
+    <None Include="libpcap\README.macosx" />
+    <None Include="libpcap\README.septel" />
+    <None Include="libpcap\README.sita" />
+    <None Include="libpcap\README.tru64" />
+    <None Include="libpcap\README.Win32" />
+    <None Include="libpcap\remote_code.patch" />
+    <None Include="libpcap\runlex.sh" />
+    <None Include="libpcap\scanner.l" />
+    <None Include="libpcap\tc.patch" />
+    <None Include="libpcap\TODO" />
+    <None Include="libpcap\VERSION" />
+    <None Include="libpcap\wlan_filtering.patch" />
+    <None Include="libpcap\ChmodBPF\ChmodBPF" />
+    <None Include="libpcap\ChmodBPF\StartupParameters.plist" />
+    <None Include="libpcap\packaging\pcap.spec.in" />
+    <None Include="libpcap\SUNOS4\nit_if.o.sparc" />
+    <None Include="libpcap\SUNOS4\nit_if.o.sun3" />
+    <None Include="libpcap\SUNOS4\nit_if.o.sun4c.4.0.3c" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="LibPCap\readme-rpcap.txt" />
+    <Text Include="libpcap\INSTALL.txt" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="LibPCap\rpcapd\win32-pthreads\pthreadVC.lib" />

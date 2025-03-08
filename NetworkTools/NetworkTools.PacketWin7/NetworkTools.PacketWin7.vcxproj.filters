@@ -75,6 +75,9 @@
     <ClCompile Include="Dll\ProtInstall.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="NPF6x\bucket_lookup.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NPF6x\bucket_lookup.h">

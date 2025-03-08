@@ -53,10 +53,10 @@
 
 uint32 tcp_session(uint8* block, uint32 pkt_size, TME_DATA* data, MEM_TYPE* mem_ex, uint8* mem_data)
 {
-	uint32 next_status;  
+	uint32 next_status;
 	uint32 direction = ULONG_AT(mem_data, 12);
 	uint8 flags = mem_ex->buffer[25];
-	tcp_data* session = (tcp_data*)(block + data->key_len*4);
+	tcp_data* session = (tcp_data*)(block + data->key_len * 4);
 
 	session->last_timestamp = session->timestamp_block;
 	session->timestamp_block.tv_sec = 0x7fffffff;

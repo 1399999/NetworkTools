@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -40,15 +40,15 @@
 
 
 int main()
-{	
-pcap_if_t *alldevs, *d;
-pcap_t *fp;
-u_int inum, i=0;
-char errbuf[PCAP_ERRBUF_SIZE];
-int res;
-struct pcap_pkthdr *header;
-const u_char *pkt_data;
-struct pcap_pkthdr old;
+{
+	pcap_if_t* alldevs, * d;
+	pcap_t* fp;
+	u_int inum, i = 0;
+	char errbuf[PCAP_ERRBUF_SIZE];
+	int res;
+	struct pcap_pkthdr* header;
+	const u_char* pkt_data;
+	struct pcap_pkthdr old;
 
 	printf("SMP_1\n");
 	printf("\nThis program tests the WinPcap kernel driver on SMP machines.\n");
@@ -58,12 +58,12 @@ struct pcap_pkthdr old;
 
 	if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1)
 	{
-		fprintf(stderr,"Error in pcap_findalldevs: %s\n", errbuf);
+		fprintf(stderr, "Error in pcap_findalldevs: %s\n", errbuf);
 		exit(1);
 	}
-		
+
 	/* Print the list */
-	for(d=alldevs; d; d=d->next)
+	for (d = alldevs; d; d = d->next)
 	{
 		printf("%d. %s", ++i, d->name);
 		if (d->description)
@@ -71,59 +71,59 @@ struct pcap_pkthdr old;
 		else
 			printf(" (No description available)\n");
 	}
-		
-	if(i==0)
+
+	if (i == 0)
 	{
 		printf("\nNo interfaces found! Make sure WinPcap is installed.\n");
 		return -1;
 	}
-		
-	printf("Enter the interface number (1-%d):",i);
+
+	printf("Enter the interface number (1-%d):", i);
 	scanf_s("%d", &inum);
-		
-	if(inum < 1 || inum > i)
+
+	if (inum < 1 || inum > i)
 	{
 		printf("\nInterface number out of range.\n");
 		/* Free the device list */
 		pcap_freealldevs(alldevs);
 		return -1;
 	}
-		
+
 	/* Jump to the selected adapter */
-	for(d=alldevs, i=0; i< inum-1 ;d=d->next, i++);
-	
+	for (d = alldevs, i = 0; i < inum - 1; d = d->next, i++);
+
 	/* Open the device */
-	if ( (fp= pcap_open(d->name, 65536, PCAP_OPENFLAG_PROMISCUOUS, 1000, NULL, errbuf) ) == NULL)
+	if ((fp = pcap_open(d->name, 65536, PCAP_OPENFLAG_PROMISCUOUS, 1000, NULL, errbuf)) == NULL)
 	{
-		fprintf(stderr,"\nUnable to open the adapter. %s is not supported by WinPcap\n", d->name);
+		fprintf(stderr, "\nUnable to open the adapter. %s is not supported by WinPcap\n", d->name);
 		/* Free the device list */
 		pcap_freealldevs(alldevs);
 		return -1;
 	}
 
-	old.ts.tv_sec=0;
-	old.ts.tv_usec=0;
+	old.ts.tv_sec = 0;
+	old.ts.tv_usec = 0;
 
 
 	/* Read the packets */
-	while((res = pcap_next_ex( fp, &header, &pkt_data)) >= 0){
+	while ((res = pcap_next_ex(fp, &header, &pkt_data)) >= 0) {
 
-		if(res == 0)
+		if (res == 0)
 			continue;
 
 		//check that caplen is equal to packet length
-		if (header->caplen!=header->len)
-			printf("Inconsistent header: CapLen %d\t Len %d\n",header->caplen,header->len);
+		if (header->caplen != header->len)
+			printf("Inconsistent header: CapLen %d\t Len %d\n", header->caplen, header->len);
 
 		//check that timestamps always grow
-		if ( old.ts.tv_sec > header->ts.tv_sec || (old.ts.tv_sec == header->ts.tv_sec  && old.ts.tv_usec > header->ts.tv_usec))
-			printf("Inconsistent Timestamps! Old was %d.%.06d - New is %d.%.06d\n",old.ts.tv_sec,old.ts.tv_usec, header->ts.tv_sec,header->ts.tv_usec);
+		if (old.ts.tv_sec > header->ts.tv_sec || (old.ts.tv_sec == header->ts.tv_sec && old.ts.tv_usec > header->ts.tv_usec))
+			printf("Inconsistent Timestamps! Old was %d.%.06d - New is %d.%.06d\n", old.ts.tv_sec, old.ts.tv_usec, header->ts.tv_sec, header->ts.tv_usec);
 
-		old=*header;
+		old = *header;
 
 	}
 
-	if(res == -1){
+	if (res == -1) {
 		printf("Error reading the packets: %s\n", pcap_geterr(fp));
 		return -1;
 	}

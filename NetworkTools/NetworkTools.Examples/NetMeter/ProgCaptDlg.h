@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -38,8 +38,8 @@
 #if _MSC_VER >= 1000
 #pragma once
 #endif // _MSC_VER >= 1000
-// ProgCaptDlg.h : header file
-//
+ // ProgCaptDlg.h : header file
+ //
 #include "..\..\include\pcap-c.h"
 
 class CCapPars;
@@ -49,18 +49,18 @@ class CCapPars;
 
 class CProgCaptDlg : public CDialog
 {
-// Construction
+	// Construction
 public:
 	CProgCaptDlg(CWnd* pParent = NULL);   // standard constructor
 	CCapPars* m_Main;
 	int npc;
 	int init;
-	pcap_t *fp;
-	pcap_dumper_t *dumpfile;
+	pcap_t* fp;
+	pcap_dumper_t* dumpfile;
 
 
-// Dialog Data
-	//{{AFX_DATA(CProgCaptDlg)
+	// Dialog Data
+		//{{AFX_DATA(CProgCaptDlg)
 	enum { IDD = IDD_CAP_BUSY };
 	CStatic	m_Static;
 	CProgressCtrl	m_Progress;
@@ -70,9 +70,9 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CProgCaptDlg)
-	public:
+public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 

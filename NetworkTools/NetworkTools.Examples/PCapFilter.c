@@ -44,7 +44,7 @@
 void usage();
 
 
-int main(int argc, char** argv)
+void main(int argc, char** argv)
 {
 	pcap_t* fp;
 	char errbuf[PCAP_ERRBUF_SIZE];
@@ -62,12 +62,12 @@ int main(int argc, char** argv)
 	if (argc == 1)
 	{
 		usage();
-		return -1;
+		return;
 	}
 
-	/* Parse parameters */
 	for (i = 1; i < argc; i += 2)
 	{
+
 		switch (argv[i][1])
 		{
 		case 's':
@@ -93,18 +93,19 @@ int main(int argc, char** argv)
 	// open a capture from the network
 	if (source != NULL)
 	{
-		if ((fp = pcap_open_live(source,		// name of the device
-			65536,								// portion of the packet to capture. 
-			// 65536 grants that the whole packet will be captured on all the MACs.
-			1,									// promiscuous mode (nonzero means promiscuous)
-			1000,								// read timeout
-			errbuf								// error buffer
-		)) == NULL)
+		if ((fp = pcap_open(source,
+			1514 /*snaplen*/,
+			PCAP_OPENFLAG_PROMISCUOUS /*flags*/,
+			20 /*read timeout*/,
+			NULL /* remote authentication */,
+			errbuf)
+			) == NULL)
 		{
 			fprintf(stderr, "\nUnable to open the adapter.\n");
-			return -2;
+			return;
 		}
 	}
+
 	else usage();
 
 	if (filter != NULL)
@@ -119,18 +120,14 @@ int main(int argc, char** argv)
 		if (pcap_compile(fp, &fcode, filter, 1, NetMask) < 0)
 		{
 			fprintf(stderr, "\nError compiling filter: wrong syntax.\n");
-
-			pcap_close(fp);
-			return -3;
+			return;
 		}
 
 		//set the filter
 		if (pcap_setfilter(fp, &fcode) < 0)
 		{
 			fprintf(stderr, "\nError setting the filter\n");
-
-			pcap_close(fp);
-			return -4;
+			return;
 		}
 
 	}
@@ -143,9 +140,7 @@ int main(int argc, char** argv)
 		if (dumpfile == NULL)
 		{
 			fprintf(stderr, "\nError opening output file\n");
-
-			pcap_close(fp);
-			return -5;
+			return;
 		}
 	}
 	else usage();
@@ -162,11 +157,6 @@ int main(int argc, char** argv)
 		pcap_dump((unsigned char*)dumpfile, header, pkt_data);
 
 	}
-
-	pcap_close(fp);
-	pcap_dump_close(dumpfile);
-
-	return 0;
 }
 
 

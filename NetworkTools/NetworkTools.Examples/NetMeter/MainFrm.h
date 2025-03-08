@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -31,9 +31,9 @@
  *
  */
 
-// MainFrm.h : interface of the CMainFrame class
-//
-/////////////////////////////////////////////////////////////////////////////
+ // MainFrm.h : interface of the CMainFrame class
+ //
+ /////////////////////////////////////////////////////////////////////////////
 
 #if !defined(AFX_MAINFRM_H__3BF6CD27_6C2B_11D3_B76F_0080C8DF82B3__INCLUDED_)
 #define AFX_MAINFRM_H__3BF6CD27_6C2B_11D3_B76F_0080C8DF82B3__INCLUDED_
@@ -44,21 +44,21 @@
 
 class CMainFrame : public CFrameWnd
 {
-	
+
 protected: // create from serialization only
 	CMainFrame();
 	DECLARE_DYNCREATE(CMainFrame)
 
-// Attributes
+	// Attributes
 public:
 
-// Operations
+	// Operations
 public:
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CMainFrame)
-	public:
+	// Overrides
+		// ClassWizard generated virtual function overrides
+		//{{AFX_VIRTUAL(CMainFrame)
+public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	//}}AFX_VIRTUAL
 
@@ -70,7 +70,7 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
-// Generated message map functions
+	// Generated message map functions
 protected:
 	//{{AFX_MSG(CMainFrame)
 	//}}AFX_MSG

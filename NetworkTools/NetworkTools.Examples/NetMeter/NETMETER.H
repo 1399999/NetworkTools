@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -31,8 +31,8 @@
  *
  */
 
-// netmeter.h : main header file for the NETMETER application
-//
+ // netmeter.h : main header file for the NETMETER application
+ //
 
 #if !defined(AFX_NETMETER_H__3BF6CD23_6C2B_11D3_B76F_0080C8DF82B3__INCLUDED_)
 #define AFX_NETMETER_H__3BF6CD23_6C2B_11D3_B76F_0080C8DF82B3__INCLUDED_
@@ -42,7 +42,7 @@
 #endif // _MSC_VER > 1000
 
 #ifndef __AFXWIN_H__
-	#error include 'stdafx.h' before including this file for PCH
+#error include 'stdafx.h' before including this file for PCH
 #endif
 
 #include "resource.h"       // main symbols
@@ -57,10 +57,10 @@ class CNetmeterApp : public CWinApp
 public:
 	CNetmeterApp();
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CNetmeterApp)
-	public:
+	// Overrides
+		// ClassWizard generated virtual function overrides
+		//{{AFX_VIRTUAL(CNetmeterApp)
+public:
 	virtual BOOL InitInstance();
 	//}}AFX_VIRTUAL
 

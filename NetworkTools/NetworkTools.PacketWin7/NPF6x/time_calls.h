@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -54,7 +54,7 @@ extern ULONG TimestampMode;
 /*!
   \brief A microsecond precise timestamp.
 
-  included in the sf_pkthdr or the bpf_hdr that NPF associates with every packet. 
+  included in the sf_pkthdr or the bpf_hdr that NPF associates with every packet.
 */
 
 struct timeval
@@ -112,7 +112,7 @@ __inline void ReadTimeStampModeFromRegistry(PUNICODE_STRING RegistryPath)
 			TimestampMode = DEFAULT_TIMESTAMPMODE;
 		}
 
-		RtlWriteRegistryValue(RTL_REGISTRY_ABSOLUTE, NullTerminatedString, TIMESTAMPMODE_REGKEY, REG_DWORD, &TimestampMode, sizeof(ULONG));	
+		RtlWriteRegistryValue(RTL_REGISTRY_ABSOLUTE, NullTerminatedString, TIMESTAMPMODE_REGKEY, REG_DWORD, &TimestampMode, sizeof(ULONG));
 		ExFreePool(NullTerminatedString);
 	}
 	else
@@ -147,10 +147,10 @@ __inline void SynchronizeOnCpu(struct timeval* start)
 
 	if (start->tv_usec < 0)
 	{
-		start->tv_sec --;
+		start->tv_sec--;
 		start->tv_usec += 1000000;
 	}
-}	
+}
 
 //
 // inline assembler is not supported with the current AMD64 compilers
@@ -190,16 +190,16 @@ __inline VOID TimeSynchronizeRDTSC(struct time_conv* data)
 	start_kqpc = KeQueryPerformanceCounter(&start_freq);
 	__asm
 	{
-	push eax
-	push edx
-	push ecx
-	rdtsc
-	lea ecx, start_ticks
-	mov[ecx + 4], edx
-	mov[ecx], eax
-	pop ecx
-	pop edx
-	pop eax
+		push eax
+		push edx
+		push ecx
+		rdtsc
+		lea ecx, start_ticks
+		mov[ecx + 4], edx
+		mov[ecx], eax
+		pop ecx
+		pop edx
+		pop eax
 	}
 
 	KeLowerIrql(old);
@@ -210,16 +210,16 @@ __inline VOID TimeSynchronizeRDTSC(struct time_conv* data)
 	stop_kqpc = KeQueryPerformanceCounter(&stop_freq);
 	__asm
 	{
-	push eax
-	push edx
-	push ecx
-	rdtsc
-	lea ecx, stop_ticks
-	mov[ecx + 4], edx
-	mov[ecx], eax
-	pop ecx
-	pop edx
-	pop eax
+		push eax
+		push edx
+		push ecx
+		rdtsc
+		lea ecx, stop_ticks
+		mov[ecx + 4], edx
+		mov[ecx], eax
+		pop ecx
+		pop edx
+		pop eax
 	}
 	KeLowerIrql(old);
 
@@ -246,16 +246,16 @@ __inline VOID TimeSynchronizeRDTSC(struct time_conv* data)
 
 	__asm
 	{
-	push eax
-	push edx
-	push ecx
-	rdtsc
-	lea ecx, curr_ticks
-	mov[ecx + 4], edx
-	mov[ecx], eax
-	pop ecx
-	pop edx
-	pop eax
+		push eax
+		push edx
+		push ecx
+		rdtsc
+		lea ecx, curr_ticks
+		mov[ecx + 4], edx
+		mov[ecx], eax
+		pop ecx
+		pop edx
+		pop eax
 	}
 
 	tmp.tv_sec = -(LONG)(curr_ticks / reference);
@@ -297,7 +297,7 @@ __inline VOID TIME_SYNCHRONIZE(struct time_conv* data)
 
 	if (TimestampMode == TIMESTAMPMODE_SYNCHRONIZATION_ON_CPU_WITH_FIXUP || TimestampMode == TIMESTAMPMODE_SYNCHRONIZATION_ON_CPU_NO_FIXUP)
 	{
-		for (i = 0 ; i < NumberOfCpus ; i++)
+		for (i = 0; i < NumberOfCpus; i++)
 		{
 			//
 			// the following cast is needed because KAFFINITY is defined as a 32bit value on x86 and a 64bit integer on x64.
@@ -320,18 +320,18 @@ __inline VOID TIME_SYNCHRONIZE(struct time_conv* data)
 		//
 		// This timestamp mode is supported on x86 (32 bit) only
 		//
-		#ifdef _X86_
-	if (TimestampMode == TIMESTAMPMODE_RDTSC)
-	{
-		TimeSynchronizeRDTSC(data);
-	}
-	else
-		#endif // _X86_
-	{
-		//it should be only the normal case i.e. TIMESTAMPMODE_SINGLESYNCHRONIZATION
-		SynchronizeOnCpu(data->start);
-		data->reference = 1;
-	}
+#ifdef _X86_
+		if (TimestampMode == TIMESTAMPMODE_RDTSC)
+		{
+			TimeSynchronizeRDTSC(data);
+		}
+		else
+#endif // _X86_
+		{
+			//it should be only the normal case i.e. TIMESTAMPMODE_SINGLESYNCHRONIZATION
+			SynchronizeOnCpu(data->start);
+			data->reference = 1;
+		}
 	return;
 }
 
@@ -355,14 +355,14 @@ __inline void GetTimeKQPC(struct timeval* dst, struct time_conv* data)
 	if (TimestampMode == TIMESTAMPMODE_SYNCHRONIZATION_ON_CPU_WITH_FIXUP || TimestampMode == TIMESTAMPMODE_SYNCHRONIZATION_ON_CPU_NO_FIXUP)
 	{
 		//actually this code is ok only if we are guaranteed that no thread scheduling will take place. 
-		CurrentCpu = KeGetCurrentProcessorNumber();	
+		CurrentCpu = KeGetCurrentProcessorNumber();
 
 		dst->tv_sec = data->start[CurrentCpu].tv_sec + tmp;
 		dst->tv_usec = data->start[CurrentCpu].tv_usec + (LONG)((PTime.QuadPart % TimeFreq.QuadPart) * 1000000 / TimeFreq.QuadPart);
 
 		if (dst->tv_usec >= 1000000)
 		{
-			dst->tv_sec ++;
+			dst->tv_sec++;
 			dst->tv_usec -= 1000000;
 		}
 
@@ -382,7 +382,7 @@ __inline void GetTimeKQPC(struct timeval* dst, struct time_conv* data)
 
 		if (dst->tv_usec >= 1000000)
 		{
-			dst->tv_sec ++;
+			dst->tv_sec++;
 			dst->tv_usec -= 1000000;
 		}
 	}
@@ -410,8 +410,8 @@ __inline void GetTimeRDTSC(struct timeval* dst, struct time_conv* data)
 		push ecx
 		rdtsc
 		lea ecx, tmp
-		mov [ecx+4], edx
-		mov [ecx], eax
+		mov[ecx + 4], edx
+		mov[ecx], eax
 		pop ecx
 		pop edx
 		pop eax
@@ -462,15 +462,15 @@ __inline void GET_TIME(struct timeval* dst, struct time_conv* data)
 		GetTimeRDTSC(dst, data);
 	}
 	else
-		#endif // _X86_
-	if (TimestampMode == TIMESTAMPMODE_QUERYSYSTEMTIME)
-	{
-		GetTimeQST(dst, data);
-	}
-	else
-	{
-		GetTimeKQPC(dst, data);
-	}
+#endif // _X86_
+		if (TimestampMode == TIMESTAMPMODE_QUERYSYSTEMTIME)
+		{
+			GetTimeQST(dst, data);
+		}
+		else
+		{
+			GetTimeKQPC(dst, data);
+		}
 }
 
 

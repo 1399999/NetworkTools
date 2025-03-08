@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -45,75 +45,75 @@ int main()
 	int			i;
 	DWORD		dwErrorCode;
 	char		AdapterName[8192];
-	char		*temp,*temp1;
-	int			AdapterNum=0,Open;
+	char* temp, * temp1;
+	int			AdapterNum = 0, Open;
 	ULONG		AdapterLength;
 	PPACKET_OID_DATA  OidData;
 	BOOLEAN		Status;
-	
+
 	//
 	// Obtain the name of the adapters installed on this machine
 	//
 
 	printf("Packet.dll test application. Library version:%s\n", PacketGetVersion());
-	
+
 	printf("Adapters installed:\n");
-	i=0;	
-	
+	i = 0;
+
 	AdapterLength = sizeof(AdapterName);
-	
-	if(PacketGetAdapterNames(AdapterName,&AdapterLength)==FALSE){
+
+	if (PacketGetAdapterNames(AdapterName, &AdapterLength) == FALSE) {
 		printf("Unable to retrieve the list of the adapters!\n");
 		return -1;
 	}
-	temp=AdapterName;
-	temp1=AdapterName;
+	temp = AdapterName;
+	temp1 = AdapterName;
 
-	while ((*temp!='\0')||(*(temp-1)!='\0'))
+	while ((*temp != '\0') || (*(temp - 1) != '\0'))
 	{
-		if (*temp=='\0') 
+		if (*temp == '\0')
 		{
-			memcpy(AdapterList[i],temp1,temp-temp1);
-			temp1=temp+1;
+			memcpy(AdapterList[i], temp1, temp - temp1);
+			temp1 = temp + 1;
 			i++;
 		}
 		temp++;
 	}
-		  
-	AdapterNum=i;
-	for (i=0;i<AdapterNum;i++)
-		printf("\n%d- %s\n",i+1,AdapterList[i]);
+
+	AdapterNum = i;
+	for (i = 0; i < AdapterNum; i++)
+		printf("\n%d- %s\n", i + 1, AdapterList[i]);
 	printf("\n");
 
 
-	do 
+	do
 	{
 		printf("Select the number of the adapter to open : ");
-		scanf_s("%d",&Open);
-		if (Open>AdapterNum) printf("\nThe number must be smaller than %d",AdapterNum); 
-	} while (Open>AdapterNum);
-	
+		scanf_s("%d", &Open);
+		if (Open > AdapterNum) printf("\nThe number must be smaller than %d", AdapterNum);
+	} while (Open > AdapterNum);
+
 
 	//
 	// Open the selected adapter
 	//
 
-	lpAdapter =   PacketOpenAdapter(AdapterList[Open-1]);
-	
+	lpAdapter = PacketOpenAdapter(AdapterList[Open - 1]);
+
 	if (!lpAdapter || (lpAdapter->hFile == INVALID_HANDLE_VALUE))
 	{
-		dwErrorCode=GetLastError();
-		printf("Unable to open the adapter, Error Code : %lx\n",dwErrorCode); 
+		dwErrorCode = GetLastError();
+		printf("Unable to open the adapter, Error Code : %lx\n", dwErrorCode);
 
 		return -1;
-	}	
+	}
 
 	// 
 	// Allocate a buffer to get the MAC adress
 	//
 
 	OidData = malloc(6 + sizeof(PACKET_OID_DATA));
-	if (OidData == NULL) 
+	if (OidData == NULL)
 	{
 		printf("error allocating memory!\n");
 		PacketCloseAdapter(lpAdapter);
@@ -128,9 +128,9 @@ int main()
 
 	OidData->Length = 6;
 	ZeroMemory(OidData->Data, 6);
-	
+
 	Status = PacketRequest(lpAdapter, FALSE, OidData);
-	if(Status)
+	if (Status)
 	{
 		printf("The MAC address of the adapter is %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
 			(OidData->Data)[0],
@@ -149,4 +149,3 @@ int main()
 	PacketCloseAdapter(lpAdapter);
 	return (0);
 }
-

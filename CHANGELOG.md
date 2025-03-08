@@ -40,8 +40,14 @@ Gets rid of support for Windows XP and Vista by deleting the folder "PacketNtx".
 Finishes standardizing the names of all folders, as well as deleting old unneeded code.
 Code still does not work, however.
 
-# Version 0.1.3 [1 March 2025] (Build ?)
+# Version 0.1.3 [4 March 2025] (Build 0)
 
 Deletes the installer folder.
 Fixes some bugs with Packet Win 7.
 Fixes some bugs with files not being added properly in the last version.
+
+# Version 0.1.4 [6 March 2025] (Build 0)
+
+Adds any necessary updates for up to Windows 8.1.
+Slightly refactors the code by replacing any pointers from the end of the start of the variable to the start of the expression.
+Adds the majority of the libpcap library.

@@ -134,6 +134,7 @@
     <ClCompile Include="Dll\ProtInstall.cpp" />
     <ClCompile Include="Dll\WanPacket\WanPacket.cpp" />
     <ClCompile Include="NPF6xInstall\NPF6xInstall.cpp" />
+    <ClCompile Include="NPF6x\bucket_lookup.c" />
     <ClCompile Include="NPF6x\count_packets.c" />
     <ClCompile Include="NPF6x\dump.c" />
     <ClCompile Include="NPF6x\functions.c" />

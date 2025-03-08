@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (c) 1999 - 2005 NetGroup, Politecnico di Torino (Italy)
  * Copyright (c) 2005 - 2010 CACE Technologies, Davis (California)
  * All rights reserved.
@@ -45,7 +45,7 @@
 
 #include "ProtInstall.h"
 #include "Packet32-Int.h"
-#include "../npf6x/npf6x/ioctls.h"
+#include "../npf/npf/ioctls.h"
 
 #ifdef HAVE_WANPACKET_API
 #include "wanpacket/wanpacket.h"
@@ -308,7 +308,7 @@ BOOL APIENTRY DllMain(HANDLE DllHandle, DWORD Reason, LPVOID lpReserved)
 		//
 		// XXX We want to replace this with a constant. We leave it out for the moment
 		// TODO fixme. Those hardcoded strings are terrible...
-		PacketGetFileVersion(TEXT("drivers\\") TEXT(NPF_DRIVER_FILE_NAME) TEXT(".sys"), PacketDriverVersion, sizeof(PacketDriverVersion));
+		PacketGetFileVersion(TEXT("drivers\\") TEXT(NPF_DRIVER_NAME) TEXT(".sys"), PacketDriverVersion, sizeof(PacketDriverVersion));
 
 		break;
 
@@ -2260,7 +2260,7 @@ VOID PacketInitPacket(LPPACKET lpPacket, PVOID Buffer, UINT Length)
   values, here only the normal capture mode will be described.
 
   The number of packets received with this function is variable. It depends on the number of packets
-  currently stored in the driver’s buffer, on the size of these packets and on the size of the buffer
+  currently stored in the driverï¿½s buffer, on the size of these packets and on the size of the buffer
   associated to the lpPacket parameter. The following figure shows the format used by the driver to pass
   packets to the application.
 

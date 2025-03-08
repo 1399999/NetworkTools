@@ -3,9 +3,6 @@
  * Copyright (c) 2005 - 2007 CACE Technologies, Davis (California)
  * All rights reserved.
  *
- * Copyright (c) 2020-2025
- * Mikhail Zhebrunov
- *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:

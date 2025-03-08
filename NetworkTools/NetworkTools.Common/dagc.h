@@ -2,9 +2,6 @@
  * Copyright (c) 2003
  * NetGroup, Politecnico di Torino (Italy)
  * All rights reserved.
- * 
- * Copyright (c) 2020-2025
- * Mikhail Zhebrunov
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,7 +30,6 @@
  *
  */
 
-#include <WinSock2.h>
 #define DAGC_ERRBUF_SIZE   512
 #define FILEBUFSIZE 		65536
 #define MAXDAGCARDS 		32

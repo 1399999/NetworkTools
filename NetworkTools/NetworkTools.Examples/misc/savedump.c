@@ -1,14 +1,6 @@
-#ifdef _MSC_VER
-/*
- * we do not want the warnings about the old deprecated and unsecure CRT functions
- * since these examples can be compiled under *nix as well
- */
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
 #include "pcap.h"
 
- /* prototype of the packet handler */
+/* prototype of the packet handler */
 void packet_handler(u_char* param, const struct pcap_pkthdr* header, const u_char* pkt_data);
 
 int main(int argc, char** argv)
@@ -22,6 +14,7 @@ int main(int argc, char** argv)
     pcap_dumper_t* dumpfile;
 
 
+
     /* Check command line */
     if (argc != 2)
     {
@@ -30,7 +23,7 @@ int main(int argc, char** argv)
     }
 
     /* Retrieve the device list on the local machine */
-    if (pcap_findalldevs(&alldevs, errbuf) == -1)
+    if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1)
     {
         fprintf(stderr, "Error in pcap_findalldevs: %s\n", errbuf);
         exit(1);
@@ -53,7 +46,7 @@ int main(int argc, char** argv)
     }
 
     printf("Enter the interface number (1-%d):", i);
-    scanf("%d", &inum);
+    scanf_s("%d", &inum);
 
     if (inum < 1 || inum > i)
     {
@@ -67,12 +60,13 @@ int main(int argc, char** argv)
     for (d = alldevs, i = 0; i < inum - 1; d = d->next, i++);
 
 
-    /* Open the adapter */
-    if ((adhandle = pcap_open_live(d->name,	// name of the device
-        65536,			// portion of the packet to capture. 
-        // 65536 grants that the whole packet will be captured on all the MACs.
-        1,				// promiscuous mode (nonzero means promiscuous)
-        1000,			// read timeout
+    /* Open the device */
+    if ((adhandle = pcap_open(d->name,			// name of the device
+        65536,			// portion of the packet to capture
+        // 65536 guarantees that the whole packet will be captured on all the link layers
+        PCAP_OPENFLAG_PROMISCUOUS, 	// promiscuous mode
+        1000,				// read timeout
+        NULL,				// authentication on the remote machine
         errbuf			// error buffer
     )) == NULL)
     {
@@ -99,7 +93,6 @@ int main(int argc, char** argv)
     /* start the capture */
     pcap_loop(adhandle, 0, packet_handler, (unsigned char*)dumpfile);
 
-    pcap_close(adhandle);
     return 0;
 }
 

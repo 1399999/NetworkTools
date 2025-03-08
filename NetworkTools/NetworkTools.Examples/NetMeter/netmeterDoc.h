@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -31,9 +31,9 @@
  *
  */
 
-// netmeterDoc.h : interface of the CNetmeterDoc class
-//
-/////////////////////////////////////////////////////////////////////////////
+ // netmeterDoc.h : interface of the CNetmeterDoc class
+ //
+ /////////////////////////////////////////////////////////////////////////////
 
 #if !defined(AFX_NETMETERDOC_H__3BF6CD29_6C2B_11D3_B76F_0080C8DF82B3__INCLUDED_)
 #define AFX_NETMETERDOC_H__3BF6CD29_6C2B_11D3_B76F_0080C8DF82B3__INCLUDED_
@@ -49,16 +49,16 @@ protected: // create from serialization only
 	CNetmeterDoc();
 	DECLARE_DYNCREATE(CNetmeterDoc)
 
-// Attributes
+	// Attributes
 public:
 
-// Operations
+	// Operations
 public:
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CNetmeterDoc)
-	public:
+	// Overrides
+		// ClassWizard generated virtual function overrides
+		//{{AFX_VIRTUAL(CNetmeterDoc)
+public:
 	virtual BOOL OnNewDocument();
 	virtual void Serialize(CArchive& ar);
 	//}}AFX_VIRTUAL
@@ -73,7 +73,7 @@ public:
 
 protected:
 
-// Generated message map functions
+	// Generated message map functions
 protected:
 	//{{AFX_MSG(CNetmeterDoc)
 	//}}AFX_MSG

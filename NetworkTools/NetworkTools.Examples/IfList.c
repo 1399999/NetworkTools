@@ -31,13 +31,7 @@
  *
  */
 
-#ifdef _MSC_VER
- /*
-  * we do not want the warnings about the old deprecated and unsecure CRT functions
-  * since these examples can be compiled under *nix as well
-  */
-#define _CRT_SECURE_NO_WARNINGS
-#endif
+#include <stdio.h>
 
 #include "pcap.h"
 
@@ -49,7 +43,7 @@
 #endif
 
 
-  // Function prototypes
+ // Function prototypes
 void ifprint(pcap_if_t* d);
 char* iptos(u_long in);
 char* ip6tos(struct sockaddr* sockaddr, char* address, int addrlen);
@@ -60,9 +54,21 @@ int main()
 	pcap_if_t* alldevs;
 	pcap_if_t* d;
 	char errbuf[PCAP_ERRBUF_SIZE + 1];
+	char source[PCAP_ERRBUF_SIZE + 1];
 
-	/* Retrieve the device list */
-	if (pcap_findalldevs(&alldevs, errbuf) == -1)
+	printf("Enter the device you want to list:\n"
+		"rpcap://              ==> lists interfaces in the local machine\n"
+		"rpcap://hostname:port ==> lists interfaces in a remote machine\n"
+		"                          (rpcapd daemon must be up and running\n"
+		"                           and it must accept 'null' authentication)\n"
+		"file://foldername     ==> lists all pcap files in the give folder\n\n"
+		"Enter your choice: ");
+
+	fgets(source, PCAP_ERRBUF_SIZE, stdin);
+	source[PCAP_ERRBUF_SIZE] = '\0';
+
+	/* Retrieve the interfaces list */
+	if (pcap_findalldevs_ex(source, NULL, &alldevs, errbuf) == -1)
 	{
 		fprintf(stderr, "Error in pcap_findalldevs: %s\n", errbuf);
 		exit(1);
@@ -74,7 +80,6 @@ int main()
 		ifprint(d);
 	}
 
-	/* Free the device list */
 	pcap_freealldevs(alldevs);
 
 	return 1;
@@ -118,10 +123,8 @@ void ifprint(pcap_if_t* d)
 
 		case AF_INET6:
 			printf("\tAddress Family Name: AF_INET6\n");
-#ifndef __MINGW32__ /* Cygnus doesn't have IPv6 */
 			if (a->addr)
 				printf("\tAddress: %s\n", ip6tos(a->addr, ip6str, sizeof(ip6str)));
-#endif
 			break;
 
 		default:
@@ -131,6 +134,8 @@ void ifprint(pcap_if_t* d)
 	}
 	printf("\n");
 }
+
+
 
 /* From tcptraceroute, convert a numeric IP address to a string */
 #define IPTOSBUFFERS	12
@@ -142,11 +147,10 @@ char* iptos(u_long in)
 
 	p = (u_char*)&in;
 	which = (which + 1 == IPTOSBUFFERS ? 0 : which + 1);
-	sprintf(output[which], "%d.%d.%d.%d", p[0], p[1], p[2], p[3]);
+	_snprintf_s(output[which], sizeof(output[which]), sizeof(output[which]), "%d.%d.%d.%d", p[0], p[1], p[2], p[3]);
 	return output[which];
 }
 
-#ifndef __MINGW32__ /* Cygnus doesn't have IPv6 */
 char* ip6tos(struct sockaddr* sockaddr, char* address, int addrlen)
 {
 	socklen_t sockaddrlen;
@@ -168,4 +172,3 @@ char* ip6tos(struct sockaddr* sockaddr, char* address, int addrlen)
 
 	return address;
 }
-#endif /* __MINGW32__ */

@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -37,8 +37,8 @@
 #if _MSC_VER >= 1000
 #pragma once
 #endif // _MSC_VER >= 1000
-// SelectAdapter.h : header file
-//
+ // SelectAdapter.h : header file
+ //
 
 #include "linecoll.h"
 #include "resource.h"
@@ -46,35 +46,35 @@
 /////////////////////////////////////////////////////////////////////////////
 // CSelectAdapter dialog
 
-int ExecuteApp(CString & s);
+int ExecuteApp(CString& s);
 
 class CSelectAdapter : public CDialog
 {
-// Construction
+	// Construction
 public:
 	CSelectAdapter(CWnd* pParent = NULL);   // standard constructor
 
-// Dialog Data
-	//{{AFX_DATA(CSelectAdapter)
+	// Dialog Data
+		//{{AFX_DATA(CSelectAdapter)
 	enum { IDD = IDD_ADAPTER };
 	CStatic	m_CAdapter;
 	CListCtrl	m_ListCtrl;
 	//}}AFX_DATA
 	CString m_Adapter;
 	CString m_Cmd;
-    CImageList m_ctlImage;
+	CImageList m_ctlImage;
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CSelectAdapter)
-	protected:
+	// Overrides
+		// ClassWizard generated virtual function overrides
+		//{{AFX_VIRTUAL(CSelectAdapter)
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
-	void Update(LineCollection &lc);
-	void AddItem(int nItem,int nSubItem,LPCTSTR strItem,int nImageIndex=-1);
+	void Update(LineCollection& lc);
+	void AddItem(int nItem, int nSubItem, LPCTSTR strItem, int nImageIndex = -1);
 	void SelectItem(int i);
 
 	// Generated message map functions

@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -47,13 +47,13 @@ protected: // create from serialization only
 	void StopCapture();
 	CNetmeterView();
 	DECLARE_DYNCREATE(CNetmeterView)
-// Attributes
+	// Attributes
 public:
 	CPen gridpen;
 	CPen diagrampen1;
 	CPen diagrampen2;
 	UINT BytesCaptured;
-	int lastval1,lastval2;
+	int lastval1, lastval2;
 	CDC DrawBuffer;
 	int time;
 	int delta;
@@ -62,17 +62,17 @@ public:
 	RECT wrett;
 	HBITMAP hBitmap;
 	CNetmeterDoc* GetDocument();
-	void DrawBoard(CDC* pDC,RECT rett,int height1,int height2);
-	void CreateBoard(CDC* pDC,CDC *DrawBuff,RECT rett);
-// Operations
+	void DrawBoard(CDC* pDC, RECT rett, int height1, int height2);
+	void CreateBoard(CDC* pDC, CDC* DrawBuff, RECT rett);
+	// Operations
 public:
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CNetmeterView)
-	public:
+	// Overrides
+		// ClassWizard generated virtual function overrides
+		//{{AFX_VIRTUAL(CNetmeterView)
+public:
 	virtual void OnDraw(CDC* pDC);  // overridden to draw this view
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-	protected:
+protected:
 	//}}AFX_VIRTUAL
 
 // Implementation
@@ -85,7 +85,7 @@ public:
 
 protected:
 
-// Generated message map functions
+	// Generated message map functions
 protected:
 	//{{AFX_MSG(CNetmeterView)
 	afx_msg void OnTimer(UINT nIDEvent);
@@ -96,7 +96,9 @@ protected:
 
 #ifndef _DEBUG  // debug version in netmeterView.cpp
 inline CNetmeterDoc* CNetmeterView::GetDocument()
-   { return (CNetmeterDoc*)m_pDocument; }
+{
+	return (CNetmeterDoc*)m_pDocument;
+}
 #endif
 
 /////////////////////////////////////////////////////////////////////////////

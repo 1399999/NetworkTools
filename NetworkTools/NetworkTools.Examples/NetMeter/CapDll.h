@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
- * nor the names of its contributors may be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies
+ * nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -40,16 +40,16 @@
 #endif // _MSC_VER >= 1000
 
 #ifndef __AFXWIN_H__
-	#error include 'stdafx.h' before including this file for PCH
+#error include 'stdafx.h' before including this file for PCH
 #endif
 
 #include "resource.h"		// main symbols
 #define MaxCapPars 10
 
-/////////////////////////////////////////////////////////////////////////////
-// CCapDll:
-// See CapDll.cpp for the implementation of this class
-//
+ /////////////////////////////////////////////////////////////////////////////
+ // CCapDll:
+ // See CapDll.cpp for the implementation of this class
+ //
 #ifdef _EXPORTING   
 #define CLASS_DECLSPEC __declspec(dllexport)
 #else
@@ -67,10 +67,10 @@ public:
 	const char* GetAdapter();
 	const char* GetPath();
 	const char* GetFilter();
-	char* SetPath(const char * p);
+	char* SetPath(const char* p);
 	char* SetAdapter(const char* ad);
 	char* SetFilter(const char* ad);
-	int CaptureDialog(const char* Adapter,const char* P, CWnd* mw);
+	int CaptureDialog(const char* Adapter, const char* P, CWnd* mw);
 	int ChooseAdapter(const char* Adapter, CWnd* mw);
 	const char* Capture(const char* file, CWnd* mw);
 	~CCapDll();
@@ -81,7 +81,7 @@ private:
 	char* Filter;
 	int bufdim;
 	int ncapture;
-	int snaplen;	
+	int snaplen;
 	int promisquous;
 	void LoadCmds();
 	CString RetrieveValue(CString keyval);
