@@ -37,6 +37,7 @@
 #include <ntddk.h>
 #include <ndis.h>
 
+#include "Loopback.h"
 #include "debug.h"
 #include "packet.h"
 #include "win_bpf.h"
@@ -52,6 +53,7 @@
 #pragma NDIS_INIT_FUNCTION(DriverEntry)
 #endif // ALLOC_PRAGMA
 
+#define				FILTER_UNIQUE_NAME		L"{7daf2ac8-e9f6-4765-a842-f1f5d2501340}"
 
 #if DBG
  // Declare the global debug flag for this driver.
@@ -66,7 +68,27 @@ PDEVICE_EXTENSION GlobalDeviceExtension;
 //
 WCHAR g_NPF_PrefixBuffer[MAX_WINPCAP_KEY_CHARS] = NPF_DEVICE_NAMES_PREFIX_WIDECHAR;
 
-POPEN_INSTANCE g_arrOpen = NULL;
+POPEN_INSTANCE g_arrOpen = NULL; //Adapter open_instance list head, each list item is a group head.
+
+#ifdef HAVE_WFP_LOOPBACK_SUPPORT
+//
+// Global variables used by WFP
+//
+POPEN_INSTANCE g_LoopbackOpenGroupHead = NULL; // Loopback adapter open_instance group head, this pointer points to one item in g_arrOpen list.
+#ifdef _X86_
+NDIS_STRING g_NpcapSoftwareKey = NDIS_STRING_CONST("\\Registry\\Machine\\Software"
+	L"\\" NPF_SOFT_REGISTRY_NAME_WIDECHAR);
+#else
+NDIS_STRING g_NpcapSoftwareKey = NDIS_STRING_CONST("\\Registry\\Machine\\Software\\Wow6432Node"
+	L"\\" NPF_SOFT_REGISTRY_NAME_WIDECHAR);
+#endif
+NDIS_STRING g_LoopbackAdapterName;
+NDIS_STRING g_LoopbackRegValueName = NDIS_STRING_CONST("Loopback");
+
+extern HANDLE gWFPEngineHandle;
+#endif
+
+ULONG g_AdminOnlyMode = 0;
 
 NDIS_STRING g_NPF_Prefix;
 NDIS_STRING devicePrefix = NDIS_STRING_CONST("\\Device\\");
@@ -76,6 +98,8 @@ NDIS_STRING tcpLinkageKeyName = NDIS_STRING_CONST("\\Registry\\Machine\\System"
 NDIS_STRING AdapterListKey = NDIS_STRING_CONST("\\Registry\\Machine\\System"
 	L"\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}");
 NDIS_STRING bindValueName = NDIS_STRING_CONST("Bind");
+
+NDIS_STRING g_AdminOnlyRegValueName = NDIS_STRING_CONST("AdminOnly");
 
 /// Global variable that points to the names of the bound adapters
 WCHAR* bindP = NULL;
@@ -103,9 +127,9 @@ DriverEntry(
 	NDIS_FILTER_DRIVER_CHARACTERISTICS FChars;
 	NTSTATUS Status = STATUS_SUCCESS;
 
-	NDIS_STRING FriendlyName = RTL_CONSTANT_STRING(L"WinPcap NDIS LightWeight Filter"); //display name
-	NDIS_STRING UniqueName = RTL_CONSTANT_STRING(L"{7daf2ac8-e9f6-4765-a842-f1f5d2501339}"); //unique name, quid name
-	NDIS_STRING ServiceName = RTL_CONSTANT_STRING(L"npf"); //this to match the service name in the INF
+	NDIS_STRING FriendlyName = RTL_CONSTANT_STRING(NPF_SERVICE_DESC_WIDECHAR); //display name
+	NDIS_STRING UniqueName = RTL_CONSTANT_STRING(FILTER_UNIQUE_NAME); //unique name, quid name
+	NDIS_STRING ServiceName = RTL_CONSTANT_STRING(NPF_DRIVER_NAME_SMALL_WIDECHAR); //this to match the service name in the INF
 	WCHAR* bindT;
 	PKEY_VALUE_PARTIAL_INFORMATION tcpBindingsP;
 	UNICODE_STRING macName;
@@ -189,6 +213,12 @@ DriverEntry(
 	DriverObject->MajorFunction[IRP_MJ_WRITE] = NPF_Write;
 	DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = NPF_IoControl;
 
+	NPF_GetAdminOnlyOption();
+
+#ifdef HAVE_WFP_LOOPBACK_SUPPORT
+	NPF_GetLoopbackAdapterName();
+#endif
+
 	bindP = getAdaptersList();
 
 	if (bindP == NULL)
@@ -227,6 +257,24 @@ DriverEntry(
 		TRACE_EXIT();
 		return Status;
 	}
+
+#ifdef HAVE_WFP_LOOPBACK_SUPPORT
+	if (DriverObject->DeviceObject)
+	{
+		Status = NPF_RegisterCallouts(DriverObject->DeviceObject);
+		if (!NT_SUCCESS(Status))
+		{
+			if (gWFPEngineHandle != NULL)
+			{
+				NPF_UnregisterCallouts();
+
+				NdisFDeregisterFilterDriver(FilterDriverHandle);
+			}
+			TRACE_EXIT();
+			return Status;
+		}
+	}
+#endif
 
 	TRACE_EXIT();
 	return STATUS_SUCCESS;
@@ -383,7 +431,10 @@ getAdaptersList(
 	}
 	if (BufPos == 0)
 	{
-		ExFreePool(DeviceNames);
+		if (DeviceNames)
+		{
+			ExFreePool(DeviceNames);
+		}
 		TRACE_EXIT();
 		return NULL;
 	}
@@ -487,6 +538,158 @@ getTcpBindings(
 }
 
 //-------------------------------------------------------------------
+VOID
+NPF_GetAdminOnlyOption(
+)
+{
+	OBJECT_ATTRIBUTES objAttrs;
+	NTSTATUS status;
+	HANDLE keyHandle;
+
+	TRACE_ENTER();
+
+	InitializeObjectAttributes(&objAttrs, &g_NpcapSoftwareKey, OBJ_CASE_INSENSITIVE, NULL, NULL);
+	status = ZwOpenKey(&keyHandle, KEY_READ, &objAttrs);
+	if (!NT_SUCCESS(status))
+	{
+		IF_LOUD(DbgPrint("\n\nStatus of %x opening %ws\n", status, g_NpcapSoftwareKey.Buffer);)
+	}
+	else //OK
+	{
+		ULONG resultLength;
+		KEY_VALUE_PARTIAL_INFORMATION valueInfo;
+		NDIS_STRING AdminOnlyValueName = g_AdminOnlyRegValueName;
+		status = ZwQueryValueKey(keyHandle,
+			&AdminOnlyValueName,
+			KeyValuePartialInformation,
+			&valueInfo,
+			sizeof(valueInfo),
+			&resultLength);
+
+		if (!NT_SUCCESS(status) && (status != STATUS_BUFFER_OVERFLOW))
+		{
+			IF_LOUD(DbgPrint("\n\nStatus of %x querying key value for size\n", status);)
+		}
+		else
+		{
+			// We know how big it needs to be.
+			ULONG valueInfoLength = valueInfo.DataLength + FIELD_OFFSET(KEY_VALUE_PARTIAL_INFORMATION, Data[0]);
+			PKEY_VALUE_PARTIAL_INFORMATION valueInfoP = (PKEY_VALUE_PARTIAL_INFORMATION)ExAllocatePoolWithTag(PagedPool, valueInfoLength, '1PWA');
+			if (valueInfoP != NULL)
+			{
+				status = ZwQueryValueKey(keyHandle,
+					&AdminOnlyValueName,
+					KeyValuePartialInformation,
+					valueInfoP,
+					valueInfoLength,
+					&resultLength);
+				if (!NT_SUCCESS(status))
+				{
+					IF_LOUD(DbgPrint("Status of %x querying key value\n", status);)
+				}
+				else
+				{
+					IF_LOUD(DbgPrint("Admin Only Key = %ws\n", valueInfoP->Data);)
+
+						if (valueInfoP->DataLength == 4)
+						{
+							g_AdminOnlyMode = *((DWORD*)valueInfoP->Data);
+						}
+				}
+
+				ExFreePool(valueInfoP);
+			}
+			else
+			{
+				IF_LOUD(DbgPrint("Error Allocating the buffer for the admin only option\n");)
+			}
+		}
+
+		ZwClose(keyHandle);
+	}
+
+	TRACE_EXIT();
+}
+
+//-------------------------------------------------------------------
+
+#ifdef HAVE_WFP_LOOPBACK_SUPPORT
+VOID
+NPF_GetLoopbackAdapterName(
+)
+{
+	OBJECT_ATTRIBUTES objAttrs;
+	NTSTATUS status;
+	HANDLE keyHandle;
+
+	TRACE_ENTER();
+
+	InitializeObjectAttributes(&objAttrs, &g_NpcapSoftwareKey, OBJ_CASE_INSENSITIVE, NULL, NULL);
+	status = ZwOpenKey(&keyHandle, KEY_READ, &objAttrs);
+	if (!NT_SUCCESS(status))
+	{
+		IF_LOUD(DbgPrint("\n\nStatus of %x opening %ws\n", status, g_NpcapSoftwareKey.Buffer);)
+	}
+	else //OK
+	{
+		ULONG resultLength;
+		KEY_VALUE_PARTIAL_INFORMATION valueInfo;
+		NDIS_STRING LoopbackValueName = g_LoopbackRegValueName;
+		status = ZwQueryValueKey(keyHandle,
+			&LoopbackValueName,
+			KeyValuePartialInformation,
+			&valueInfo,
+			sizeof(valueInfo),
+			&resultLength);
+
+		if (!NT_SUCCESS(status) && (status != STATUS_BUFFER_OVERFLOW))
+		{
+			IF_LOUD(DbgPrint("\n\nStatus of %x querying key value for size\n", status);)
+		}
+		else
+		{
+			// We know how big it needs to be.
+			ULONG valueInfoLength = valueInfo.DataLength + FIELD_OFFSET(KEY_VALUE_PARTIAL_INFORMATION, Data[0]);
+			PKEY_VALUE_PARTIAL_INFORMATION valueInfoP = (PKEY_VALUE_PARTIAL_INFORMATION)ExAllocatePoolWithTag(PagedPool, valueInfoLength, '1PWA');
+			if (valueInfoP != NULL)
+			{
+				status = ZwQueryValueKey(keyHandle,
+					&LoopbackValueName,
+					KeyValuePartialInformation,
+					valueInfoP,
+					valueInfoLength,
+					&resultLength);
+				if (!NT_SUCCESS(status))
+				{
+					IF_LOUD(DbgPrint("Status of %x querying key value\n", status);)
+				}
+				else
+				{
+					IF_LOUD(DbgPrint("Loopback Device Key = %ws\n", valueInfoP->Data);)
+
+						g_LoopbackAdapterName.Length = 0;
+					g_LoopbackAdapterName.MaximumLength = (USHORT)(valueInfoP->DataLength + sizeof(UNICODE_NULL));
+					g_LoopbackAdapterName.Buffer = ExAllocatePoolWithTag(PagedPool, g_LoopbackAdapterName.MaximumLength, '3PWA');
+
+					RtlCopyMemory(g_LoopbackAdapterName.Buffer, valueInfoP->Data, valueInfoP->DataLength);
+				}
+
+				ExFreePool(valueInfoP);
+			}
+			else
+			{
+				IF_LOUD(DbgPrint("Error Allocating the buffer for the device name\n");)
+			}
+		}
+
+		ZwClose(keyHandle);
+	}
+
+	TRACE_EXIT();
+}
+#endif
+
+//-------------------------------------------------------------------
 
 BOOLEAN
 NPF_CreateDevice(
@@ -540,14 +743,36 @@ NPF_CreateDevice(
 
 	IF_LOUD(DbgPrint("Creating device name: %ws\n", deviceName.Buffer);)
 
-		status = IoCreateDevice(adriverObjectP, sizeof(DEVICE_EXTENSION), &deviceName, FILE_DEVICE_TRANSPORT,
-			FILE_DEVICE_SECURE_OPEN, FALSE, &devObjP);
+		if (g_AdminOnlyMode != 0)
+		{
+			UNICODE_STRING sddl = RTL_CONSTANT_STRING(L"D:P(A;;GA;;;SY)(A;;GA;;;BA)"); // this SDDL means only permits System and Administrator to access the device.
+			const GUID guidClassNPF = { 0x26e0d1e0L, 0x8189, 0x12e0, { 0x99, 0x14, 0x08, 0x00, 0x22, 0x30, 0x19, 0x04 } };
+			status = IoCreateDeviceSecure(adriverObjectP, sizeof(DEVICE_EXTENSION), &deviceName, FILE_DEVICE_TRANSPORT,
+				FILE_DEVICE_SECURE_OPEN, FALSE, &sddl, (LPCGUID)&guidClassNPF, &devObjP);
+		}
+		else
+		{
+			status = IoCreateDevice(adriverObjectP, sizeof(DEVICE_EXTENSION), &deviceName, FILE_DEVICE_TRANSPORT,
+				FILE_DEVICE_SECURE_OPEN, FALSE, &devObjP);
+		}
 
 	if (NT_SUCCESS(status))
 	{
 		PDEVICE_EXTENSION devExtP = (PDEVICE_EXTENSION)devObjP->DeviceExtension;
 
 		IF_LOUD(DbgPrint("Device created successfully\n"););
+
+#ifdef HAVE_WFP_LOOPBACK_SUPPORT
+		// Determine whether this is our loopback adapter for the device.
+		devExtP->Loopback = FALSE;
+		if (g_LoopbackAdapterName.Buffer != NULL)
+		{
+			if (RtlCompareMemory(g_LoopbackAdapterName.Buffer, amacNameP->Buffer, amacNameP->Length) == amacNameP->Length)
+			{
+				devExtP->Loopback = TRUE;
+			}
+		}
+#endif
 
 		devObjP->Flags |= DO_DIRECT_IO;
 		RtlInitUnicodeString(&devExtP->AdapterName, amacNameP->Buffer);
@@ -621,6 +846,17 @@ Return Value:
 
 	TRACE_ENTER();
 
+#ifdef HAVE_WFP_LOOPBACK_SUPPORT
+	// Free the loopback adapter name
+	if (g_LoopbackAdapterName.Buffer != NULL)
+	{
+		ExFreePool(g_LoopbackAdapterName.Buffer);
+		g_LoopbackAdapterName.Buffer = NULL;
+	}
+
+	NPF_UnregisterCallouts();
+#endif
+
 	DeviceObject = DriverObject->DeviceObject;
 
 	while (DeviceObject != NULL)
@@ -641,6 +877,7 @@ Return Value:
 
 			IoDeleteSymbolicLink(&SymLink);
 			ExFreePool(DeviceExtension->ExportString);
+			DeviceExtension->ExportString = NULL;
 		}
 
 		IoDeleteDevice(OldDeviceObject);
@@ -649,7 +886,11 @@ Return Value:
 	NdisFDeregisterFilterDriver(FilterDriverHandle);
 
 	// Free the adapters names
-	ExFreePool(bindP);
+	if (bindP != NULL)
+	{
+		ExFreePool(bindP);
+		bindP = NULL;
+	}
 
 	TRACE_EXIT();
 
@@ -1341,6 +1582,7 @@ NPF_IoControl(
 		if (Open->CpuData[0].Buffer != NULL)
 		{
 			ExFreePool(Open->CpuData[0].Buffer);
+			Open->CpuData[0].Buffer = NULL;
 		}
 
 		for (i = 0; i < g_NCpu; i++)

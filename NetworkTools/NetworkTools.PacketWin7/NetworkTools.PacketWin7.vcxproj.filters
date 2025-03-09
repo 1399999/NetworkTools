@@ -78,6 +78,33 @@
     <ClCompile Include="NPF6x\bucket_lookup.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Helper\HelperTest.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Helper\Helper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6xInstall\CalloutInstall.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6xInstall\LoopbackInstall.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6xInstall\LoopbackRecord.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6xInstall\LoopbackRename.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6xInstall\LoopbackRename2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6xInstall\NPFInstall.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPF6x\Loopback.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NPF6x\bucket_lookup.h">
@@ -153,6 +180,33 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Dll\strsafe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper\debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6xInstall\CalloutInstall.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6xInstall\msg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6xInstall\LoopbackInstall.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6xInstall\LoopbackRecord.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6xInstall\LoopbackRename.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6xInstall\LoopbackRename2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6xInstall\rc_ids.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPF6x\Loopback.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -46,8 +46,12 @@ Deletes the installer folder.
 Fixes some bugs with Packet Win 7.
 Fixes some bugs with files not being added properly in the last version.
 
-# Version 0.1.4 [6 March 2025] (Build 0)
+# Version 0.1.4 [7 March 2025] (Build 0)
 
 Adds any necessary updates for up to Windows 8.1.
 Slightly refactors the code by replacing any pointers from the end of the start of the variable to the start of the expression.
 Adds the majority of the libpcap library.
+
+# Version 0.1.5 [8 March 2025] (Build 0)
+
+Adds any necessary updates for up to Windows 10.

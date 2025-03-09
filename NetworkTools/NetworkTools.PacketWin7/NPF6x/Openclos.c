@@ -41,6 +41,9 @@
 #include "packet.h"
 #include "..\..\..\Common\WpcapNames.h"
 
+extern NDIS_STRING g_LoopbackAdapterName;
+extern NDIS_STRING devicePrefix;
+
 static
 VOID
 NPF_ReleaseOpenInstanceResources(POPEN_INSTANCE pOpen);
@@ -53,8 +56,8 @@ struct time_conv G_Start_Time =
 
 ULONG g_NumOpenedInstances = 0;
 
-extern POPEN_INSTANCE g_arrOpen; //Adapter handle list head
-
+extern POPEN_INSTANCE g_arrOpen; //Adapter open_instance list head, each list item is a group head.
+extern POPEN_INSTANCE g_LoopbackOpenGroupHead; // Loopback adapter open_instance group head, this pointer points to one item in g_arrOpen list.
 //-------------------------------------------------------------------
 
 BOOLEAN
@@ -274,19 +277,23 @@ NPF_OpenAdapter(
 
 	if (!NT_SUCCESS(returnStatus))
 	{
-		//
 		// Close the binding
-		//
 		NPF_CloseBinding(Open);
-	}
 
-	if (!NT_SUCCESS(returnStatus))
-	{
+		// Free the open instance' resources
 		NPF_ReleaseOpenInstanceResources(Open);
-		//
+
 		// Free the open instance itself
-		//
-		ExFreePool(Open);
+		if (Open)
+		{
+			ExFreePool(Open);
+			Open = NULL;
+		}
+
+		Irp->IoStatus.Status = STATUS_INSUFFICIENT_RESOURCES;
+		IoCompleteRequest(Irp, IO_NO_INCREMENT);
+		TRACE_EXIT();
+		return STATUS_UNSUCCESSFUL;
 	}
 	else
 	{
@@ -409,6 +416,7 @@ NPF_ReleaseOpenInstanceResources(
 	if (pOpen->bpfprogram != NULL)
 	{
 		ExFreePool(pOpen->bpfprogram);
+		pOpen->bpfprogram = NULL;
 	}
 
 	//
@@ -439,6 +447,7 @@ NPF_ReleaseOpenInstanceResources(
 	if (pOpen->Size > 0)
 	{
 		ExFreePool(pOpen->CpuData[0].Buffer);
+		pOpen->CpuData[0].Buffer = NULL;
 	}
 
 	//
@@ -580,7 +589,10 @@ NPF_CloseAdapter(
 	//
 	// Free the open instance itself
 	//
-	ExFreePool(pOpen);
+	if (pOpen)
+	{
+		ExFreePool(pOpen);
+	}
 
 	Irp->IoStatus.Status = STATUS_SUCCESS;
 	Irp->IoStatus.Information = 0;
@@ -603,7 +615,10 @@ NPF_CloseAdapterForUnclosed(
 	//
 	// Free the open instance itself
 	//
-	ExFreePool(pOpen);
+	if (pOpen)
+	{
+		ExFreePool(pOpen);
+	}
 
 	TRACE_EXIT();
 	return STATUS_SUCCESS;
@@ -1080,6 +1095,9 @@ NPF_DuplicateOpenObject(
 	Open = NPF_CreateOpenObject(&OriginalOpen->AdapterName, OriginalOpen->Medium, DeviceExtension);
 	Open->AdapterHandle = OriginalOpen->AdapterHandle;
 	Open->DirectBinded = FALSE;
+#ifdef HAVE_WFP_LOOPBACK_SUPPORT
+	Open->Loopback = OriginalOpen->Loopback;
+#endif
 
 	TRACE_EXIT();
 	return Open;
@@ -1113,6 +1131,9 @@ NPF_CreateOpenObject(
 
 	Open->DeviceExtension = DeviceExtension; //can be NULL before any actual bindings.
 	Open->DirectBinded = TRUE;
+#ifdef HAVE_WFP_LOOPBACK_SUPPORT
+	Open->Loopback = FALSE;
+#endif
 
 	NdisZeroMemory(&PoolParameters, sizeof(NET_BUFFER_LIST_POOL_PARAMETERS));
 	PoolParameters.Header.Type = NDIS_OBJECT_TYPE_DEFAULT;
@@ -1313,8 +1334,8 @@ NPF_AttachAdapter(
 		// media types.
 		if ((AttachParameters->MiniportMediaType != NdisMedium802_3)
 			&& (AttachParameters->MiniportMediaType != NdisMediumNative802_11)
-			//				&& (AttachParameters->MiniportMediaType != NdisMediumWan) //we don't care this kind of miniports
-			//				&& (AttachParameters->MiniportMediaType != NdisMediumWirelessWan) //we don't care this kind of miniports
+			&& (AttachParameters->MiniportMediaType != NdisMediumWan) //we don't care this kind of miniports
+			&& (AttachParameters->MiniportMediaType != NdisMediumWirelessWan) //we don't care this kind of miniports
 			&& (AttachParameters->MiniportMediaType != NdisMediumFddi)
 			&& (AttachParameters->MiniportMediaType != NdisMediumArcnet878_2)
 			&& (AttachParameters->MiniportMediaType != NdisMediumAtm)
@@ -1344,6 +1365,22 @@ NPF_AttachAdapter(
 			TRACE_EXIT();
 			return returnStatus;
 		}
+
+#ifdef HAVE_WFP_LOOPBACK_SUPPORT
+		// Determine whether this is our loopback adapter for the open_instance.
+		if (g_LoopbackAdapterName.Buffer != NULL)
+		{
+			if (RtlCompareMemory(g_LoopbackAdapterName.Buffer + devicePrefix.Length / 2, AttachParameters->BaseMiniportName->Buffer + devicePrefix.Length / 2,
+				AttachParameters->BaseMiniportName->Length - devicePrefix.Length) == AttachParameters->BaseMiniportName->Length - devicePrefix.Length)
+			{
+				if (g_LoopbackOpenGroupHead == NULL)
+				{
+					Open->Loopback = TRUE;
+					g_LoopbackOpenGroupHead = Open;
+				}
+			}
+		}
+#endif
 
 		TRACE_MESSAGE2(PACKET_DEBUG_LOUD,
 			"Opening the device %ws, BindingContext=%p",
@@ -1421,13 +1458,52 @@ NPF_Restart(
 	PNDIS_FILTER_RESTART_PARAMETERS RestartParameters
 )
 {
-	NDIS_STATUS Status;
+	// 	NDIS_STATUS Status;
+	// 
+	// 	UNREFERENCED_PARAMETER(FilterModuleContext);
+	// 	TRACE_ENTER();
+	// 
+	// 	TIME_DESYNCHRONIZE(&G_Start_Time);
+	// 	TIME_SYNCHRONIZE(&G_Start_Time);
+	// 
+	// 	Status = NDIS_STATUS_SUCCESS;
+	// 	TRACE_EXIT();
+	// 	return Status;
 
-	UNREFERENCED_PARAMETER(FilterModuleContext);
+		// above is the original version of NPF_Restart() function.
+		// below is the "disable offload" version of NPF_Restart() function.
+
+	POPEN_INSTANCE	Open = (POPEN_INSTANCE)FilterModuleContext;
+	NDIS_STATUS		Status;
+
 	TRACE_ENTER();
 
 	TIME_DESYNCHRONIZE(&G_Start_Time);
 	TIME_SYNCHRONIZE(&G_Start_Time);
+
+	/* disable offload */
+	{
+		NDIS_STATUS_INDICATION indication;
+		NDIS_OFFLOAD offload;
+
+		NdisZeroMemory(&indication, sizeof(indication));
+		indication.Header.Type = NDIS_OBJECT_TYPE_STATUS_INDICATION;
+		indication.Header.Revision = NDIS_STATUS_INDICATION_REVISION_1;
+		indication.Header.Size = NDIS_SIZEOF_STATUS_INDICATION_REVISION_1;
+		indication.SourceHandle = Open->AdapterHandle;
+		indication.StatusCode = NDIS_STATUS_TASK_OFFLOAD_CURRENT_CONFIG;
+		indication.StatusBuffer = &offload;
+		indication.StatusBufferSize = sizeof(offload);
+
+		NdisZeroMemory(&offload, sizeof(offload));
+		offload.Header.Type = NDIS_OBJECT_TYPE_OFFLOAD;
+		offload.Header.Revision = NDIS_OFFLOAD_REVISION_1;
+		offload.Header.Size = sizeof(offload);
+
+		DbgPrint("NDIS_OBJECT_TYPE_OFFLOAD signaled\n");
+
+		NdisFIndicateStatus(Open->AdapterHandle, &indication);
+	}
 
 	Status = NDIS_STATUS_SUCCESS;
 	TRACE_EXIT();
@@ -1779,13 +1855,32 @@ NOTE: called at <= DISPATCH_LEVEL
 	// 	TRACE_ENTER();
 	// 	IF_LOUD(DbgPrint("NPF: Status Indication\n");)
 
-		//
-		// The filter may do processing on the status indication here, including
-		// intercepting and dropping it entirely.  However, the sample does nothing
-		// with status indications except pass them up to the higher layer.  It is 
-		// more efficient to omit the FilterStatus handler entirely if it does 
-		// nothing, but it is included in this sample for illustrative purposes.
-		//
+		/* disable offload */
+	if (StatusIndication->StatusCode == NDIS_STATUS_TASK_OFFLOAD_CURRENT_CONFIG)
+	{
+		PNDIS_OFFLOAD offload = StatusIndication->StatusBuffer;
+		DbgPrint("status NDIS_STATUS_TASK_OFFLOAD_CURRENT_CONFIG!!!\n");
+
+		if (StatusIndication->StatusBufferSize == sizeof(NDIS_STATUS_TASK_OFFLOAD_CURRENT_CONFIG) && (offload->Header.Type = NDIS_OBJECT_TYPE_OFFLOAD))
+		{
+			memset(&offload->Checksum, 0, sizeof(NDIS_TCP_IP_CHECKSUM_OFFLOAD));
+			memset(&offload->LsoV1, 0, sizeof(NDIS_TCP_LARGE_SEND_OFFLOAD_V1));
+
+			DbgPrint("status NDIS_STATUS_TASK_OFFLOAD_CURRENT_CONFIG disabled\n");
+		}
+	}
+	else
+	{
+		DbgPrint("status %x\n", StatusIndication->StatusCode);
+	}
+
+	//
+	// The filter may do processing on the status indication here, including
+	// intercepting and dropping it entirely.  However, the sample does nothing
+	// with status indications except pass them up to the higher layer.  It is 
+	// more efficient to omit the FilterStatus handler entirely if it does 
+	// nothing, but it is included in this sample for illustrative purposes.
+	//
 	NdisFIndicateStatus(Open->AdapterHandle, StatusIndication);
 
 	/*	TRACE_EXIT();*/

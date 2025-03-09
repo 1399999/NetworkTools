@@ -224,16 +224,24 @@ NPF_Write(
 				GroupOpen = Open->GroupNext;
 			}
 
-			while (GroupOpen != NULL)
+#ifdef HAVE_WFP_LOOPBACK_SUPPORT
+			// Do not capture the send traffic we send, if this is our loopback adapter.
+			if (Open->Loopback == FALSE)
 			{
-				TempOpen = GroupOpen;
-				if (TempOpen->AdapterBindingStatus == ADAPTER_BOUND)
+#endif
+				while (GroupOpen != NULL)
 				{
-					NPF_TapExForEachOpen(TempOpen, pNetBufferList);
-				}
+					TempOpen = GroupOpen;
+					if (TempOpen->AdapterBindingStatus == ADAPTER_BOUND)
+					{
+						NPF_TapExForEachOpen(TempOpen, pNetBufferList);
+					}
 
-				GroupOpen = TempOpen->GroupNext;
+					GroupOpen = TempOpen->GroupNext;
+				}
+#ifdef HAVE_WFP_LOOPBACK_SUPPORT
 			}
+#endif
 
 			pNetBufferList->SourceHandle = Open->AdapterHandle;
 			NPFSetNBLChildOpen(pNetBufferList, Open); //save the child open object in the packets
@@ -699,7 +707,18 @@ Return Value:
 				NdisFreeNetBufferList(pNetBufList); //Free NBL
 			}
 
-			GroupOpen = Open->GroupNext;
+			// this if should always be false, as Open is always the GroupHead itself, only GroupHead is known by NDIS and get invoked in NPF_SendCompleteEx() function.
+			if (Open->GroupHead != NULL)
+			{
+				GroupOpen = Open->GroupHead->GroupNext;
+			}
+			else
+			{
+				GroupOpen = Open->GroupNext;
+			}
+
+			//GroupOpen = Open->GroupNext;
+
 			while (GroupOpen != NULL)
 			{
 				TempOpen = GroupOpen;

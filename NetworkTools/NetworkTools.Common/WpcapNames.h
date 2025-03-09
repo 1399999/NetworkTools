@@ -39,8 +39,25 @@
  //  - please do not use prefix names longer than 70 chars. 
  //  - the following characters are surely accepted in the prefixes:  "[A-Z][a-z][0-9]_-',"   
  //
-#define NPF_DRIVER_NAME							"NPF"					///< (HHH) Packet.dll
-#define NPF_DRIVER_NAME_WIDECHAR				L"NPF"					///< (HHH) Packet.dll
+#ifdef NPF_NETWORK_TOOLS_RUN_IN_WINPCAP_MODE
+#define NPF_DRIVER_NAME							"NPF"												///< (HHH) Packet.dll
+#define NPF_DRIVER_NAME_WIDECHAR				L"NPF"												///< (HHH) Packet.dll
+#define NPF_DRIVER_NAME_SMALL					"npf"												///< (HHH) Packet.dll
+#define NPF_DRIVER_NAME_SMALL_WIDECHAR			L"npf"												///< (HHH) Packet.dll
+#else
+#define NPF_DRIVER_NAME							"NETWORKTOOLS"										///< (HHH) Packet.dll
+#define NPF_DRIVER_NAME_WIDECHAR				L"NETWORKTOOLS"										///< (HHH) Packet.dll
+#define NPF_DRIVER_NAME_SMALL					"networktools"										///< (HHH) Packet.dll
+#define NPF_DRIVER_NAME_SMALL_WIDECHAR			L"networktools"										///< (HHH) Packet.dll
+#endif
+
+#define NPF_DRIVER_NAME_NORMAL					"NetworkTools"										///< (HHH) Packet.dll
+#define NPF_DRIVER_NAME_NORMAL_WIDECHAR			L"NetworkTools"										///< (HHH) Packet.dll
+#define NPF_SOFT_REGISTRY_NAME					"NETWORKTOOLS"										///< (HHH) Packet.dll
+#define NPF_SOFT_REGISTRY_NAME_WIDECHAR			L"NETWORKTOOLS"										///< (HHH) Packet.dll
+
+#define NPF_ORGAN_NAME							"INSECURE"											///< (HHH) Packet.dll
+#define NPF_ORGAN_NAME_WIDECHAR					L"INSECURE"											///< (HHH) Packet.dll
 
 //
 // Derived strings
@@ -51,7 +68,9 @@
 #define NPF_EVENTS_NAMES_WIDECHAR			NPF_DRIVER_NAME_WIDECHAR								///< (BBB) used by the NPF driver, that does not accept the TEXT(a) macro correctly.
 #define FAKE_NDISWAN_ADAPTER_NAME			"\\Device\\" NPF_DRIVER_NAME "_GenericDialupAdapter"	///< (CCC) Name of a fake ndiswan adapter that is always available on 2000/XP/2003, used to capture NCP/LCP packets
 #define FAKE_NDISWAN_ADAPTER_DESCRIPTION	"Adapter for generic dialup and VPN capture"			///< (DDD) Description of a fake ndiswan adapter that is always available on 2000/XP/2003, used to capture NCP/LCP packets
-#define NPF_SERVICE_DESC					"WinPcap Packet Driver (" NPF_DRIVER_NAME ")"			///< (FFF) packet.dll
+#define NPF_SERVICE_DESC					NPF_DRIVER_NAME_NORMAL " Packet Driver (" NPF_DRIVER_NAME ")"				///< (FFF) packet.dll
+#define NPF_SERVICE_DESC_WIDECHAR			NPF_DRIVER_NAME_NORMAL_WIDECHAR L" Packet Driver (" NPF_DRIVER_NAME_WIDECHAR L")"	///< (FFF) packet.dll
+#define NPF_SERVICE_DESC_TCHAR				_T(NPF_DRIVER_NAME_NORMAL) _T(" Packet Driver (") _T(NPF_DRIVER_NAME) _T(")")	///< (FFF) packet.dll
 #define NPF_DRIVER_COMPLETE_DEVICE_PREFIX	"\\Device\\" NPF_DRIVER_NAME "_"						///< (III) packet.dll
 #define NPF_DRIVER_COMPLETE_PATH			"system32\\drivers\\" NPF_DRIVER_NAME ".sys"			///< (LLL) packet.dll
 

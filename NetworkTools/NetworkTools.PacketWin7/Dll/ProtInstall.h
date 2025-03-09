@@ -34,6 +34,7 @@
 //
 // End ---------------------------------------------------------------------
 
+#pragma warning(disable: 4311 4312)
 
 //
 // ATTENTION!!!
@@ -46,11 +47,13 @@
 //// Device Naming String Definitions
 //
 
+#include "..\..\Common\WpcapNames.h"
+
 //
 // "Friendly" Name
 //
-#define NDISLWF_FRIENDLY_NAME_A		  "WinPcap Lightweight Filter Driver (NPF)"
-#define NDISLWF_FRIENDLY_NAME_W		  L"WinPcap Lightweight Filter Driver (NPF)"
+#define NDISLWF_FRIENDLY_NAME_A		  NPF_SERVICE_DESC
+#define NDISLWF_FRIENDLY_NAME_W		  NPF_SERVICE_DESC_WIDECHAR
 
 #ifdef UNICODE
 #define NDISLWF_FRIENDLY_NAME  		  NDISLWF_FRIENDLY_NAME_W
@@ -61,21 +64,26 @@
 //
 // Driver INF File and PnP ID Names
 //
-#define NDISLWF_SERVICE_PNP_DEVICE_ID_A	  "INSECURE_NPF"
-#define NDISLWF_SERVICE_PNP_DEVICE_ID_W	  L"INSECURE_NPF"
+#define NDISLWF_SERVICE_PNP_DEVICE_ID_A	  NPF_ORGAN_NAME "_" NPF_DRIVER_NAME
+#define NDISLWF_SERVICE_PNP_DEVICE_ID_W	  NPF_ORGAN_NAME_WIDECHAR L"_" NPF_DRIVER_NAME_WIDECHAR
 
-#define NDISLWF_SERVICE_INF_FILE_A 		  "NPF"
-#define NDISLWF_SERVICE_INF_FILE_W 		  L"NPF"
+#define NDISLWF_SERVICE_INF_FILE_A 		  NPF_DRIVER_NAME
+#define NDISLWF_SERVICE_INF_FILE_W 		  NPF_DRIVER_NAME_WIDECHAR
+
+#define WFP_CALLOUT_INF_FILE_A 		      NPF_DRIVER_NAME "_wfp"
+#define WFP_CALLOUT_INF_FILE_W 		      NPF_DRIVER_NAME_WIDECHAR L"_wfp"
 
 #ifdef UNICODE
 #define NDISLWF_SERVICE_PNP_DEVICE_ID  	  NDISLWF_SERVICE_PNP_DEVICE_ID_W
 #define NDISLWF_SERVICE_INF_FILE   		  NDISLWF_SERVICE_INF_FILE_W
+#define WFP_CALLOUT_INF_FILE   		      WFP_CALLOUT_INF_FILE_W
 #else
 #define NDISLWF_SERVICE_PNP_DEVICE_ID  	  NDISLWF_SERVICE_PNP_DEVICE_ID_A
 #define NDISLWF_SERVICE_INF_FILE   		  NDISLWF_SERVICE_INF_FILE_A
+#define WFP_CALLOUT_INF_FILE   		      WFP_CALLOUT_INF_FILE_A
 #endif
 
-#define APP_NAME	_T("NPF")
+#define APP_NAME	_T(NPF_DRIVER_NAME)
 
 #ifdef __cplusplus
 extern "C"
@@ -93,5 +101,9 @@ extern "C"
 /////////////////////////////////////////////////////////////////////////////
 //// Registry Key Strings
 //
+
+DWORD GetServiceInfFilePath(LPTSTR lpFilename, DWORD nSize);
+DWORD GetWFPCalloutInfFilePath(LPTSTR lpFilename, DWORD nSize);
+DWORD GetServiceSysFilePath(LPTSTR lpFilename, DWORD nSize);
 
 #endif // _PROTINSTALL_H_

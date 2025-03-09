@@ -42,6 +42,7 @@
 #include <Packet32.h>
 #include <tchar.h>
 #include <strsafe.h>
+#include <Shlwapi.h>
 
 #include "ProtInstall.h"
 #include "Packet32-Int.h"
@@ -54,6 +55,19 @@
 #include "debug.h"
 
 BOOL bUseNPF60 = FALSE;
+
+#define BUFSIZE 512
+#define MAX_SEM_COUNT 10
+#define MAX_TRY_TIME 50
+#define SLEEP_TIME 50
+// Handle for NetworkToolsHelper named pipe.
+HANDLE g_NetworkToolsHelperPipe = INVALID_HANDLE_VALUE;
+// Whether this process is running in Administrator mode.
+BOOL g_IsRunByAdmin = FALSE;
+// Whether we have already tried NetworkToolsHelper.
+BOOL g_NetworkToolsHelperTried = FALSE;
+// The handle to this DLL.
+HANDLE g_DllHandle = NULL;
 
 #ifdef _WINNT4
 #if (defined(HAVE_NPFIM_API) || defined(HAVE_WANPACKET_API) || defined (HAVE_AIRPCAP_API) || defined(HAVE_IPHELPER_API))
@@ -244,6 +258,528 @@ HMODULE LoadLibrarySafe(LPCTSTR lpFileName)
 }
 #endif
 
+BOOL NetworkToolsCreatePipe(char* pipeName, HANDLE moduleName)
+{
+	int pid = GetCurrentProcessId();
+	char params[BUFSIZE];
+	SHELLEXECUTEINFOA shExInfo = { 0 };
+	DWORD nResult;
+	char lpFilename[BUFSIZE];
+	char szDrive[BUFSIZE];
+	char szDir[BUFSIZE];
+
+	TRACE_ENTER("NetworkToolsCreatePipe");
+
+	// Get Path to This Module
+	nResult = GetModuleFileNameA((HMODULE)moduleName, lpFilename, BUFSIZE);
+	if (nResult == 0)
+	{
+		TRACE_PRINT1("GetModuleFileNameA failed. GLE=%d\n", GetLastError());
+		TRACE_EXIT("NetworkToolsCreatePipe");
+		return FALSE;
+	}
+	_splitpath_s(lpFilename, szDrive, BUFSIZE, szDir, BUFSIZE, NULL, 0, NULL, 0);
+	_makepath_s(lpFilename, BUFSIZE, szDrive, szDir, "NetworkToolsHelper", ".exe");
+
+	if (!PathFileExistsA(lpFilename))
+	{
+		TRACE_PRINT1("PathFileExistsA failed. GLE=%d\n", GetLastError());
+		TRACE_EXIT("NetworkToolsCreatePipe");
+		return FALSE;
+	}
+
+	sprintf_s(params, BUFSIZE, "%s %d", pipeName, pid);
+
+	shExInfo.cbSize = sizeof(shExInfo);
+	shExInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+	shExInfo.hwnd = 0;
+	shExInfo.lpVerb = "runas";				// Operation to perform
+	shExInfo.lpFile = lpFilename;			// Application to start
+	shExInfo.lpParameters = params;			// Additional parameters
+	shExInfo.lpDirectory = 0;
+	shExInfo.nShow = SW_SHOW;
+	shExInfo.hInstApp = 0;
+
+	if (!ShellExecuteExA(&shExInfo))
+	{
+		DWORD dwError = GetLastError();
+		if (dwError == ERROR_CANCELLED)
+		{
+			// The user refused to allow privileges elevation.
+			// Do nothing ...
+		}
+		TRACE_EXIT("NetworkToolsCreatePipe");
+		return FALSE;
+	}
+	else
+	{
+		TRACE_EXIT("NetworkToolsCreatePipe");
+		CloseHandle(shExInfo.hProcess);
+		return TRUE;
+	}
+}
+
+HANDLE NetworkToolsConnect(char* pipeName)
+{
+	HANDLE hPipe = INVALID_HANDLE_VALUE;
+	int tryTime = 0;
+	char lpszPipename[BUFSIZE];
+
+	TRACE_ENTER("NetworkToolsConnect");
+
+	sprintf_s(lpszPipename, BUFSIZE, "\\\\.\\pipe\\%s", pipeName);
+
+	// Try to open a named pipe; wait for it, if necessary.
+	while (tryTime < MAX_TRY_TIME)
+	{
+		hPipe = CreateFileA(
+			lpszPipename,   // pipe name
+			GENERIC_READ |  // read and write access
+			GENERIC_WRITE,
+			0,              // no sharing
+			NULL,           // default security attributes
+			OPEN_EXISTING,  // opens existing pipe
+			0,              // default attributes
+			NULL);          // no template file
+
+		// Break if the pipe handle is valid.
+
+		if (hPipe != INVALID_HANDLE_VALUE)
+		{
+			break;
+		}
+		else
+		{
+			tryTime++;
+			Sleep(SLEEP_TIME);
+		}
+	}
+
+	TRACE_EXIT("NetworkToolsConnect");
+	return hPipe;
+}
+
+HANDLE NetworkToolsRequestHandle(char* sMsg, DWORD* pdwError)
+{
+	LPSTR lpvMessage = sMsg;
+	char  chBuf[BUFSIZE];
+	BOOL   fSuccess = FALSE;
+	DWORD  cbRead, cbToWrite, cbWritten, dwMode;
+	HANDLE hPipe = g_NetworkToolsHelperPipe;
+
+	TRACE_ENTER("NetworkToolsRequestHandle");
+
+	if (hPipe == INVALID_HANDLE_VALUE)
+	{
+		TRACE_EXIT("NetworkToolsRequestHandle");
+		return INVALID_HANDLE_VALUE;
+	}
+
+	// The pipe connected; change to message-read mode.
+	dwMode = PIPE_READMODE_MESSAGE;
+	fSuccess = SetNamedPipeHandleState(
+		hPipe,    // pipe handle
+		&dwMode,  // new pipe mode
+		NULL,     // don't set maximum bytes
+		NULL);    // don't set maximum time
+	if (!fSuccess)
+	{
+		TRACE_PRINT1("SetNamedPipeHandleState failed. GLE=%d\n", GetLastError());
+		TRACE_EXIT("NetworkToolsRequestHandle");
+		return INVALID_HANDLE_VALUE;
+	}
+
+	// Send a message to the pipe server.
+
+	cbToWrite = (DWORD)(strlen(lpvMessage) + 1) * sizeof(char);
+	TRACE_PRINT2("\nSending %d byte message: \"%s\"\n", cbToWrite, lpvMessage);
+
+	fSuccess = WriteFile(
+		hPipe,                  // pipe handle
+		lpvMessage,             // message
+		cbToWrite,              // message length
+		&cbWritten,             // bytes written
+		NULL);                  // not overlapped
+
+	if (!fSuccess)
+	{
+		TRACE_PRINT1("WriteFile to pipe failed. GLE=%d\n", GetLastError());
+		TRACE_EXIT("NetworkToolsRequestHandle");
+		return INVALID_HANDLE_VALUE;
+	}
+
+	TRACE_PRINT("Message sent to server, receiving reply as follows:\n");
+
+	do
+	{
+		// Read from the pipe.
+
+		fSuccess = ReadFile(
+			hPipe,    // pipe handle
+			chBuf,    // buffer to receive reply
+			BUFSIZE * sizeof(char),  // size of buffer
+			&cbRead,  // number of bytes read
+			NULL);    // not overlapped
+
+		if (!fSuccess && GetLastError() != ERROR_MORE_DATA)
+			break;
+
+		//printf("\"%s\"\n", chBuf );
+	} while (!fSuccess);  // repeat loop if ERROR_MORE_DATA
+
+	if (!fSuccess)
+	{
+		TRACE_PRINT1("ReadFile from pipe failed. GLE=%d\n", GetLastError());
+		TRACE_EXIT("NetworkToolsRequestHandle");
+		return INVALID_HANDLE_VALUE;
+	}
+
+	//printf("\n<End of message, press ENTER to terminate connection and exit\n>");
+	if (cbRead != 0)
+	{
+		HANDLE hd;
+		sscanf_s(chBuf, "%x,%d", &hd, pdwError);
+		TRACE_PRINT1("Received Driver Handle: 0x%08x\n", hd);
+		TRACE_EXIT("NetworkToolsRequestHandle");
+		return hd;
+	}
+	else
+	{
+		TRACE_EXIT("NetworkToolsRequestHandle");
+		return INVALID_HANDLE_VALUE;
+	}
+}
+
+#ifdef _X86_
+#define NetworkTools_SOFTWARE_REGISTRY_KEY "SOFTWARE\\" NPF_SOFT_REGISTRY_NAME
+#else // AMD64
+#define NETWORK_TOOLS_SOFTWARE_REGISTRY_KEY "SOFTWARE\\Wow6432Node\\" NPF_SOFT_REGISTRY_NAME
+#endif
+
+BOOL NetworkToolsIsAdminOnlyMode()
+{
+	HKEY hKey;
+	DWORD type;
+	char buffer[BUFSIZE];
+	int size = sizeof(buffer);
+	DWORD dwAdminOnlyMode = 0;
+
+#ifndef _X86_
+	Wow64EnableWow64FsRedirection(FALSE);
+#endif
+
+	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, NETWORK_TOOLS_SOFTWARE_REGISTRY_KEY, 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+	{
+		if (RegQueryValueExA(hKey, "AdminOnly", 0, &type, (LPBYTE)buffer, &size) == ERROR_SUCCESS && type == REG_DWORD)
+		{
+			dwAdminOnlyMode = *((DWORD*)buffer);
+		}
+		else
+		{
+			dwAdminOnlyMode = 0;
+		}
+
+		RegCloseKey(hKey);
+	}
+	else
+	{
+		dwAdminOnlyMode = 0;
+	}
+
+#ifndef _X86_
+	Wow64EnableWow64FsRedirection(TRUE);
+#endif
+
+	if (dwAdminOnlyMode != 0)
+	{
+		return TRUE;
+	}
+	else
+	{
+		return FALSE;
+	}
+}
+
+BOOL NetworkToolsIsRunByAdmin()
+{
+	BOOL bIsRunAsAdmin = FALSE;
+	DWORD dwError = ERROR_SUCCESS;
+	PSID pAdministratorsGroup = NULL;
+	// Allocate and initialize a SID of the administrators group.
+	SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
+
+	TRACE_ENTER("NetworkToolsIsAdminMode");
+
+	if (!AllocateAndInitializeSid(
+		&NtAuthority,
+		2,
+		SECURITY_BUILTIN_DOMAIN_RID,
+		DOMAIN_ALIAS_RID_ADMINS,
+		0, 0, 0, 0, 0, 0,
+		&pAdministratorsGroup))
+	{
+		dwError = GetLastError();
+		goto Cleanup;
+	}
+
+	// Determine whether the SID of administrators group is enabled in
+	// the primary access token of the process.
+	if (!CheckTokenMembership(NULL, pAdministratorsGroup, &bIsRunAsAdmin))
+	{
+		dwError = GetLastError();
+		goto Cleanup;
+	}
+
+Cleanup:
+	// Centralized cleanup for all allocated resources.
+	if (pAdministratorsGroup)
+	{
+		FreeSid(pAdministratorsGroup);
+		pAdministratorsGroup = NULL;
+	}
+
+	// Throw the error if something failed in the function.
+	if (ERROR_SUCCESS != dwError)
+	{
+		TRACE_PRINT1("IsProcessRunningAsAdminMode failed. GLE=%d\n", dwError);
+	}
+
+	TRACE_PRINT1("IsProcessRunningAsAdminMode result: %s\n", bIsRunAsAdmin ? "yes" : "no");
+	TRACE_EXIT("NetworkToolsIsAdminMode");
+	return bIsRunAsAdmin;
+}
+
+void NetworkToolsStartHelper()
+{
+	TRACE_ENTER("NetworkToolsStartHelper");
+
+	g_NetworkToolsHelperTried = TRUE;
+
+	// Check if NetworkTools is installed in "Admin-Only Mode".
+	if (!NetworkToolsIsAdminOnlyMode())
+	{
+		g_IsRunByAdmin = TRUE;
+	}
+	else
+	{
+		// Check if this process is running in Administrator mode.
+		g_IsRunByAdmin = NetworkToolsIsRunByAdmin();
+	}
+
+	if (!g_IsRunByAdmin)
+	{
+		char pipeName[BUFSIZE];
+		int pid = GetCurrentProcessId();
+		sprintf_s(pipeName, BUFSIZE, "NetworkTools-%d", pid);
+		if (NetworkToolsCreatePipe(pipeName, g_DllHandle))
+		{
+			g_NetworkToolsHelperPipe = NetworkToolsConnect(pipeName);
+			if (g_NetworkToolsHelperPipe == INVALID_HANDLE_VALUE)
+			{
+				// NetworkToolsHelper failed, let g_IsAdminMode be TRUE to avoid next requestHandleFromNetworkToolsHelper() calls.
+				g_IsRunByAdmin = TRUE;
+			}
+		}
+		else
+		{
+			// NetworkToolsHelper failed, let g_IsAdminMode be TRUE to avoid next requestHandleFromNetworkToolsHelper() calls.
+			g_IsRunByAdmin = TRUE;
+		}
+	}
+
+	TRACE_EXIT("NetworkToolsStartHelper");
+}
+
+void NetworkToolsStopHelper()
+{
+	TRACE_ENTER("NetworkToolsStopHelper");
+
+	if (g_NetworkToolsHelperPipe != INVALID_HANDLE_VALUE)
+	{
+		CloseHandle(g_NetworkToolsHelperPipe);
+		g_NetworkToolsHelperPipe = INVALID_HANDLE_VALUE;
+	}
+
+	TRACE_EXIT("NetworkToolsStopHelper");
+}
+
+// find [substr] from a fixed-length buffer
+// [full_data] will be treated as binary data buffer)
+// return NULL if not found
+char* memstr(char* full_data, int full_data_len, char* substr)
+{
+	int sublen;
+	int i;
+	char* cur;
+	int last_possible;
+
+	if (full_data == NULL || full_data_len <= 0 || substr == NULL)
+	{
+		return NULL;
+	}
+
+	if (*substr == '\0')
+	{
+		return NULL;
+	}
+
+	sublen = strlen(substr);
+
+	cur = full_data;
+	last_possible = full_data_len - sublen + 1;
+	for (i = 0; i < last_possible; i++)
+	{
+		if (*cur == *substr)
+		{
+			//assert(full_data_len - i >= sublen);
+			if (memcmp(cur, substr, sublen) == 0)
+			{
+				//found
+				return cur;
+			}
+		}
+		cur++;
+	}
+
+	return NULL;
+}
+
+// For memory block [mem], substitute all [source] strings with [destination], return the new memory block (need to free), if not found, return NULL.
+PCHAR NetworkToolsReplaceMemory(PCHAR buf, int buf_size, PCHAR source, PCHAR destination)
+{
+	PCHAR tmp;
+	PCHAR newbuf;
+	PCHAR retbuf;
+	PCHAR sk;
+	size_t size;
+
+	sk = memstr(buf, buf_size, source);
+	if (sk == NULL)
+		return NULL;
+
+	size = 2 * buf_size + strlen(destination) + 1;
+	newbuf = (PCHAR)calloc(1, size);
+	if (newbuf == NULL)
+		return NULL;
+
+	retbuf = (PCHAR)calloc(1, size);
+	if (retbuf == NULL)
+	{
+		free(newbuf);
+		return NULL;
+	}
+
+	memcpy_s(newbuf, size - 1, buf, buf_size);
+	sk = memstr(newbuf, size, source);
+
+	while (sk != NULL)
+	{
+		int pos = 0;
+		memcpy(retbuf + pos, newbuf, sk - newbuf);
+		pos += sk - newbuf;
+		sk += strlen(source);
+		memcpy(retbuf + pos, destination, strlen(destination));
+		pos += strlen(destination);
+		memcpy(retbuf + pos, sk, newbuf + size - sk);
+
+		tmp = newbuf;
+		newbuf = retbuf;
+		retbuf = tmp;
+
+		memset(retbuf, 0, size);
+		sk = memstr(newbuf, size, source);
+	}
+
+	free(retbuf);
+	return newbuf;
+}
+
+// For [string], substitute all [source] strings with [destination], return the new string (need to free), if not found, return NULL.
+PCHAR NetworkToolsReplaceString(PCHAR string, PCHAR source, PCHAR destination)
+{
+	PCHAR tmp;
+	PCHAR newstr;
+	PCHAR retstr;
+	PCHAR sk;
+	size_t size;
+
+	sk = strstr(string, source);
+	if (sk == NULL)
+		return NULL;
+
+	size = 2 * strlen(string) + strlen(destination) + 1;
+	newstr = (PCHAR)calloc(1, size);
+	if (newstr == NULL)
+		return NULL;
+
+	retstr = (PCHAR)calloc(1, size);
+	if (retstr == NULL)
+	{
+		free(newstr);
+		return NULL;
+	}
+
+	sprintf_s(newstr, size - 1, "%s", string);
+	sk = strstr(newstr, source);
+
+	while (sk != NULL)
+	{
+		int pos = 0;
+		memcpy(retstr + pos, newstr, sk - newstr);
+		pos += sk - newstr;
+		sk += strlen(source);
+		memcpy(retstr + pos, destination, strlen(destination));
+		pos += strlen(destination);
+		memcpy(retstr + pos, sk, strlen(sk));
+
+		tmp = newstr;
+		newstr = retstr;
+		retstr = tmp;
+
+		memset(retstr, 0, size);
+		sk = strstr(newstr, source);
+	}
+
+	free(retstr);
+	return newstr;
+}
+
+PCHAR NetworkToolsAdapterNameNPF2NETWORKTOOLS(PCHAR AdapterName)
+{
+#ifdef NPF_NETWORKTOOLS_RUN_IN_WINPCAP_MODE
+	return NULL;
+#else
+	return NetworkToolsReplaceString(AdapterName, "NPF", "NETWORKTOOLS");
+#endif
+}
+
+PCHAR NetworkToolsAdapterNameNETWORKTOOLS2NPF(PCHAR AdapterName)
+{
+#ifdef NPF_NETWORKTOOLS_RUN_IN_WINPCAP_MODE
+	return NULL;
+#else
+	return NetworkToolsReplaceString(AdapterName, "NETWORKTOOLS", "NPF");
+#endif
+}
+
+PCHAR NetworkToolsMemNPF2NETWORKTOOLS(PCHAR pStr, int iBufSize)
+{
+#ifdef NPF_NETWORKTOOLS_RUN_IN_WINPCAP_MODE
+	return NULL;
+#else
+	return NetworkToolsReplaceMemory(pStr, iBufSize, "NPF", "NETWORKTOOLS");
+#endif
+}
+
+PCHAR NetworkToolsMemNETWORKTOOLS2NPF(PCHAR pStr, int iBufSize)
+{
+#ifdef NPF_NETWORKTOOLS_RUN_IN_WINPCAP_MODE
+	return NULL;
+#else
+	return NetworkToolsReplaceMemory(pStr, iBufSize, "NETWORKTOOLS", "NPF");
+#endif
+}
+
 /*!
   \brief The main dll function.
 */
@@ -253,6 +789,7 @@ BOOL APIENTRY DllMain(HANDLE DllHandle, DWORD Reason, LPVOID lpReserved)
 	BOOLEAN Status = TRUE;
 	PADAPTER_INFO NewAdInfo;
 	TCHAR DllFileName[MAX_PATH];
+	g_DllHandle = DllHandle;
 
 	UNUSED(lpReserved);
 
@@ -336,6 +873,12 @@ BOOL APIENTRY DllMain(HANDLE DllHandle, DWORD Reason, LPVOID lpReserved)
 			GlobalFreePtr(g_AdaptersInfoList);
 
 			g_AdaptersInfoList = NewAdInfo;
+		}
+
+		if (!g_IsRunByAdmin)
+		{
+			// NetworkToolsHelper De-Initialization.
+			NetworkToolsStopHelper();
 		}
 
 #ifdef WPCAP_OEM_UNLOAD_H 
@@ -509,7 +1052,7 @@ BOOLEAN QueryWinPcapRegistryStringA(CHAR *SubKeyName,
 	HKEY hWinPcapKey;
 
 	if (QveRes = RegOpenKeyExA(HKEY_LOCAL_MACHINE,
-			WINPCAP_INSTANCE_KEY,
+			WINETWORKTOOLS_INSTANCE_KEY,
 			0,
 			KEY_ALL_ACCESS,
 			&hWinPcapKey) != ERROR_SUCCESS)
@@ -1005,7 +1548,6 @@ BOOL PacketGetFileVersion(LPTSTR FileName, PCHAR VersionBuff, UINT VersionBuffLe
 	TCHAR	SubBlock[64];
 	PVOID	lpBuffer;
 	PCHAR	TmpStr;
-	DWORD aaa;
 
 	// Structure used to store enumerated languages and code pages.
 	struct LANGANDCODEPAGE {
@@ -1018,12 +1560,6 @@ BOOL PacketGetFileVersion(LPTSTR FileName, PCHAR VersionBuff, UINT VersionBuffLe
 	// Now lets dive in and pull out the version information:
 
 	dwVerInfoSize = GetFileVersionInfoSize(FileName, &dwVerHnd);
-	if (dwVerInfoSize == 0)
-	{
-		aaa = GetLastError();
-		aaa = aaa;
-	}
-
 	if (dwVerInfoSize)
 	{
 		lpstrVffInfo = GlobalAllocPtr(GMEM_MOVEABLE, dwVerInfoSize);
@@ -1097,26 +1633,17 @@ BOOL PacketGetFileVersion(LPTSTR FileName, PCHAR VersionBuff, UINT VersionBuffLe
 	return TRUE;
 }
 
-/*!
-  \brief Opens an adapter using the NPF device driver.
-  \param AdapterName A string containing the name of the device to open.
-  \return If the function succeeds, the return value is the pointer to a properly initialized ADAPTER object,
-   otherwise the return value is NULL.
-
-  \note internal function used by PacketOpenAdapter() and AddAdapter()
-*/
-LPADAPTER PacketOpenAdapterNPF(PCHAR AdapterNameA)
+BOOL PacketStartService()
 {
-	LPADAPTER lpAdapter;
-	BOOL Result;
 	DWORD error;
+	BOOL Result;
 	SC_HANDLE svcHandle = NULL;
 	SC_HANDLE scmHandle = NULL;
 	LONG KeyRes;
 	HKEY PathKey;
 	SERVICE_STATUS SStat;
 	BOOL QuerySStat;
-	CHAR SymbolicLinkA[MAX_PATH];
+
 	//  
 	//	Old registry based WinPcap names
 	//
@@ -1126,10 +1653,6 @@ LPADAPTER PacketOpenAdapterNPF(PCHAR AdapterNameA)
 	CHAR	NpfDriverName[MAX_WINPCAP_KEY_CHARS] = NPF_DRIVER_NAME;
 	CHAR	NpfServiceLocation[MAX_WINPCAP_KEY_CHARS];
 
-	// Create the NPF device name from the original device name
-	TRACE_ENTER("PacketOpenAdapterNPF");
-
-	TRACE_PRINT1("Trying to open adapter %s", AdapterNameA);
 
 	scmHandle = OpenSCManager(NULL, NULL, GENERIC_READ);
 
@@ -1150,9 +1673,9 @@ LPADAPTER PacketOpenAdapterNPF(PCHAR AdapterNameA)
 		//			NpfDriverName[0] = '\0';
 		//		}
 
-				//
-				// Create the name of the registry key containing the service.
-				//
+		//
+		// Create the name of the registry key containing the service.
+		//
 		StringCchPrintfA(NpfServiceLocation, sizeof(NpfServiceLocation), "SYSTEM\\CurrentControlSet\\Services\\%s", NpfDriverName);
 
 		// check if the NPF registry key is already present
@@ -1237,7 +1760,7 @@ LPADAPTER PacketOpenAdapterNPF(PCHAR AdapterNameA)
 							TRACE_PRINT1("PacketOpenAdapterNPF: StartService failed, LastError=%8.8x", error);
 							TRACE_EXIT("PacketOpenAdapterNPF");
 							SetLastError(error);
-							return NULL;
+							return FALSE;
 						}
 					}
 				}
@@ -1320,7 +1843,7 @@ LPADAPTER PacketOpenAdapterNPF(PCHAR AdapterNameA)
 								TRACE_PRINT1("PacketOpenAdapterNPF: StartService failed, LastError=%8.8x", error);
 								TRACE_EXIT("PacketOpenAdapterNPF");
 								SetLastError(error);
-								return NULL;
+								return FALSE;
 							}
 						}
 					}
@@ -1339,6 +1862,44 @@ LPADAPTER PacketOpenAdapterNPF(PCHAR AdapterNameA)
 	}
 
 	if (scmHandle != NULL) CloseServiceHandle(scmHandle);
+	return TRUE;
+}
+
+/*!
+  \brief Opens an adapter using the NPF device driver.
+  \param AdapterName A string containing the name of the device to open.
+  \return If the function succeeds, the return value is the pointer to a properly initialized ADAPTER object,
+   otherwise the return value is NULL.
+
+  \note internal function used by PacketOpenAdapter() and AddAdapter()
+*/
+LPADAPTER PacketOpenAdapterNPF(PCHAR AdapterNameA)
+{
+	DWORD error;
+	LPADAPTER lpAdapter;
+
+	CHAR SymbolicLinkA[MAX_PATH];
+
+	// Create the NPF device name from the original device name
+	TRACE_ENTER("PacketOpenAdapterNPF");
+
+	TRACE_PRINT1("Trying to open adapter %s", AdapterNameA);
+
+	// NetworkToolsHelper Initialization, used for accessing the driver with Administrator privilege.
+	if (!g_NetworkToolsHelperTried)
+	{
+		NetworkToolsStartHelper();
+	}
+
+	// Try NetworkToolsHelper to start service if we are in Non-Admin mode.
+// 	if (!g_IsAdminMode)
+// 	{
+// 		
+// 	}
+// 	else
+	{
+		PacketStartService();
+	}
 
 	lpAdapter = (LPADAPTER)GlobalAllocPtr(GMEM_MOVEABLE | GMEM_ZEROINIT, sizeof(ADAPTER));
 	if (lpAdapter == NULL)
@@ -1384,9 +1945,26 @@ LPADAPTER PacketOpenAdapterNPF(PCHAR AdapterNameA)
 	//
 	ZeroMemory(lpAdapter->SymbolicLink, sizeof(lpAdapter->SymbolicLink));
 
-	//try if it is possible to open the adapter immediately
-	lpAdapter->hFile = CreateFileA(SymbolicLinkA, GENERIC_WRITE | GENERIC_READ,
-		0, NULL, OPEN_EXISTING, 0, 0);
+	// Try NetworkToolsHelper to request handle if we are in Non-Admin mode.
+	if (!g_IsRunByAdmin)
+	{
+		//try if it is possible to open the adapter immediately
+		DWORD dwErrorReceived;
+		lpAdapter->hFile = NetworkToolsRequestHandle(SymbolicLinkA, &dwErrorReceived);
+		TRACE_PRINT1("Driver handle from NetworkToolsHelper = %08x", lpAdapter->hFile);
+		if (lpAdapter->hFile == INVALID_HANDLE_VALUE)
+		{
+			TRACE_PRINT1("ErrorCode = %d", dwErrorReceived);
+			SetLastError(dwErrorReceived);
+		}
+	}
+	else
+	{
+		//try if it is possible to open the adapter immediately
+		lpAdapter->hFile = CreateFileA(SymbolicLinkA, GENERIC_WRITE | GENERIC_READ,
+			0, NULL, OPEN_EXISTING, 0, 0);
+		TRACE_PRINT1("lpAdapter->hFile = %08x", lpAdapter->hFile);
+	}
 
 	if (lpAdapter->hFile != INVALID_HANDLE_VALUE)
 	{
@@ -1829,6 +2407,7 @@ LPADAPTER PacketOpenAdapter(PCHAR AdapterNameWA)
 {
 	LPADAPTER lpAdapter = NULL;
 	PCHAR AdapterNameA = NULL;
+	PCHAR TranslatedAdapterNameWA = NULL;
 	BOOL bFreeAdapterNameA;
 #ifndef _WINNT4
 	PADAPTER_INFO TAdInfo;
@@ -1841,6 +2420,13 @@ LPADAPTER PacketOpenAdapter(PCHAR AdapterNameWA)
 	TRACE_PRINT_OS_INFO();
 
 	TRACE_PRINT2("Packet DLL version %s, Driver version %s", PacketLibraryVersion, PacketDriverVersion);
+
+	// Translate the adapter name string's "NPF_{XXX}" to "NETWORKTOOLS_{XXX}" for compatibility with WinPcap, because some user softwares hard-coded the "NPF_" string
+	TranslatedAdapterNameWA = NetworkToolsAdapterNameNPF2NETWORKTOOLS(AdapterNameWA);
+	if (TranslatedAdapterNameWA)
+	{
+		AdapterNameWA = TranslatedAdapterNameWA;
+	}
 
 	//
 	// Check the presence on some libraries we rely on, and load them if we found them
@@ -1870,6 +2456,8 @@ LPADAPTER PacketOpenAdapter(PCHAR AdapterNameWA)
 		if (AdapterNameA == NULL)
 		{
 			SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+			if (TranslatedAdapterNameWA)
+				free(TranslatedAdapterNameWA);
 			return NULL;
 		}
 
@@ -2085,12 +2673,16 @@ LPADAPTER PacketOpenAdapter(PCHAR AdapterNameWA)
 	{
 		TRACE_EXIT("PacketOpenAdapter");
 		SetLastError(dwLastError);
+		if (TranslatedAdapterNameWA)
+			free(TranslatedAdapterNameWA);
 
 		return NULL;
 	}
 	else
 	{
 		TRACE_EXIT("PacketOpenAdapter");
+		if (TranslatedAdapterNameWA)
+			free(TranslatedAdapterNameWA);
 
 		return lpAdapter;
 	}
@@ -3740,6 +4332,7 @@ BOOLEAN PacketGetAdapterNames(PTSTR pStr, PULONG  BufferSize)
 	ULONG	SizeNames = 0;
 	ULONG	SizeDesc;
 	ULONG	OffDescriptions;
+	PCHAR pStrTranslated = NULL;
 
 	TRACE_ENTER("PacketGetAdapterNames");
 
@@ -3836,6 +4429,13 @@ BOOLEAN PacketGetAdapterNames(PTSTR pStr, PULONG  BufferSize)
 	// End the list with a further \0
 	((PCHAR)pStr)[SizeNeeded + 1] = 0;
 
+	// Translate the adapter name string's "NETWORKTOOLS_{XXX}" to "NPF_{XXX}" for compatibility with WinPcap, because some user softwares hard-coded the "NPF_" string
+	pStrTranslated = NetworkToolsMemNETWORKTOOLS2NPF(pStr, *BufferSize);
+	if (pStrTranslated)
+	{
+		memcpy_s(((PCHAR)pStr), *BufferSize, pStrTranslated, *BufferSize);
+		free(pStrTranslated);
+	}
 
 	ReleaseMutex(g_AdaptersInfoMutex);
 	TRACE_EXIT("PacketGetAdapterNames");
@@ -3860,8 +4460,16 @@ BOOLEAN PacketGetNetInfoEx(PCHAR AdapterName, npf_if_addr* buffer, PLONG NEntrie
 	PADAPTER_INFO TAdInfo;
 	PCHAR Tname;
 	BOOLEAN Res, FreeBuff;
+	PCHAR TranslatedAdapterName = NULL;
 
 	TRACE_ENTER("PacketGetNetInfoEx");
+
+	// Translate the adapter name string's "NPF_{XXX}" to "NETWORKTOOLS_{XXX}" for compatibility with WinPcap, because some user softwares hard-coded the "NPF_" string
+	TranslatedAdapterName = NetworkToolsAdapterNameNPF2NETWORKTOOLS(AdapterName);
+	if (TranslatedAdapterName)
+	{
+		AdapterName = TranslatedAdapterName;
+	}
 
 	// Provide conversion for backward compatibility
 	if (AdapterName[1] != 0)
@@ -3885,6 +4493,9 @@ BOOLEAN PacketGetNetInfoEx(PCHAR AdapterName, npf_if_addr* buffer, PLONG NEntrie
 			GlobalFreePtr(Tname);
 
 		TRACE_EXIT("PacketGetNetInfoEx");
+
+		if (TranslatedAdapterName)
+			free(TranslatedAdapterName);
 
 		return FALSE;
 	}
@@ -3932,6 +4543,9 @@ BOOLEAN PacketGetNetInfoEx(PCHAR AdapterName, npf_if_addr* buffer, PLONG NEntrie
 	if (FreeBuff)GlobalFreePtr(Tname);
 
 	TRACE_EXIT("PacketGetNetInfoEx");
+
+	if (TranslatedAdapterName)
+		free(TranslatedAdapterName);
 	return Res;
 }
 

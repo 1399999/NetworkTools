@@ -444,23 +444,33 @@ NPF_SendEx(
 
 	if (Open->GroupHead != NULL)
 	{
+		// Should not come here, because Open called by NDIS will always be a group head itself, so its GroupHead member is NULL.
 		GroupOpen = Open->GroupHead->GroupNext;
 	}
 	else
 	{
+		//get the 1st group adapter child
 		GroupOpen = Open->GroupNext;
 	}
 
-	while (GroupOpen != NULL)
+#ifdef HAVE_WFP_LOOPBACK_SUPPORT
+	// Do not capture the normal NDIS send traffic, if this is our loopback adapter.
+	if (Open->Loopback == FALSE)
 	{
-		TempOpen = GroupOpen;
-		if (TempOpen->AdapterBindingStatus == ADAPTER_BOUND)
+#endif
+		while (GroupOpen != NULL)
 		{
-			NPF_TapExForEachOpen(TempOpen, NetBufferLists);
-		}
+			TempOpen = GroupOpen;
+			if (TempOpen->AdapterBindingStatus == ADAPTER_BOUND)
+			{
+				NPF_TapExForEachOpen(TempOpen, NetBufferLists);
+			}
 
-		GroupOpen = TempOpen->GroupNext;
+			GroupOpen = TempOpen->GroupNext;
+		}
+#ifdef HAVE_WFP_LOOPBACK_SUPPORT
 	}
+#endif
 
 	NdisFSendNetBufferLists(Open->AdapterHandle, NetBufferLists, PortNumber, SendFlags);
 
@@ -497,7 +507,7 @@ NPF_TapEx(
 
 	if (Open->GroupHead != NULL)
 	{
-		//this should be impossible
+		// Should not come here, because Open called by NDIS will always be a group head itself, so its GroupHead member is NULL.
 		GroupOpen = Open->GroupHead->GroupNext;
 	}
 	else
@@ -506,17 +516,25 @@ NPF_TapEx(
 		GroupOpen = Open->GroupNext;
 	}
 
-	while (GroupOpen != NULL)
+	// Do not capture the normal NDIS receive traffic, if this is our loopback adapter.
+#ifdef HAVE_WFP_LOOPBACK_SUPPORT
+	if (Open->Loopback == FALSE)
 	{
-		TempOpen = GroupOpen;
-		if (TempOpen->AdapterBindingStatus == ADAPTER_BOUND)
+#endif
+		while (GroupOpen != NULL)
 		{
-			//let every group adapter receive the packets
-			NPF_TapExForEachOpen(TempOpen, NetBufferLists);
-		}
+			TempOpen = GroupOpen;
+			if (TempOpen->AdapterBindingStatus == ADAPTER_BOUND)
+			{
+				//let every group adapter receive the packets
+				NPF_TapExForEachOpen(TempOpen, NetBufferLists);
+			}
 
-		GroupOpen = TempOpen->GroupNext;
+			GroupOpen = TempOpen->GroupNext;
+		}
+#ifdef HAVE_WFP_LOOPBACK_SUPPORT
 	}
+#endif
 
 	//return the packets immediately
 	NdisFIndicateReceiveNetBufferLists(
@@ -559,6 +577,7 @@ NPF_TapExForEachOpen(
 	PUCHAR					LookaheadBuffer;
 	UINT					LookaheadBufferSize;
 	UINT					PacketSize;
+	ULONG                   TotalLength;
 
 	PMDL                    pMdl = NULL;
 	UINT                    BufferLength;
@@ -588,7 +607,7 @@ NPF_TapExForEachOpen(
 		// Get first MDL and data length in the list
 		//
 		pMdl = pNetBufList->FirstNetBuffer->CurrentMdl;
-		//TotalLength = pNetBufList->FirstNetBuffer->DataLength;
+		TotalLength = pNetBufList->FirstNetBuffer->DataLength;
 		Offset = pNetBufList->FirstNetBuffer->CurrentMdlOffset;
 		BufferLength = 0;
 
@@ -622,6 +641,10 @@ NPF_TapExForEachOpen(
 
 			BufferLength -= Offset;
 			pEthHeader = (PNDISPROT_ETH_HEADER)((PUCHAR)pEthHeader + Offset);
+
+			// As for single MDL (as we assume) condition, we always have BufferLength == TotalLength
+			if (BufferLength > TotalLength)
+				BufferLength = TotalLength;
 
 			// 			if (BufferLength < sizeof(NDISPROT_ETH_HEADER))
 			// 			{
@@ -771,7 +794,7 @@ NPF_TapExForEachOpen(
 					break;
 				}
 
-
+				/* always true */
 				if (LookaheadBufferSize + HeaderBufferSize >= fres)
 				{
 					//
@@ -784,6 +807,8 @@ NPF_TapExForEachOpen(
 					GET_TIME(&Header->header.bh_tstamp, &G_Start_Time);
 					Header->SN = InterlockedIncrement(&Open->WriterSN) - 1;
 
+					DbgPrint("MDL %d\n", fres);
+
 					Header->header.bh_caplen = fres;
 					Header->header.bh_datalen = PacketSize + HeaderBufferSize;
 					Header->header.bh_hdrlen = sizeof(struct bpf_hdr);
@@ -792,88 +817,76 @@ NPF_TapExForEachOpen(
 					if (LocalData->P == Open->Size)
 						LocalData->P = 0;
 
-					if (fres <= HeaderBufferSize || (UINT)((PUCHAR)LookaheadBuffer - (PUCHAR)HeaderBuffer) == HeaderBufferSize)
+					//
+					//we can consider the buffer contiguous, either because we use only the data 
+					//present in the HeaderBuffer, or because HeaderBuffer and LookaheadBuffer are contiguous
+					// ;-))))))
+					//
+					if (Open->Size - LocalData->P < fres)
 					{
-						//
-						//we can consider the buffer contiguous, either because we use only the data 
-						//present in the HeaderBuffer, or because HeaderBuffer and LookaheadBuffer are contiguous
-						// ;-))))))
-						//
-						if (Open->Size - LocalData->P < fres)
-						{
-							//the packet will be fragmented in the buffer (aka, it will skip the buffer boundary)
-							//two copies!!
-							ToCopy = Open->Size - LocalData->P;
-							NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, HeaderBuffer, ToCopy);
-							NdisMoveMappedMemory(LocalData->Buffer + 0, (PUCHAR)HeaderBuffer + ToCopy, fres - ToCopy);
-							LocalData->P = fres - ToCopy;
-						}
-						else
-						{
-							//the packet does not need to be fragmented in the buffer (aka, it doesn't skip the buffer boundary)
-							// ;-)))))) only ONE copy
-							NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, HeaderBuffer, fres);
-							LocalData->P += fres;
-						}
+						//the packet will be fragmented in the buffer (aka, it will skip the buffer boundary)
+						//two copies!!
+						ToCopy = Open->Size - LocalData->P;
+						NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, HeaderBuffer, ToCopy);
+						NdisMoveMappedMemory(LocalData->Buffer + 0, (PUCHAR)HeaderBuffer + ToCopy, fres - ToCopy);
+						LocalData->P = fres - ToCopy;
 					}
 					else
 					{
-						//HeaderBuffer and LookAhead buffer are NOT contiguous,
-						//AND, we need some bytes from the LookaheadBuffer, too
-						if (Open->Size - LocalData->P < fres)
-						{
-							//the packet will be fragmented in the buffer (aka, it will skip the buffer boundary)
-							if (Open->Size - LocalData->P >= HeaderBufferSize)
-							{
-								//HeaderBuffer is NOT fragmented
-								NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, HeaderBuffer, HeaderBufferSize);
-								LocalData->P += HeaderBufferSize;
+						//the packet does not need to be fragmented in the buffer (aka, it doesn't skip the buffer boundary)
+						// ;-)))))) only ONE copy
+						NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, HeaderBuffer, fres);
+						LocalData->P += fres;
+					}
 
-								if (LocalData->P == Open->Size)
-								{
-									//the fragmentation of the packet in the buffer is the same fragmentation
-									//in HeaderBuffer+LookaheadBuffer
-									LocalData->P = 0;
-									NdisMoveMappedMemory(LocalData->Buffer + 0, LookaheadBuffer, fres - HeaderBufferSize);
-									LocalData->P += (fres - HeaderBufferSize);
-								}
-								else
-								{
-									//LookAheadBuffer is fragmented, two copies
-									ToCopy = Open->Size - LocalData->P;
-									NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, LookaheadBuffer, ToCopy);
-									LocalData->P = 0;
-									NdisMoveMappedMemory(LocalData->Buffer + 0, (PUCHAR)LookaheadBuffer + ToCopy, fres - HeaderBufferSize - ToCopy);
-									LocalData->P = fres - HeaderBufferSize - ToCopy;
-								}
+					increment = fres + sizeof(struct PacketHeader);
+					TotalLength -= fres;
+
+					// add next MDLs
+					while (TotalLength)
+					{
+						PMDL pNextMdl = NULL;
+
+						NdisGetNextMdl(pMdl, &pNextMdl);
+
+						if (pNextMdl)
+						{
+							NdisQueryMdl(
+								pNextMdl,
+								&pEthHeader,
+								&BufferLength,
+								NormalPagePriority);
+
+							if (BufferLength >= TotalLength)
+								BufferLength = TotalLength;
+
+							if (Open->Size - LocalData->P >= BufferLength)
+							{
+								NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, pEthHeader, BufferLength);
+								LocalData->P += BufferLength;
+
+								increment += BufferLength;
+								TotalLength -= BufferLength;
+
+								Header->header.bh_caplen += BufferLength;
+								Header->header.bh_datalen += BufferLength;
+
+								DbgPrint("next MDL %d and added\n", BufferLength);
+
+								pMdl = pNextMdl;
 							}
 							else
 							{
-								//HeaderBuffer is fragmented in the buffer (aka, it will skip the buffer boundary)
-								//two copies to copy the HeaderBuffer
-								ToCopy = Open->Size - LocalData->P;
-								NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, HeaderBuffer, ToCopy);
-								LocalData->P = 0;
-								NdisMoveMappedMemory(LocalData->Buffer + 0, (PUCHAR)HeaderBuffer + ToCopy, HeaderBufferSize - ToCopy);
-								LocalData->P = HeaderBufferSize - ToCopy;
-
-								//only one copy to copy the LookaheadBuffer
-								NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, LookaheadBuffer, fres - HeaderBufferSize);
-								LocalData->P += (fres - HeaderBufferSize);
+								DbgPrint("next MDL %d not added\n", BufferLength);
+								break;
 							}
 						}
 						else
 						{
-							//the packet won't be fragmented in the destination buffer (aka, it won't skip the buffer boundary)
-							//two copies, the former to copy the HeaderBuffer, the latter to copy the LookaheadBuffer
-							NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, HeaderBuffer, HeaderBufferSize);
-							LocalData->P += HeaderBufferSize;
-							NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, LookaheadBuffer, fres - HeaderBufferSize);
-							LocalData->P += (fres - HeaderBufferSize);
+							break;
 						}
 					}
 
-					increment = fres + sizeof(struct PacketHeader);
 					if (Open->Size - LocalData->P < sizeof(struct PacketHeader))  //we check that the available, AND contiguous, space in the buffer will fit
 					{
 						//the NewHeader structure, at least, otherwise we skip the producer
@@ -897,7 +910,7 @@ NPF_TapExForEachOpen(
 
 					break;
 				}
-				else
+				else // never comes here.
 				{
 					IF_LOUD(DbgPrint("NPF_tapExForEachOpen: This is an error !!!!\n");)
 						//ndisTransferData required
