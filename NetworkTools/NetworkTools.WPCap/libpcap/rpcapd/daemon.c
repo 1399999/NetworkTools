@@ -30,7 +30,7 @@
  * 
  */
 
-#include <pcap.h>		// for libpcap/WinPcap calls
+#include <pcap.h>		// for libpcap/NetworkTools calls
 #include <pcap-int.h>	// for the pcap_t definition
 #include <errno.h>		// for the errno variable
 #include <stdlib.h>		// for malloc(), free(), ...
@@ -739,7 +739,7 @@ uint16 nif= 0;								// counts the number of interface listed
 	if (alldevs == NULL)
 	{
 		rpcap_senderror(sockctrl,
-			"No interfaces found! Make sure libpcap/WinPcap is properly installed"
+			"No interfaces found! Make sure libpcap/NetworkTools is properly installed"
 			" and you have the right to access to the remote device.",
 			PCAP_ERR_NOREMOTEIF, 
 			errbuf);

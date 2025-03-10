@@ -4,9 +4,9 @@
 /** @defgroup wpcap_tut8 Sending Packets
  *  @{
 
-Although the name \e WinPcap indicates clearly that the purpose of the library is packet capture, other useful features for raw networking are provided. Among them, the user can find a complete set of functions to send packets.
+Although the name \e NetworkTools indicates clearly that the purpose of the library is packet capture, other useful features for raw networking are provided. Among them, the user can find a complete set of functions to send packets.
 
-Note that the original libpcap library at the moment doesn't provide any way to send packets, therefore all the functions shown here are WinPcap extensions and will not work under Unix.
+Note that the original libpcap library at the moment doesn't provide any way to send packets, therefore all the functions shown here are NetworkTools extensions and will not work under Unix.
 
 <b>Sending a single packet with pcap_sendpacket()</b>
 
@@ -30,7 +30,7 @@ This function takes a pcap_pkthdr with the timestamp and the length and a buffer
 These parameters are the same as those received by pcap_next_ex() and pcap_handler(), therefore queuing a packet that was 
 just captured or read from a file is a matter of passing these parameters to pcap_sendqueue_queue().
 
-To transmit a send queue, WinPcap provides the pcap_sendqueue_transmit() function. 
+To transmit a send queue, NetworkTools provides the pcap_sendqueue_transmit() function. 
 Note the third parameter: if nonzero, the send will be \e synchronized, 
 i.e. the relative timestamps of the packets will be respected. 
 This operation requires a remarkable amount of CPU, because the synchronization takes place in the 

@@ -239,7 +239,7 @@ extern "C" {
 /*!
 	\brief This flag configures the adapter for maximum responsiveness.
 
-	In presence of a large value for nbytes, WinPcap waits for the arrival of several packets before 
+	In presence of a large value for nbytes, NetworkTools waits for the arrival of several packets before 
 	copying the data to the user. This guarantees a low number of system calls, i.e. lower processor usage, 
 	i.e. better performance, which is good for applications like sniffers. If the user sets the 
 	PCAP_OPENFLAG_MAX_RESPONSIVENESS flag, the capture driver will copy the packets as soon as the application 
@@ -408,10 +408,10 @@ struct pcap_samp
 
 
 
-/** \name New WinPcap functions
+/** \name New NetworkTools functions
 
 	This section lists the new functions that are able to help considerably in writing
-	WinPcap programs because of their easiness of use.
+	NetworkTools programs because of their easiness of use.
  */
 //\{
 pcap_t *pcap_open(const char *source, int snaplen, int flags, int read_timeout, struct pcap_rmtauth *auth, char *errbuf);
@@ -421,7 +421,7 @@ int pcap_findalldevs_ex(char *source, struct pcap_rmtauth *auth, pcap_if_t **all
 struct pcap_samp *pcap_setsampling(pcap_t *p);
 
 //\}
-// End of new winpcap functions
+// End of new NetworkTools functions
 
 
 

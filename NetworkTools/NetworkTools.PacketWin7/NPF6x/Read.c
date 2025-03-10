@@ -42,17 +42,28 @@
 #include "win_bpf.h"
 #include "time_calls.h"
 
+#ifdef HAVE_DOT11_SUPPORT
+#include "ieee80211_radiotap.h"
+#endif
+
 #ifdef HAVE_BUGGY_TME_SUPPORT
 #include "tme.h"
 #endif //HAVE_BUGGY_TME_SUPPORT
 
- //-------------------------------------------------------------------
+ //
+ // Global variables
+ //
+extern ULONG	g_VlanSupportMode;
+extern ULONG	g_DltNullMode;
 
+//-------------------------------------------------------------------
+
+_Use_decl_annotations_
 NTSTATUS
 NPF_Read(
 	IN PDEVICE_OBJECT DeviceObject,
 	IN PIRP Irp
-)
+	)
 {
 	POPEN_INSTANCE			Open;
 	PIO_STACK_LOCATION		IrpSp;
@@ -64,14 +75,14 @@ NPF_Read(
 	PUCHAR					CurrBuff;
 	LARGE_INTEGER			CapTime;
 	LARGE_INTEGER			TimeFreq;
-	struct bpf_hdr* header;
+	struct bpf_hdr*			header;
 	KIRQL					Irql;
 	PUCHAR					UserPointer;
 	ULONG					bytecopy;
 	UINT					SizeToCopy;
 	UINT					PktLen;
 	ULONG					copied, count, current_cpu, av, plen, increment, ToCopy, available;
-	CpuPrivateData* LocalData;
+	CpuPrivateData*			LocalData;
 	ULONG					i;
 	ULONG					Occupation;
 
@@ -83,7 +94,7 @@ NPF_Read(
 
 	if (NPF_StartUsingOpenInstance(Open) == FALSE)
 	{
-		// 
+		//
 		// an IRP_MJ_CLEANUP was received, just fail the request
 		//
 		Irp->IoStatus.Information = 0;
@@ -100,17 +111,19 @@ NPF_Read(
 	// This is not critical, since we just want to have a quick way to have the
 	// dispatch read fail in case the adapter has been unbound
 
-	if (NPF_StartUsingBinding(Open) == FALSE)
+	if (!Open->GroupHead || NPF_StartUsingBinding(Open->GroupHead) == FALSE)
 	{
 		NPF_StopUsingOpenInstance(Open);
 		// The Network adapter has been removed or diasabled
+		TRACE_EXIT();
 		EXIT_FAILURE(0);
 	}
-	NPF_StopUsingBinding(Open);
+	NPF_StopUsingBinding(Open->GroupHead);
 
 	if (Open->Size == 0)
 	{
 		NPF_StopUsingOpenInstance(Open);
+		TRACE_EXIT();
 		EXIT_FAILURE(0);
 	}
 
@@ -118,6 +131,7 @@ NPF_Read(
 	{
 		// this instance is in dump mode, but the dump file has still not been opened
 		NPF_StopUsingOpenInstance(Open);
+		TRACE_EXIT();
 		EXIT_FAILURE(0);
 	}
 
@@ -133,13 +147,14 @@ NPF_Read(
 	{
 		if (Open->ReadEvent != NULL)
 		{
-			//wait until some packets arrive or the timeout expires		
+			//wait until some packets arrive or the timeout expires
 			if (Open->TimeOut.QuadPart != (LONGLONG)IMMEDIATE)
+#pragma warning (disable: 28118)
 				KeWaitForSingleObject(Open->ReadEvent,
-					UserRequest,
-					KernelMode,
-					TRUE,
-					(Open->TimeOut.QuadPart == (LONGLONG)0) ? NULL : &(Open->TimeOut));
+				UserRequest,
+				KernelMode,
+				TRUE,
+				(Open->TimeOut.QuadPart == (LONGLONG)0) ? NULL : &(Open->TimeOut));
 
 			KeClearEvent(Open->ReadEvent);
 		}
@@ -147,11 +162,12 @@ NPF_Read(
 		if (Open->mode & MODE_STAT)
 		{
 			//this capture instance is in statistics mode
-			CurrBuff = (PUCHAR)MmGetSystemAddressForMdlSafe(Irp->MdlAddress, NormalPagePriority);
+			CurrBuff = (PUCHAR) MmGetSystemAddressForMdlSafe(Irp->MdlAddress, NormalPagePriority | MdlMappingNoExecute);
 
 			if (CurrBuff == NULL)
 			{
 				NPF_StopUsingOpenInstance(Open);
+				TRACE_EXIT();
 				EXIT_FAILURE(0);
 			}
 
@@ -162,6 +178,7 @@ NPF_Read(
 					NPF_StopUsingOpenInstance(Open);
 					Irp->IoStatus.Status = STATUS_BUFFER_TOO_SMALL;
 					IoCompleteRequest(Irp, IO_NO_INCREMENT);
+					TRACE_EXIT();
 					return STATUS_BUFFER_TOO_SMALL;
 				}
 			}
@@ -172,17 +189,18 @@ NPF_Read(
 					NPF_StopUsingOpenInstance(Open);
 					Irp->IoStatus.Status = STATUS_BUFFER_TOO_SMALL;
 					IoCompleteRequest(Irp, IO_NO_INCREMENT);
+					TRACE_EXIT();
 					return STATUS_BUFFER_TOO_SMALL;
 				}
 			}
 
 			//fill the bpf header for this packet
-			header = (struct bpf_hdr*)CurrBuff;
+			header = (struct bpf_hdr *)CurrBuff;
 			GET_TIME(&header->bh_tstamp, &G_Start_Time);
 
 			if (Open->mode & MODE_DUMP)
 			{
-				*(LONGLONG*)(CurrBuff + sizeof(struct bpf_hdr) + 16) = Open->DumpOffset.QuadPart;
+				*(LONGLONG *)(CurrBuff + sizeof(struct bpf_hdr) + 16) = Open->DumpOffset.QuadPart;
 				header->bh_caplen = 24;
 				header->bh_datalen = 24;
 				Irp->IoStatus.Information = 24 + sizeof(struct bpf_hdr);
@@ -195,8 +213,8 @@ NPF_Read(
 				Irp->IoStatus.Information = 16 + sizeof(struct bpf_hdr);
 			}
 
-			*(LONGLONG*)(CurrBuff + sizeof(struct bpf_hdr)) = Open->Npackets.QuadPart;
-			*(LONGLONG*)(CurrBuff + sizeof(struct bpf_hdr) + 8) = Open->Nbytes.QuadPart;
+			*(LONGLONG *) (CurrBuff + sizeof(struct bpf_hdr)) = Open->Npackets.QuadPart;
+			*(LONGLONG *) (CurrBuff + sizeof(struct bpf_hdr) + 8) = Open->Nbytes.QuadPart;
 
 			//reset the countetrs
 			NdisAcquireSpinLock(&Open->CountersLock);
@@ -209,11 +227,12 @@ NPF_Read(
 			Irp->IoStatus.Status = STATUS_SUCCESS;
 			IoCompleteRequest(Irp, IO_NO_INCREMENT);
 
+			TRACE_EXIT();
 			return STATUS_SUCCESS;
 		}
 
 		//
-		// The MONITOR_MODE (aka TME extensions) is not supported on 
+		// The MONITOR_MODE (aka TME extensions) is not supported on
 		// 64 bit architectures
 		//
 #ifdef HAVE_BUGGY_TME_SUPPORT
@@ -234,16 +253,18 @@ NPF_Read(
 			if (UserPointer == NULL)
 			{
 				NPF_StopUsingOpenInstance(Open);
+				TRACE_EXIT();
 				EXIT_FAILURE(0);
 			}
 
 			if ((!IS_VALIDATED(Open->tme.validated_blocks, Open->tme.active_read)) || (IrpSp->Parameters.Read.Length < sizeof(struct bpf_hdr)))
 			{
 				NPF_StopUsingOpenInstance(Open);
+				TRACE_EXIT();
 				EXIT_FAILURE(0);
 			}
 
-			header = (struct bpf_hdr*)UserPointer;
+			header = (struct bpf_hdr *)UserPointer;
 
 			GET_TIME(&header->bh_tstamp, &G_Start_Time);
 
@@ -288,6 +309,7 @@ NPF_Read(
 			header->bh_datalen = header->bh_caplen;
 
 			NPF_StopUsingOpenInstance(Open);
+			TRACE_EXIT();
 			EXIT_SUCCESS(bytecopy + sizeof(struct bpf_hdr));
 		}
 
@@ -298,10 +320,11 @@ NPF_Read(
 
 
 		if (Occupation == 0 || Open->mode & MODE_DUMP)
-			// The timeout has expired, but the buffer is still empty (or the packets must be written to file).
-			// We must awake the application, returning an empty buffer.
+							// The timeout has expired, but the buffer is still empty (or the packets must be written to file).
+							// We must awake the application, returning an empty buffer.
 		{
 			NPF_StopUsingOpenInstance(Open);
+			TRACE_EXIT();
 			EXIT_SUCCESS(0);
 		}
 
@@ -309,6 +332,7 @@ NPF_Read(
 		if (Open->mode == MODE_MON)   //this capture instance is in monitor mode
 		{
 			NPF_StopUsingOpenInstance(Open);
+			TRACE_EXIT();
 			EXIT_FAILURE(0);
 		}
 #endif // HAVE_BUGGY_TME_SUPPORT
@@ -322,12 +346,20 @@ NPF_Read(
 	current_cpu = 0;
 	available = IrpSp->Parameters.Read.Length;
 
-	packp = (PUCHAR)MmGetSystemAddressForMdlSafe(Irp->MdlAddress, NormalPagePriority);
+	if (Irp->MdlAddress == 0x0)
+	{
+		NPF_StopUsingOpenInstance(Open);
+		TRACE_EXIT();
+		EXIT_FAILURE(0);
+	}
+
+	packp = (PUCHAR) MmGetSystemAddressForMdlSafe(Irp->MdlAddress, NormalPagePriority | MdlMappingNoExecute);
 
 
 	if (packp == NULL)
 	{
 		NPF_StopUsingOpenInstance(Open);
+		TRACE_EXIT();
 		EXIT_FAILURE(0);
 	}
 
@@ -339,6 +371,7 @@ NPF_Read(
 		if (available == copied)
 		{
 			NPF_StopUsingOpenInstance(Open);
+			TRACE_EXIT();
 			EXIT_SUCCESS(copied);
 		}
 
@@ -357,12 +390,13 @@ NPF_Read(
 				{
 					//if the packet does not fit into the user buffer, we've ended copying packets
 					NPF_StopUsingOpenInstance(Open);
+					TRACE_EXIT();
 					EXIT_SUCCESS(copied);
 				}
 
 				// FIX_TIMESTAMPS(&Header->header.bh_tstamp);
 
-				*((struct bpf_hdr*)(&packp[copied])) = Header->header;
+				*((struct bpf_hdr *) (&packp[copied])) = Header->header;
 
 				copied += sizeof(struct bpf_hdr);
 				LocalData->C += sizeof(struct PacketHeader);
@@ -417,6 +451,7 @@ NPF_Read(
 	}
 	{
 		NPF_StopUsingOpenInstance(Open);
+		TRACE_EXIT();
 		EXIT_SUCCESS(copied);
 	}
 
@@ -432,9 +467,9 @@ NPF_SendEx(
 	PNET_BUFFER_LIST    NetBufferLists,
 	NDIS_PORT_NUMBER    PortNumber,
 	ULONG               SendFlags
-)
+	)
 {
-	POPEN_INSTANCE		Open = (POPEN_INSTANCE)FilterModuleContext;
+	POPEN_INSTANCE		Open = (POPEN_INSTANCE) FilterModuleContext;
 	POPEN_INSTANCE		GroupOpen;
 	POPEN_INSTANCE		TempOpen;
 	PVOID i = 0;
@@ -487,10 +522,10 @@ NPF_TapEx(
 	NDIS_PORT_NUMBER    PortNumber,
 	ULONG               NumberOfNetBufferLists,
 	ULONG               ReceiveFlags
-)
+	)
 {
 
-	POPEN_INSTANCE      Open = (POPEN_INSTANCE)FilterModuleContext;
+	POPEN_INSTANCE      Open = (POPEN_INSTANCE) FilterModuleContext;
 	POPEN_INSTANCE		GroupOpen;
 	POPEN_INSTANCE		TempOpen;
 	ULONG				ReturnFlags = 0;
@@ -536,15 +571,43 @@ NPF_TapEx(
 	}
 #endif
 
-	//return the packets immediately
-	NdisFIndicateReceiveNetBufferLists(
-		Open->AdapterHandle,
-		NetBufferLists,
-		PortNumber,
-		NumberOfNetBufferLists,
-		ReceiveFlags);
+#ifdef HAVE_RX_SUPPORT
+	if (Open->BlockRxPath)
+	{
+		if (NDIS_TEST_RECEIVE_CAN_PEND(ReceiveFlags))
+		{
+			// no NDIS_RECEIVE_FLAGS_RESOURCES in ReceiveFlags
+			NdisFReturnNetBufferLists(
+				Open->AdapterHandle,
+				NetBufferLists,
+				ReturnFlags);
+		}
+	}
+	else
+#endif
+	{
+		//return the packets immediately
+		NdisFIndicateReceiveNetBufferLists(
+			Open->AdapterHandle,
+			NetBufferLists,
+			PortNumber,
+			NumberOfNetBufferLists,
+			ReceiveFlags);
+	}
 
 	TRACE_EXIT();
+}
+
+//-------------------------------------------------------------------
+
+VOID
+NPF_AlignProtocolField(
+	IN UINT Alignment,
+	IN PUINT pCur
+)
+{
+	*pCur = (*pCur + Alignment - 1);
+	*pCur = *pCur - *pCur % Alignment;
 }
 
 //-------------------------------------------------------------------
@@ -553,7 +616,7 @@ VOID
 NPF_TapExForEachOpen(
 	IN POPEN_INSTANCE Open,
 	IN PNET_BUFFER_LIST pNetBufferLists
-)
+	)
 {
 	ULONG					SizeToTransfer;
 	NDIS_STATUS				Status;
@@ -564,328 +627,646 @@ NPF_TapExForEachOpen(
 	UINT					fres;
 	USHORT					NPFHdrSize;
 
-	CpuPrivateData* LocalData;
+	CpuPrivateData*			LocalData;
 	ULONG					Cpu;
-	struct PacketHeader* Header;
+	struct PacketHeader*	Header;
 	ULONG					ToCopy;
 	ULONG					increment;
 	ULONG					i;
 	BOOLEAN					ShouldReleaseBufferLock;
 
+	PUCHAR					TmpBuffer = NULL;
 	PUCHAR					HeaderBuffer;
 	UINT					HeaderBufferSize;
 	PUCHAR					LookaheadBuffer;
 	UINT					LookaheadBufferSize;
 	UINT					PacketSize;
-	ULONG                   TotalLength;
+	ULONG					TotalLength;
+	UINT					TotalPacketSize;
 
-	PMDL                    pMdl = NULL;
-	UINT                    BufferLength;
-	PNDISPROT_ETH_HEADER    pEthHeader = NULL;
-	PNET_BUFFER_LIST        pNetBufList;
-	PNET_BUFFER_LIST        pNextNetBufList;
-	ULONG                   Offset;
+	PMDL					pMdl = NULL;
+	UINT					BufferLength;
+	PUCHAR					pDataLinkBuffer = NULL;
+	PNET_BUFFER_LIST		pNetBufList;
+	PNET_BUFFER_LIST		pNextNetBufList;
+	PNET_BUFFER				pNetBuf;
+	PNET_BUFFER				pNextNetBuf;
+	ULONG					Offset;
+
+	UINT					DataLinkHeaderSize;
+
+#ifdef HAVE_DOT11_SUPPORT
+	UCHAR					Dot11RadiotapHeader[256] = { 0 };
+	UINT					Dot11RadiotapHeaderSize = 0;
+#endif
 
 	//TRACE_ENTER();
 
-	pNetBufList = pNetBufferLists;
+// 	if (NPF_StartUsingOpenInstance(Open) == FALSE)
+// 	{
+// 		// The adapter is in use or even released, stop the tapping.
+// 		return;
+// 	}
 
+	if (Open->Loopback && g_DltNullMode)
+	{
+		DataLinkHeaderSize = DLT_NULL_HDR_LEN;
+	}
+	else
+	{
+		DataLinkHeaderSize = ETHER_HDR_LEN;
+	}
+
+	pNetBufList = pNetBufferLists;
 	while (pNetBufList != NULL)
 	{
+		BOOLEAN withVlanTag = FALSE;
+		UCHAR pVlanTag[2];
+
+		// Handle IEEE802.1Q VLAN tag here, the tag in OOB field will be copied to the packet data, currently only Ethernet supported.
+		// This code refers to Win10Pcap at https://github.com/SoftEtherVPN/Win10Pcap.
+		if (g_VlanSupportMode && (NET_BUFFER_LIST_INFO(pNetBufList, Ieee8021QNetBufferListInfo) != 0))
+		{
+			NDIS_NET_BUFFER_LIST_8021Q_INFO qInfo;
+			qInfo.Value = NET_BUFFER_LIST_INFO(pNetBufList, Ieee8021QNetBufferListInfo);
+			if (qInfo.TagHeader.VlanId != 0)
+			{
+				USHORT pTmpVlanTag;
+				withVlanTag = TRUE;
+
+				pTmpVlanTag = (qInfo.TagHeader.UserPriority & 0x07 << 13) |
+					(qInfo.TagHeader.CanonicalFormatId & 0x01 << 12) |
+					(qInfo.TagHeader.VlanId & 0x0FFF);
+
+				pVlanTag[0] = ((UCHAR *)(&pTmpVlanTag))[1];
+				pVlanTag[1] = ((UCHAR *)(&pTmpVlanTag))[0];
+			}
+		}
+
+#ifdef HAVE_DOT11_SUPPORT
+		// Handle native 802.11 media specific OOB data here.
+		// This code will help provide the radiotap header for 802.11 packets, see http://www.radiotap.org for details.
+		if (Open->Dot11 && (NET_BUFFER_LIST_INFO(pNetBufList, MediaSpecificInformation) != 0))
+		{
+			PDOT11_EXTSTA_RECV_CONTEXT  pwInfo;
+			PIEEE80211_RADIOTAP_HEADER pRadiotapHeader = (PIEEE80211_RADIOTAP_HEADER) Dot11RadiotapHeader;
+			UINT cur = 0;
+
+			// The radiotap header is also placed in the buffer.
+			cur += sizeof(IEEE80211_RADIOTAP_HEADER) / sizeof(UCHAR);
+
+			pwInfo = NET_BUFFER_LIST_INFO(pNetBufList, MediaSpecificInformation);
+
+			// [Radiotap] "TSFT" field.
+			// Size: 8 bytes, Alignment: 8 bytes.
+			if ((pwInfo->uReceiveFlags & DOT11_RECV_FLAG_RAW_PACKET_TIMESTAMP) == DOT11_RECV_FLAG_RAW_PACKET_TIMESTAMP)
+			{
+				pRadiotapHeader->it_present |= BIT(IEEE80211_RADIOTAP_TSFT);
+				RtlCopyMemory(Dot11RadiotapHeader + cur, &pwInfo->ullTimestamp, sizeof(INT64) / sizeof(UCHAR));
+				cur += sizeof(INT64) / sizeof(UCHAR);
+			}
+
+			// [Radiotap] "Flags" field.
+			// Size: 1 byte, Alignment: 1 byte.
+			if ((pwInfo->uReceiveFlags & DOT11_RECV_FLAG_RAW_PACKET) != DOT11_RECV_FLAG_RAW_PACKET) // The packet doesn't have FCS. We always have no FCS for all packets currently.
+			{
+				pRadiotapHeader->it_present |= BIT(IEEE80211_RADIOTAP_FLAGS);
+				*((UCHAR*)Dot11RadiotapHeader + cur) = 0x0; // 0x0: none
+				cur += sizeof(UCHAR) / sizeof(UCHAR);
+			}
+			else // The packet has FCS.
+			{
+				pRadiotapHeader->it_present |= BIT(IEEE80211_RADIOTAP_FLAGS);
+				*((UCHAR*)Dot11RadiotapHeader + cur) = IEEE80211_RADIOTAP_F_FCS; // 0x10: frame includes FCS
+
+				// FCS check fails.
+				if ((pwInfo->uReceiveFlags & DOT11_RECV_FLAG_RAW_PACKET_FCS_FAILURE) == DOT11_RECV_FLAG_RAW_PACKET_FCS_FAILURE)
+				{
+					*((UCHAR*)Dot11RadiotapHeader + cur) |= IEEE80211_RADIOTAP_F_BADFCS; // 0x40: frame failed FCS check
+				}
+
+				cur += sizeof(UCHAR) / sizeof(UCHAR);
+			}
+
+			// [Radiotap] "Rate" field.
+			// Size: 1 byte, Alignment: 1 byte.
+			// Looking up the ucDataRate field's value in the data rate mapping table.
+			// If not found, return 0.
+			USHORT usDataRateValue = NPF_LookUpDataRateMappingTable(Open, pwInfo->ucDataRate);
+			pRadiotapHeader->it_present |= BIT(IEEE80211_RADIOTAP_RATE);
+			// The miniport might be providing data rate values > 127.5 Mb/s, but radiotap's "Rate" field is only 8 bits,
+			// so we at least make it the maximum value instead of overflowing it.
+			if (usDataRateValue > 255)
+			{
+				usDataRateValue = 255;
+			}
+			*((UCHAR*)Dot11RadiotapHeader + cur) = (UCHAR) usDataRateValue;
+			cur += sizeof(UCHAR) / sizeof(UCHAR);
+
+			NPF_AlignProtocolField(2, &cur);
+			// [Radiotap] "Channel" field.
+			// Size: 2 bytes + 2 bytes, Alignment: 2 bytes.
+			if (TRUE)
+			{
+				USHORT flags = 0;
+				if (pwInfo->uPhyId == dot11_phy_type_fhss)
+				{
+					flags = IEEE80211_CHAN_GFSK; // 0x0800
+				}
+				else if (pwInfo->uPhyId == dot11_phy_type_ofdm)
+				{
+					flags = IEEE80211_CHAN_OFDM; // 0x0040
+				}
+				else if (pwInfo->uPhyId == dot11_phy_type_hrdsss)
+				{
+					flags = IEEE80211_CHAN_CCK; // 0x0020
+				}
+				else if (pwInfo->uPhyId == dot11_phy_type_erp)
+				{
+					flags = IEEE80211_CHAN_OFDM; // 0x0040
+				}
+				else if (pwInfo->uPhyId != dot11_phy_type_irbaseband)
+				{
+					// 2484 is cutoff value used by Wireshark for CommView files, we follow this design here.
+					if (pwInfo->uChCenterFrequency > 2484) // 5 GHz
+					{
+						flags = IEEE80211_CHAN_5GHZ; // 0x0100
+					}
+					else // 2.4 GHz
+					{
+						flags = IEEE80211_CHAN_2GHZ; // 0x0080
+					}
+				}
+
+				// If the frequency is higher than 65535, radiotap can't hold this value because "Frequency" field is only 16 bits, we just leave it the maximum value 65535.
+				if (pwInfo->uChCenterFrequency <= 65535)
+				{
+					*((USHORT*)Dot11RadiotapHeader + cur) = (USHORT) pwInfo->uChCenterFrequency;
+				}
+				else
+				{
+					*((USHORT*)Dot11RadiotapHeader + cur) = 65535;
+				}
+				cur += sizeof(USHORT) / sizeof(UCHAR);
+
+				pRadiotapHeader->it_present |= BIT(IEEE80211_RADIOTAP_CHANNEL);
+				*((USHORT*)Dot11RadiotapHeader + cur) = flags;
+				cur += sizeof(USHORT) / sizeof(UCHAR);
+			}
+
+			// [Radiotap] "Antenna signal" field, 1 byte.
+			// Size: 1 byte, Alignment: 1 byte.
+			if (TRUE)
+			{
+				pRadiotapHeader->it_present |= BIT(IEEE80211_RADIOTAP_DBM_ANTSIGNAL);
+				// We don't need to worry about that lRSSI value doesn't fit in 8 bits based on practical use.
+				*((UCHAR*)Dot11RadiotapHeader + cur) = (UCHAR) pwInfo->lRSSI;
+				cur += sizeof(UCHAR) / sizeof(UCHAR);
+			}
+
+			// [Radiotap] "MCS" field.
+			// Size: 1 byte + 1 byte + 1 byte, Alignment: 1 byte.
+			if (pwInfo->uPhyId == dot11_phy_type_ht)
+			{
+				pRadiotapHeader->it_present |= BIT(IEEE80211_RADIOTAP_MCS);
+				RtlZeroMemory(Dot11RadiotapHeader + cur, 3 * sizeof(UCHAR) / sizeof(UCHAR));
+				cur += 3 * sizeof(UCHAR) / sizeof(UCHAR);
+			}
+			// [Radiotap] "VHT" field, 12 bytes.
+			// Size: 2 bytes + 1 byte + 1 byte + 4 * 1 byte + 1 byte + 1 byte + 2 bytes, Alignment: 2 bytes.
+			else if (pwInfo->uPhyId == dot11_phy_type_vht)
+			{
+				// Before putting the VHT field into the packet, because the VHT field has to be aligned on a 2-byte boundary,
+				// and the antenna field is on a 2-byte boundary but is only 1 byte long.
+				// (The MCS field, however, doesn't have to be aligned on a 2-byte boundary, so you *don't* need to pad anything for HT frames.)
+				// cur += sizeof(UCHAR) / sizeof(UCHAR);
+				NPF_AlignProtocolField(2, &cur);
+
+				pRadiotapHeader->it_present |= BIT(IEEE80211_RADIOTAP_VHT);
+				RtlZeroMemory(Dot11RadiotapHeader + cur, 12 * sizeof(UCHAR) / sizeof(UCHAR));
+				cur += 12 * sizeof(UCHAR) / sizeof(UCHAR);
+			}
+
+			Dot11RadiotapHeaderSize = cur;
+			pRadiotapHeader->it_version = 0x0;
+			pRadiotapHeader->it_len = (USHORT) Dot11RadiotapHeaderSize;
+		}
+#endif
+
 		pNextNetBufList = NET_BUFFER_LIST_NEXT_NBL(pNetBufList);
 
-		Cpu = KeGetCurrentProcessorNumber();
-		LocalData = &Open->CpuData[Cpu];
-
-		LocalData->Received++;
-
-		IF_LOUD(DbgPrint("Received on CPU %d \t%d\n", Cpu, LocalData->Received);)
-
-			NdisAcquireSpinLock(&Open->MachineLock);
-
-		//
-		// Get first MDL and data length in the list
-		//
-		pMdl = pNetBufList->FirstNetBuffer->CurrentMdl;
-		TotalLength = pNetBufList->FirstNetBuffer->DataLength;
-		Offset = pNetBufList->FirstNetBuffer->CurrentMdlOffset;
-		BufferLength = 0;
-
-		do
+		pNetBuf = pNetBufList->FirstNetBuffer;
+		while (pNetBuf != NULL)
 		{
-			if (pMdl)
-			{
-				NdisQueryMdl(
-					pMdl,
-					&pEthHeader,
-					&BufferLength,
-					NormalPagePriority);
-			}
+			pNextNetBuf = NET_BUFFER_NEXT_NB(pNetBuf);
 
-			if (pEthHeader == NULL)
-			{
-				//
-				//  The system is low on resources. Set up to handle failure
-				//  below.
-				//
-				BufferLength = 0;
-				NdisReleaseSpinLock(&Open->MachineLock);
-				break;
-			}
+			Cpu = My_KeGetCurrentProcessorNumber();
+			LocalData = &Open->CpuData[Cpu];
 
-			if (BufferLength == 0)
-			{
-				NdisReleaseSpinLock(&Open->MachineLock);
-				break;
-			}
+			LocalData->Received++;
 
-			BufferLength -= Offset;
-			pEthHeader = (PNDISPROT_ETH_HEADER)((PUCHAR)pEthHeader + Offset);
+			IF_LOUD(DbgPrint("Received on CPU %d \t%d\n", Cpu, LocalData->Received);)
 
-			// As for single MDL (as we assume) condition, we always have BufferLength == TotalLength
-			if (BufferLength > TotalLength)
-				BufferLength = TotalLength;
-
-			// 			if (BufferLength < sizeof(NDISPROT_ETH_HEADER))
-			// 			{
-			// 				IF_LOUD(DbgPrint("ReceiveNetBufferList: Open %p, runt nbl %p, first buffer length %d\n",
-			// 					Open, pNetBufList, BufferLength);)
-			// 				NdisReleaseSpinLock(&Open->MachineLock);
-			// 				break;
-			// 			}
-
-						//bAcceptedReceive = TRUE;
-						//IF_LOUD(DbgPrint("ReceiveNetBufferList: Open %p, interesting nbl %p\n",
-						//	Open, pNetBufList);)
-
-						//
-						//  If the miniport is out of resources, we can't queue
-						//  this list of net buffer list - make a copy if this is so.
-						//
-						//DispatchLevel = NDIS_TEST_RECEIVE_AT_DISPATCH_LEVEL(ReceiveFlags);
-
-			HeaderBuffer = (PUCHAR)pEthHeader;
-			HeaderBufferSize = sizeof(NDISPROT_ETH_HEADER);
-			LookaheadBuffer = (PUCHAR)pEthHeader + sizeof(NDISPROT_ETH_HEADER);
-			LookaheadBufferSize = BufferLength - HeaderBufferSize;
-			PacketSize = LookaheadBufferSize;
+				NdisAcquireSpinLock(&Open->MachineLock);
 
 			//
-			// the jit filter is available on x86 (32 bit) only
+			// Get first MDL and data length in the list
 			//
-#ifdef _X86_
-
-			if (Open->Filter != NULL)
-			{
-				if (Open->bpfprogram != NULL && Open->Filter->Function != NULL)
-				{
-					fres = Open->Filter->Function(
-						(PVOID)HeaderBuffer,
-						PacketSize + HeaderBufferSize,
-						LookaheadBufferSize + HeaderBufferSize);
-				}
-				else
-				{
-					fres = -1;
-				}
-			}
-			else
-#endif //_X86_
-			{
-				fres = bpf_filter((struct bpf_insn*)(Open->bpfprogram),
-					HeaderBuffer,
-					PacketSize + HeaderBufferSize,
-					LookaheadBufferSize + HeaderBufferSize);
-			}
-
-
-			NdisReleaseSpinLock(&Open->MachineLock);
-
-			//
-			// The MONITOR_MODE (aka TME extensions) is not supported on 
-			// 64 bit architectures
-			//
-
-			if (fres == 0)
-			{
-				// Packet not accepted by the filter, ignore it.
-				// return NDIS_STATUS_NOT_ACCEPTED;
-				goto NPF_TapEx_ForEachOpen_End;
-			}
-
-			//if the filter returns -1 the whole packet must be accepted
-			if (fres == -1 || fres > PacketSize + HeaderBufferSize)
-				fres = PacketSize + HeaderBufferSize;
-
-			if (Open->mode & MODE_STAT)
-			{
-				// we are in statistics mode
-				NdisAcquireSpinLock(&Open->CountersLock);
-
-				Open->Npackets.QuadPart++;
-
-				if (PacketSize + HeaderBufferSize < 60)
-					Open->Nbytes.QuadPart += 60;
-				else
-					Open->Nbytes.QuadPart += PacketSize + HeaderBufferSize;
-				// add preamble+SFD+FCS to the packet
-				// these values must be considered because are not part of the packet received from NDIS
-				Open->Nbytes.QuadPart += 12;
-
-				NdisReleaseSpinLock(&Open->CountersLock);
-
-				if (!(Open->mode & MODE_DUMP))
-				{
-					//return NDIS_STATUS_NOT_ACCEPTED;
-					goto NPF_TapEx_ForEachOpen_End;
-				}
-			}
-
-			if (Open->Size == 0)
-			{
-				LocalData->Dropped++;
-				//return NDIS_STATUS_NOT_ACCEPTED;
-				goto NPF_TapEx_ForEachOpen_End;
-			}
-
-			if (Open->mode & MODE_DUMP && Open->MaxDumpPacks)
-			{
-				ULONG Accepted = 0;
-				for (i = 0; i < g_NCpu; i++)
-					Accepted += Open->CpuData[i].Accepted;
-
-				if (Accepted > Open->MaxDumpPacks)
-				{
-					// Reached the max number of packets to save in the dump file. Discard the packet and stop the dump thread.
-					Open->DumpLimitReached = TRUE; // This stops the thread
-					// Awake the dump thread
-					NdisSetEvent(&Open->DumpEvent);
-
-					// Awake the application
-					if (Open->ReadEvent != NULL)
-						KeSetEvent(Open->ReadEvent, 0, FALSE);
-
-					//return NDIS_STATUS_NOT_ACCEPTED;
-					goto NPF_TapEx_ForEachOpen_End;
-				}
-			}
-
-			//////////////////////////////COPIA.C//////////////////////////////////////////77
-
-			ShouldReleaseBufferLock = TRUE;
-			//NdisDprAcquireSpinLock(&LocalData->BufferLock);
-			NdisAcquireSpinLock(&LocalData->BufferLock);
+			pMdl = pNetBuf->CurrentMdl;
+			TotalLength = pNetBuf->DataLength;
+			Offset = pNetBuf->CurrentMdlOffset;
+			BufferLength = 0;
 
 			do
 			{
-				if (fres + sizeof(struct PacketHeader) > LocalData->Free)
+				if (pMdl)
 				{
-					LocalData->Dropped++;
+					NdisQueryMdl(
+						pMdl,
+						&pDataLinkBuffer,
+						&BufferLength,
+						NormalPagePriority);
+				}
+
+				if (pDataLinkBuffer == NULL)
+				{
+					//
+					//  The system is low on resources. Set up to handle failure
+					//  below.
+					//
+					BufferLength = 0;
+					NdisReleaseSpinLock(&Open->MachineLock);
 					break;
 				}
 
-				if (LocalData->TransferMdl1 != NULL)
+				if (BufferLength == 0)
 				{
-					//
-					//if TransferMdl is not NULL, there is some TransferData pending (i.e. not having called TransferDataComplete, yet)
-					//in order to avoid buffer corruption, we drop the packet
-					//
-					LocalData->Dropped++;
+					NdisReleaseSpinLock(&Open->MachineLock);
 					break;
 				}
 
-				/* always true */
-				if (LookaheadBufferSize + HeaderBufferSize >= fres)
+				BufferLength -= Offset;
+				pDataLinkBuffer += Offset;
+
+				// As for single MDL (as we assume) condition, we always have BufferLength == TotalLength
+				if (BufferLength > TotalLength)
+					BufferLength = TotalLength;
+
+				// Handle multiple MDLs situation here, if there's only 20 bytes in the first MDL, then the IP header is in the second MDL.
+				if (BufferLength == DataLinkHeaderSize && pMdl->Next != NULL)
 				{
-					//
-					// we do not need to call NdisTransferData, either because we need only the HeaderBuffer, or because the LookaheadBuffer
-					// contains what we need
-					//
-
-					Header = (struct PacketHeader*)(LocalData->Buffer + LocalData->P);
-					LocalData->Accepted++;
-					GET_TIME(&Header->header.bh_tstamp, &G_Start_Time);
-					Header->SN = InterlockedIncrement(&Open->WriterSN) - 1;
-
-					DbgPrint("MDL %d\n", fres);
-
-					Header->header.bh_caplen = fres;
-					Header->header.bh_datalen = PacketSize + HeaderBufferSize;
-					Header->header.bh_hdrlen = sizeof(struct bpf_hdr);
-
-					LocalData->P += sizeof(struct PacketHeader);
-					if (LocalData->P == Open->Size)
-						LocalData->P = 0;
-
-					//
-					//we can consider the buffer contiguous, either because we use only the data 
-					//present in the HeaderBuffer, or because HeaderBuffer and LookaheadBuffer are contiguous
-					// ;-))))))
-					//
-					if (Open->Size - LocalData->P < fres)
+					TmpBuffer = ExAllocatePoolWithTag(NonPagedPool, pNetBuf->DataLength, 'NPCA');
+					pDataLinkBuffer = NdisGetDataBuffer(pNetBuf,
+						pNetBuf->DataLength,
+						TmpBuffer,
+						1,
+						0);
+					if (!pDataLinkBuffer)
 					{
-						//the packet will be fragmented in the buffer (aka, it will skip the buffer boundary)
-						//two copies!!
-						ToCopy = Open->Size - LocalData->P;
-						NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, HeaderBuffer, ToCopy);
-						NdisMoveMappedMemory(LocalData->Buffer + 0, (PUCHAR)HeaderBuffer + ToCopy, fres - ToCopy);
-						LocalData->P = fres - ToCopy;
+						TRACE_MESSAGE1(PACKET_DEBUG_LOUD,
+							"NPF_TapExForEachOpen: NdisGetDataBuffer() [status: %#x]\n",
+							STATUS_UNSUCCESSFUL);
+
+						NdisReleaseSpinLock(&Open->MachineLock);
+						break;
 					}
 					else
 					{
-						//the packet does not need to be fragmented in the buffer (aka, it doesn't skip the buffer boundary)
-						// ;-)))))) only ONE copy
-						NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, HeaderBuffer, fres);
-						LocalData->P += fres;
+						BufferLength = pNetBuf->DataLength;
 					}
+				}
 
-					increment = fres + sizeof(struct PacketHeader);
-					TotalLength -= fres;
+				// 			if (BufferLength < sizeof(NDISPROT_ETH_HEADER))
+				// 			{
+				// 				IF_LOUD(DbgPrint("ReceiveNetBufferList: Open %p, runt nbl %p, first buffer length %d\n",
+				// 					Open, pNetBufList, BufferLength);)
+				// 				NdisReleaseSpinLock(&Open->MachineLock);
+				// 				break;
+				// 			}
 
-					// add next MDLs
-					while (TotalLength)
+				//bAcceptedReceive = TRUE;
+				//IF_LOUD(DbgPrint("ReceiveNetBufferList: Open %p, interesting nbl %p\n",
+				//	Open, pNetBufList);)
+
+				//
+				//  If the miniport is out of resources, we can't queue
+				//  this list of net buffer list - make a copy if this is so.
+				//
+				//DispatchLevel = NDIS_TEST_RECEIVE_AT_DISPATCH_LEVEL(ReceiveFlags);
+
+				HeaderBuffer = pDataLinkBuffer;
+				HeaderBufferSize = DataLinkHeaderSize;
+				LookaheadBuffer = pDataLinkBuffer + HeaderBufferSize;
+				LookaheadBufferSize = BufferLength - HeaderBufferSize;
+				PacketSize = LookaheadBufferSize;
+
+				//
+				// the jit filter is available on x86 (32 bit) only
+				//
+#ifdef _X86_
+
+				if (Open->Filter != NULL)
+				{
+					if (Open->bpfprogram != NULL && Open->Filter->Function != NULL)
 					{
-						PMDL pNextMdl = NULL;
+						fres = Open->Filter->Function(
+							(PVOID)HeaderBuffer,
+							PacketSize + HeaderBufferSize,
+							LookaheadBufferSize + HeaderBufferSize);
+					}
+					else
+					{
+						fres = -1;
+					}
+				}
+				else
+#endif //_X86_
+				{
+					fres = bpf_filter((struct bpf_insn *)(Open->bpfprogram),
+						HeaderBuffer,
+						PacketSize + HeaderBufferSize,
+						LookaheadBufferSize + HeaderBufferSize);
+					IF_LOUD(DbgPrint("\n");)
+					IF_LOUD(DbgPrint("HeaderBufferSize = %d, LookaheadBufferSize (PacketSize) = %d, fres = %d\n", HeaderBufferSize, LookaheadBufferSize, fres);)
+				}
 
-						NdisGetNextMdl(pMdl, &pNextMdl);
 
-						if (pNextMdl)
+				NdisReleaseSpinLock(&Open->MachineLock);
+
+				//
+				// The MONITOR_MODE (aka TME extensions) is not supported on
+				// 64 bit architectures
+				//
+
+				if (fres == 0)
+				{
+					// Packet not accepted by the filter, ignore it.
+					// return NDIS_STATUS_NOT_ACCEPTED;
+					goto NPF_TapExForEachOpen_End;
+				}
+
+				//if the filter returns -1 the whole packet must be accepted
+				// if (fres == -1 || fres > PacketSize + HeaderBufferSize)
+				//	fres = PacketSize + HeaderBufferSize;
+
+				if (Open->mode & MODE_STAT)
+				{
+					// we are in statistics mode
+					NdisAcquireSpinLock(&Open->CountersLock);
+
+					Open->Npackets.QuadPart++;
+
+					if (PacketSize + HeaderBufferSize < 60)
+						Open->Nbytes.QuadPart += 60;
+					else
+						Open->Nbytes.QuadPart += PacketSize + HeaderBufferSize;
+					// add preamble+SFD+FCS to the packet
+					// these values must be considered because are not part of the packet received from NDIS
+					Open->Nbytes.QuadPart += 12;
+
+					NdisReleaseSpinLock(&Open->CountersLock);
+
+					if (!(Open->mode & MODE_DUMP))
+					{
+						//return NDIS_STATUS_NOT_ACCEPTED;
+						goto NPF_TapExForEachOpen_End;
+					}
+				}
+
+				if (Open->Size == 0)
+				{
+					LocalData->Dropped++;
+					//return NDIS_STATUS_NOT_ACCEPTED;
+					goto NPF_TapExForEachOpen_End;
+				}
+
+				if (Open->mode & MODE_DUMP && Open->MaxDumpPacks)
+				{
+					ULONG Accepted = 0;
+					for (i = 0; i < g_NCpu; i++)
+						Accepted += Open->CpuData[i].Accepted;
+
+					if (Accepted > Open->MaxDumpPacks)
+					{
+						// Reached the max number of packets to save in the dump file. Discard the packet and stop the dump thread.
+						Open->DumpLimitReached = TRUE; // This stops the thread
+													   // Awake the dump thread
+						NdisSetEvent(&Open->DumpEvent);
+
+						// Awake the application
+						if (Open->ReadEvent != NULL)
+							KeSetEvent(Open->ReadEvent, 0, FALSE);
+
+						//return NDIS_STATUS_NOT_ACCEPTED;
+						goto NPF_TapExForEachOpen_End;
+					}
+				}
+
+				//////////////////////////////COPIA.C//////////////////////////////////////////77
+
+				ShouldReleaseBufferLock = TRUE;
+				//NdisDprAcquireSpinLock(&LocalData->BufferLock);
+				NdisAcquireSpinLock(&LocalData->BufferLock);
+
+				do
+				{
+					// Get the whole packet length.
+					TotalPacketSize = PacketSize + HeaderBufferSize;
+					PMDL pCurMdl = pMdl;
+					PMDL pPreMdl;
+					while (TRUE)
+					{
+						pPreMdl = pCurMdl;
+						NdisGetNextMdl(pPreMdl, &pCurMdl);
+
+						if (pCurMdl)
 						{
 							NdisQueryMdl(
-								pNextMdl,
-								&pEthHeader,
+								pCurMdl,
+								&pDataLinkBuffer,
 								&BufferLength,
 								NormalPagePriority);
-
-							if (BufferLength >= TotalLength)
-								BufferLength = TotalLength;
-
-							if (Open->Size - LocalData->P >= BufferLength)
-							{
-								NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, pEthHeader, BufferLength);
-								LocalData->P += BufferLength;
-
-								increment += BufferLength;
-								TotalLength -= BufferLength;
-
-								Header->header.bh_caplen += BufferLength;
-								Header->header.bh_datalen += BufferLength;
-
-								DbgPrint("next MDL %d and added\n", BufferLength);
-
-								pMdl = pNextMdl;
-							}
-							else
-							{
-								DbgPrint("next MDL %d not added\n", BufferLength);
-								break;
-							}
+							TotalPacketSize += BufferLength;
 						}
 						else
 						{
 							break;
 						}
 					}
+
+					if (fres > TotalPacketSize)
+						fres = TotalPacketSize;
+
+					if (fres + sizeof(struct PacketHeader) > LocalData->Free)
+					{
+						LocalData->Dropped++;
+						IF_LOUD(DbgPrint("LocalData->Dropped++, fres = %d, LocalData->Free = %d\n", fres, LocalData->Free);)
+						break;
+					}
+
+					if (LocalData->TransferMdl1 != NULL)
+					{
+						//
+						//if TransferMdl is not NULL, there is some TransferData pending (i.e. not having called TransferDataComplete, yet)
+						//in order to avoid buffer corruption, we drop the packet
+						//
+						LocalData->Dropped++;
+						IF_LOUD(DbgPrint("LocalData->Dropped++, LocalData->TransferMdl1 = %d\n", LocalData->TransferMdl1);)
+						break;
+					}
+
+					PUCHAR pHeaderBuffer = HeaderBuffer;
+					UINT iFres = fres;
+
+					// Disable the IEEE802.1Q VLAN feature for now.
+// 					if (withVlanTag)
+// 					{
+// 						// Insert a tag in the case of IEEE802.1Q packet
+// 						pHeaderBuffer = ExAllocatePoolWithTag(NonPagedPool, fres + 4, 'NPCA');
+// 						NdisMoveMappedMemory(pHeaderBuffer, HeaderBuffer, 12);
+// 						pHeaderBuffer[12] = 0x81;
+// 						pHeaderBuffer[13] = 0x00;
+// 						NdisMoveMappedMemory(&pHeaderBuffer[14], pVlanTag, 2);
+// 						NdisMoveMappedMemory(&pHeaderBuffer[16], &HeaderBuffer[12], fres - 12);
+// 						iFres += 4;
+// 					}
+
+					Header = (struct PacketHeader *)(LocalData->Buffer + LocalData->P);
+					LocalData->Accepted++;
+					GET_TIME(&Header->header.bh_tstamp, &G_Start_Time);
+					Header->SN = InterlockedIncrement(&Open->WriterSN) - 1;
+
+					// DbgPrint("MDL %d\n", BufferLength);
+
+					Header->header.bh_caplen = 0;
+					Header->header.bh_datalen = TotalPacketSize;
+					Header->header.bh_hdrlen = sizeof(struct bpf_hdr);
+
+					LocalData->P += sizeof(struct PacketHeader);
+					if (LocalData->P == Open->Size)
+						LocalData->P = 0;
+
+					increment = sizeof(struct PacketHeader);
+
+#ifdef HAVE_DOT11_SUPPORT
+					if (Dot11RadiotapHeaderSize)
+					{
+						Header->header.bh_caplen += Dot11RadiotapHeaderSize;
+						Header->header.bh_datalen += Dot11RadiotapHeaderSize;
+
+						if (Open->Size - LocalData->P < Dot11RadiotapHeaderSize) //we check that the available, AND contiguous, space in the buffer will fit
+						{
+							// the NewHeader structure, at least, otherwise we skip the producer
+							increment += Open->Size - LocalData->P; // at the beginning of the buffer (p = 0), and decrement the free bytes appropriately
+							LocalData->P = 0;
+						}
+
+						NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, Dot11RadiotapHeader, Dot11RadiotapHeaderSize);
+						LocalData->P += Dot11RadiotapHeaderSize;
+						if (LocalData->P == Open->Size)
+							LocalData->P = 0;
+						increment += Dot11RadiotapHeaderSize;
+					}
+#endif
+
+					//
+					//we can consider the buffer contiguous, either because we use only the data
+					//present in the HeaderBuffer, or because HeaderBuffer and LookaheadBuffer are contiguous
+					// ;-))))))
+					//
+// 					if (Open->Size - LocalData->P < iFres)
+// 					{
+// 						//the packet will be fragmented in the buffer (aka, it will skip the buffer boundary)
+// 						//two copies!!
+// 						ToCopy = Open->Size - LocalData->P;
+// 						NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, pHeaderBuffer, ToCopy);
+// 						NdisMoveMappedMemory(LocalData->Buffer + 0, (PUCHAR)pHeaderBuffer + ToCopy, iFres - ToCopy);
+// 						LocalData->P = iFres - ToCopy;
+// 					}
+// 					else
+// 					{
+// 						//the packet does not need to be fragmented in the buffer (aka, it doesn't skip the buffer boundary)
+// 						// ;-)))))) only ONE copy
+// 						NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, pHeaderBuffer, iFres);
+// 						LocalData->P += iFres;
+// 					}	
+
+					// Disable the IEEE802.1Q VLAN feature for now.
+// 					if (withVlanTag)
+// 					{
+// 						if (pHeaderBuffer)
+// 						{
+// 							ExFreePool(pHeaderBuffer);
+// 							pHeaderBuffer = NULL;
+// 						}
+// 					}
+
+					// Add MDLs
+					pCurMdl = pMdl;
+					pPreMdl;
+					while (iFres > 0 || iFres == -1)
+					{
+						UINT CopyLengthForMDL = 0;
+						if (pCurMdl)
+						{
+							NdisQueryMdl(
+								pCurMdl,
+								&pDataLinkBuffer,
+								&BufferLength,
+								NormalPagePriority);
+
+							// The first MDL, need to handle the offset.
+							if (pCurMdl == pMdl)
+							{
+								IF_LOUD(DbgPrint("The 1st MDL, (Original) MdlSize = %d, Offset = %d\n", BufferLength, Offset);)
+								BufferLength -= Offset;
+								pDataLinkBuffer += Offset;
+							}
+
+							if (iFres != -1)
+								CopyLengthForMDL = min(iFres, BufferLength);
+							else
+								CopyLengthForMDL = BufferLength;
+
+							if (LocalData->P == Open->Size)
+							{
+								LocalData->P = 0;
+							}
+
+							if (Open->Size - LocalData->P < CopyLengthForMDL)
+							{
+								//the MDL data will be fragmented in the buffer (aka, it will skip the buffer boundary)
+								//two copies!!
+								ToCopy = Open->Size - LocalData->P;
+								NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, pDataLinkBuffer, ToCopy);
+								NdisMoveMappedMemory(LocalData->Buffer + 0, pDataLinkBuffer + ToCopy, CopyLengthForMDL - ToCopy);
+								LocalData->P = CopyLengthForMDL - ToCopy;
+
+								IF_LOUD(DbgPrint("iFres = %d, MdlSize = %d, CopyLengthForMDL = %d (two copies)\n", iFres, BufferLength, CopyLengthForMDL);)
+							}
+							else
+							{
+								NdisMoveMappedMemory(LocalData->Buffer + LocalData->P, pDataLinkBuffer, CopyLengthForMDL);
+								LocalData->P += CopyLengthForMDL;
+
+								IF_LOUD(DbgPrint("iFres = %d, MdlSize = %d, CopyLengthForMDL = %d\n", iFres, BufferLength, CopyLengthForMDL);)
+							}
+
+							increment += CopyLengthForMDL;
+							Header->header.bh_caplen += CopyLengthForMDL;
+							if (iFres != -1)
+								iFres -= CopyLengthForMDL;
+						}
+						else
+						{
+							break;
+						}
+
+						pPreMdl = pCurMdl;
+						NdisGetNextMdl(pPreMdl, &pCurMdl);
+					}
+
+					IF_LOUD(DbgPrint("Packet Header: bh_caplen = %d, bh_datalen = %d\n", Header->header.bh_caplen, Header->header.bh_datalen);)
 
 					if (Open->Size - LocalData->P < sizeof(struct PacketHeader))  //we check that the available, AND contiguous, space in the buffer will fit
 					{
@@ -907,29 +1288,29 @@ NPF_TapExForEachOpen(
 							}
 						}
 					}
+				} while (FALSE);
 
-					break;
-				}
-				else // never comes here.
+				if (ShouldReleaseBufferLock)
 				{
-					IF_LOUD(DbgPrint("NPF_tapExForEachOpen: This is an error !!!!\n");)
-						//ndisTransferData required
-						//This is an error !!
-						break;
+					//NdisDprReleaseSpinLock(&LocalData->BufferLock);
+					NdisReleaseSpinLock(&LocalData->BufferLock);
 				}
+
 			} while (FALSE);
 
-			if (ShouldReleaseBufferLock)
+NPF_TapExForEachOpen_End:;
+			if (TmpBuffer)
 			{
-				//NdisDprReleaseSpinLock(&LocalData->BufferLock);
-				NdisReleaseSpinLock(&LocalData->BufferLock);
+				ExFreePool(TmpBuffer);
+				TmpBuffer = NULL;
 			}
 
-		} while (FALSE);
+			pNetBuf = pNextNetBuf;
+		} // while (pNetBuf != NULL)
 
-	NPF_TapEx_ForEachOpen_End:;
 		pNetBufList = pNextNetBufList;
-	} // end of the for loop
+	} // while (pNetBufList != NULL)
 
+	//NPF_StopUsingOpenInstance(Open);
 	//TRACE_EXIT();
 }

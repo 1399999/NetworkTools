@@ -9,5 +9,3 @@ PAUSE
 call create_examples.bat %1 %2
 PAUSE
 call create_docs.bat %1 %2
-
-

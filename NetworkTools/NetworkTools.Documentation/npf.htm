@@ -10,13 +10,13 @@
 <body>
 
 <p>This section documents the internals of the Netgroup Packet Filter (NPF), the kernel
-portion of WinPcap. Normal users are probably interested in how to use WinPcap
+portion of NetworkTools. Normal users are probably interested in how to use NetworkTools
 and not in its internal structure. Therefore
-the information present in this module is destined mainly to WinPcap developers and maintainers, or to
+the information present in this module is destined mainly to NetworkTools developers and maintainers, or to
 the people interested in how the driver works. In particular, a good knowledge
 of OSes, networking and Win32 kernel programming and device drivers development
 is required to profitably read this section.&nbsp;</p>
-<p>NPF is the WinPcap component that does the hard work, processing the packets
+<p>NPF is the NetworkTools component that does the hard work, processing the packets
 that transit on the network and exporting capture, injection and analysis
 capabilities to user-level.</p>
 <p>The following paragraphs will describe the interaction of NPF with the
@@ -97,7 +97,7 @@ setting or requesting parameters on the NIC, etc.</p>
 
 <h2>NPF structure basics</h2>
 
-<p>Next figure shows the structure of WinPcap, with particular reference to the
+<p>Next figure shows the structure of NetworkTools, with particular reference to the
 NPF driver.</p>
 
 <p align="center"><img border="0" src="npf-npf.gif" width="500" height="412"></p>
@@ -190,7 +190,7 @@ overload of context switches is no longer present, so performance is remarkably
 better.&nbsp;</p>
 
 <h4> Network monitoring</h4>
-<p>WinPcap offers a kernel-level programmable monitoring
+<p>NetworkTools offers a kernel-level programmable monitoring
 module, able to calculate simple statistics on the network traffic. The
 idea behind this module is shown in Figure
 2: the statistics can be gathered without the need to copy the packets to

@@ -6,6 +6,15 @@
 
 #include "..\..\Common\WpcapNames.h"
 
+#include <windows.h>
+#include <vector>
+using namespace std;
+
+typedef std::basic_string<TCHAR> tstring;
+#include <tchar.h>
+
+tstring executeCommand(TCHAR* strCmd);
+
 void PrepareRenameLoopbackNetwork2();
 
 BOOL DoRenameLoopbackNetwork2();

@@ -41,6 +41,8 @@
 
 BOOLEAN bVerbose = TRUE;
 
+BOOLEAN bWiFiService = FALSE;
+
 //
 // Function:  ErrMsg
 //
@@ -58,7 +60,7 @@ VOID ErrMsg(HRESULT hr, LPCTSTR  lpFmt, ...)
 	LPTSTR lpSysMsg;
 	TCHAR buf[400];
 	ULONG offset;
-	va_list vArgList;
+	va_list vArgList; 
 
 	if (hr != 0)
 	{
@@ -69,7 +71,7 @@ VOID ErrMsg(HRESULT hr, LPCTSTR  lpFmt, ...)
 		buf[0] = 0;
 	}
 
-	offset = (ULONG)_tcslen(buf);
+	offset = (ULONG) _tcslen(buf);
 
 	va_start(vArgList, lpFmt);
 
@@ -83,11 +85,11 @@ VOID ErrMsg(HRESULT hr, LPCTSTR  lpFmt, ...)
 
 		if (lpSysMsg)
 		{
-			offset = (ULONG)_tcslen(buf);
+			offset = (ULONG) _tcslen(buf);
 
-			_stprintf(buf + offset, L"\n\nPossible cause:\n\n");
+			_stprintf(buf + offset, _T("\n\nPossible cause:\n\n"));
 
-			offset = (ULONG)_tcslen(buf);
+			offset = (ULONG) _tcslen(buf);
 
 			_tcscat(buf + offset, lpSysMsg);
 
@@ -96,7 +98,7 @@ VOID ErrMsg(HRESULT hr, LPCTSTR  lpFmt, ...)
 	}
 
 	//_tprintf( buf );
-	TRACE_PRINT(buf);
+	TRACE_PRINT1("%s", buf);
 
 	return;
 }
@@ -108,6 +110,8 @@ DWORD GetServiceInfFilePath(LPTSTR lpFilename, DWORD nSize)
 	TCHAR szDrive[_MAX_DRIVE];
 	TCHAR szDir[_MAX_DIR];
 
+	TRACE_ENTER();
+
 	nResult = GetModuleFileName(NULL, lpFilename, nSize);
 
 	if (nResult == 0)
@@ -118,6 +122,9 @@ DWORD GetServiceInfFilePath(LPTSTR lpFilename, DWORD nSize)
 	_tsplitpath(lpFilename, szDrive, szDir, NULL, NULL);
 
 	_tmakepath(lpFilename, szDrive, szDir, NDISLWF_SERVICE_INF_FILE, _T(".inf"));
+	TRACE_PRINT1("lpFilename = %s", lpFilename);
+
+	TRACE_EXIT();
 
 	return (DWORD)_tcslen(lpFilename);
 }
@@ -129,6 +136,8 @@ DWORD GetWFPCalloutInfFilePath(LPTSTR lpFilename, DWORD nSize)
 	TCHAR szDrive[_MAX_DRIVE];
 	TCHAR szDir[_MAX_DIR];
 
+	TRACE_ENTER();
+
 	nResult = GetModuleFileName(NULL, lpFilename, nSize);
 
 	if (nResult == 0)
@@ -139,6 +148,9 @@ DWORD GetWFPCalloutInfFilePath(LPTSTR lpFilename, DWORD nSize)
 	_tsplitpath(lpFilename, szDrive, szDir, NULL, NULL);
 
 	_tmakepath(lpFilename, szDrive, szDir, WFP_CALLOUT_INF_FILE, _T(".inf"));
+	TRACE_PRINT1("lpFilename = %s", lpFilename);
+
+	TRACE_EXIT();
 
 	return (DWORD)_tcslen(lpFilename);
 }
@@ -150,6 +162,8 @@ DWORD GetServiceSysFilePath(LPTSTR lpFilename, DWORD nSize)
 	TCHAR szDrive[_MAX_DRIVE];
 	TCHAR szDir[_MAX_DIR];
 
+	TRACE_ENTER();
+
 	nResult = GetModuleFileName(NULL, lpFilename, nSize);
 
 	if (nResult == 0)
@@ -160,6 +174,9 @@ DWORD GetServiceSysFilePath(LPTSTR lpFilename, DWORD nSize)
 	_tsplitpath(lpFilename, szDrive, szDir, NULL, NULL);
 
 	_tmakepath(lpFilename, szDrive, szDir, NDISLWF_SERVICE_INF_FILE, _T(".sys"));
+	TRACE_PRINT1("lpFilename = %s", lpFilename);
+
+	TRACE_EXIT();
 
 	return (DWORD)_tcslen(lpFilename);
 }
@@ -172,6 +189,7 @@ DWORD GetServiceSysFilePath(LPTSTR lpFilename, DWORD nSize)
 // Arguments:
 //    lpszInfFile [in]  INF file.
 //    lpszPnpID   [in]  PnpID of the network component to install.
+//    lpszAppName [in]  Application name.
 //    pguidClass  [in]  Class GUID of the network component.
 //
 // Returns:   None.
@@ -179,30 +197,32 @@ DWORD GetServiceSysFilePath(LPTSTR lpFilename, DWORD nSize)
 // Notes:
 //
 
-HRESULT InstallSpecifiedComponent(LPTSTR lpszInfFile, LPTSTR lpszPnpID, const GUID* pguidClass)
+HRESULT InstallSpecifiedComponent(LPTSTR lpszInfFile, LPTSTR lpszAppName, const GUID* pguidClass)
 {
 	INetCfg* pnc;
 	LPTSTR lpszApp;
 	HRESULT hr;
 
-	hr = HrGetINetCfg(TRUE, APP_NAME, &pnc, &lpszApp);
+	TRACE_ENTER();
+
+	hr = HrGetINetCfg(TRUE, lpszAppName, &pnc, &lpszApp);
 
 	if (hr == S_OK)
 	{
 		//
 		// Install the network component.
 		//
-		hr = HrInstallNetComponent(pnc, lpszPnpID, pguidClass, lpszInfFile);
+		hr = HrInstallNetComponent(pnc, pguidClass, lpszInfFile);
 
 		if ((hr == S_OK) || (hr == NETCFG_S_REBOOT))
 		{
-			hr = pnc->Apply();
+			// hr = pnc->Apply();
 		}
 		else
 		{
 			if (hr != HRESULT_FROM_WIN32(ERROR_CANCELLED))
 			{
-				ErrMsg(hr, L"Couldn't install the network component.");
+				ErrMsg(hr, _T("Couldn't install the network component."));
 			}
 		}
 
@@ -212,250 +232,148 @@ HRESULT InstallSpecifiedComponent(LPTSTR lpszInfFile, LPTSTR lpszPnpID, const GU
 	{
 		if ((hr == NETCFG_E_NO_WRITE_LOCK) && lpszApp)
 		{
-			ErrMsg(hr, L"%s currently holds the lock, try later.", lpszApp);
+			ErrMsg(hr, _T("%s currently holds the lock, try later."), lpszApp);
 
 			CoTaskMemFree(lpszApp);
 		}
 		else
 		{
-			ErrMsg(hr, L"Couldn't the get notify object interface.");
+			ErrMsg(hr, _T("Couldn't the get notify object interface."));
 		}
 	}
 
+	TRACE_EXIT();
 	return hr;
 }
 
-DWORD InstallDriver()
+BOOL InstallDriver()
 {
-	DWORD nResult;
-	TRACE_ENTER("InstallDriver");
+	BOOL bSucceed = TRUE;
+	TCHAR szFileFullPath[_MAX_PATH];
+	HRESULT hr;
+
+	TRACE_ENTER();
 
 	// Get Path to Service INF File
 	// ----------------------------
 	// The INF file is assumed to be in the same folder as this application...
-	TCHAR szFileFullPath[_MAX_PATH];
-
-	nResult = GetServiceInfFilePath(szFileFullPath, MAX_PATH);
-
-	if (nResult == 0)
+	
+	bSucceed = (BOOL) GetServiceInfFilePath(szFileFullPath, MAX_PATH);
+	if (!bSucceed)
 	{
 		TRACE_PRINT("Unable to get INF file path");
-		return 0;
+		TRACE_EXIT();
+		return bSucceed;
 	}
 
-	//_tprintf( _T("INF Path: %s\n"), szFileFullPath );
-
-	HRESULT hr = S_OK;
-
-	//_tprintf( _T("PnpID: %s\n"), NDISPROT_SERVICE_PNP_DEVICE_ID );
-
-	hr = InstallSpecifiedComponent(szFileFullPath, NDISLWF_SERVICE_PNP_DEVICE_ID, &GUID_DEVCLASS_NETSERVICE);
+	hr = InstallSpecifiedComponent(szFileFullPath, APP_NAME, &GUID_DEVCLASS_NETSERVICE);
 
 	if (hr != S_OK)
 	{
-		ErrMsg(hr, L"InstallSpecifiedComponent\n");
-		TRACE_EXIT("InstallDriver");
-		return 0;
+		ErrMsg(hr, _T("InstallSpecifiedComponent\n"));
+		TRACE_EXIT();
+		return FALSE;
 	}
 
-	TRACE_EXIT("InstallDriver");
-	return 1;
+	TRACE_EXIT();
+	return bSucceed;
 }
 
-DWORD UninstallDriver()
+BOOL UninstallDriver()
 {
-	TRACE_ENTER("UninstallDriver");
-	//_tprintf( _T("Uninstalling %s...\n"), NDISPROT_FRIENDLY_NAME );
-
-// 	int nResult = MessageBox(NULL, _T("Uninstalling Driver..."), NDISPROT_FRIENDLY_NAME, MB_OKCANCEL | MB_ICONINFORMATION);
-// 
-// 	if (nResult != IDOK)
-// 	{
-// 		return 0;
-// 	}
-
+	BOOL bSucceed = TRUE;
 	INetCfg* pnc;
-	INetCfgComponent* pncc;
-	INetCfgClass* pncClass;
-	INetCfgClassSetup* pncClassSetup;
 	LPTSTR lpszApp;
-	GUID guidClass;
-	OBO_TOKEN obo;
 	HRESULT hr;
+
+	TRACE_ENTER();
 
 	hr = HrGetINetCfg(TRUE, APP_NAME, &pnc, &lpszApp);
 
 	if (hr == S_OK)
 	{
-		//
-		// Get a reference to the network component to uninstall.
-		//
-		hr = pnc->FindComponent(NDISLWF_SERVICE_PNP_DEVICE_ID, &pncc);
+		TRACE_PRINT1("bWiFiService = %d.", bWiFiService);
+		TRACE_PRINT1("HrUninstallNetComponent: executing, szComponentId = %s.", NDISLWF_SERVICE_PNP_DEVICE_ID);
+		hr = HrUninstallNetComponent(pnc, NDISLWF_SERVICE_PNP_DEVICE_ID);
 
-		if (hr == S_OK)
+		if (hr != S_OK)
 		{
-			//
-			// Get the class GUID.
-			//
-			hr = pncc->GetClassGuid(&guidClass);
-
-			if (hr == S_OK)
+			if (hr != HRESULT_FROM_WIN32(ERROR_CANCELLED))
 			{
-				//
-				// Get a reference to component's class.
-				//
-
-				hr = pnc->QueryNetCfgClass(&guidClass, IID_INetCfgClass, (PVOID*)&pncClass);
-				if (hr == S_OK)
-				{
-					//
-					// Get the setup interface.
-					//
-
-					hr = pncClass->QueryInterface(IID_INetCfgClassSetup, (LPVOID*)&pncClassSetup);
-
-					if (hr == S_OK)
-					{
-						//
-						// Uninstall the component.
-						//
-
-						ZeroMemory(&obo, sizeof(OBO_TOKEN));
-
-						obo.Type = OBO_USER;
-
-						hr = pncClassSetup->DeInstall(pncc, &obo, NULL);
-						if ((hr == S_OK) || (hr == NETCFG_S_REBOOT))
-						{
-							hr = pnc->Apply();
-
-							if ((hr != S_OK) && (hr != NETCFG_S_REBOOT))
-							{
-								ErrMsg(hr, L"Couldn't apply the changes after"
-									L" uninstalling %s.", NDISLWF_SERVICE_PNP_DEVICE_ID);
-							}
-							else
-							{
-								TRACE_EXIT("UninstallDriver");
-								return 1;
-							}
-						}
-						else
-						{
-							ErrMsg(hr, L"Failed to uninstall %s.", NDISLWF_SERVICE_PNP_DEVICE_ID);
-						}
-
-						ReleaseRef(pncClassSetup);
-					}
-					else
-					{
-						ErrMsg(hr, L"Couldn't get an interface to setup class.");
-					}
-
-					ReleaseRef(pncClass);
-				}
-				else
-				{
-					ErrMsg(hr, L"Couldn't get a pointer to class interface "
-						L"of %s.", NDISLWF_SERVICE_PNP_DEVICE_ID);
-				}
+				bSucceed = FALSE;
+				ErrMsg(hr, _T("Couldn't uninstall the network component."));
 			}
-			else
-			{
-				ErrMsg(hr, L"Couldn't get the class guid of %s.", NDISLWF_SERVICE_PNP_DEVICE_ID);
-			}
-
-			ReleaseRef(pncc);
 		}
-		else
+
+		if (bWiFiService)
 		{
-			ErrMsg(hr, L"Couldn't get an interface pointer to %s.", NDISLWF_SERVICE_PNP_DEVICE_ID);
+			TRACE_PRINT1("HrUninstallNetComponent: executing, szComponentId = %s.", NDISLWF_SERVICE_PNP_DEVICE_ID_WIFI);
+			hr = HrUninstallNetComponent(pnc, NDISLWF_SERVICE_PNP_DEVICE_ID_WIFI);
+
+			if (hr != S_OK)
+			{
+				if (hr != HRESULT_FROM_WIN32(ERROR_CANCELLED))
+				{
+					bSucceed = FALSE;
+					ErrMsg(hr, _T("Couldn't uninstall the network component."));
+				}
+			}
 		}
 
 		HrReleaseINetCfg(pnc, TRUE);
 	}
 	else
 	{
+		bSucceed = FALSE;
 		if ((hr == NETCFG_E_NO_WRITE_LOCK) && lpszApp)
 		{
-			ErrMsg(hr, L"%s currently holds the lock, try later.", lpszApp);
+			ErrMsg(hr, _T("%s currently holds the lock, try later."), lpszApp);
 
 			CoTaskMemFree(lpszApp);
 		}
 		else
 		{
-			ErrMsg(hr, L"Couldn't get the notify object interface.");
+			ErrMsg(hr, _T("Couldn't get the notify object interface."));
 		}
 	}
 
-	TRACE_EXIT("UninstallDriver");
-	return 0;
+	TRACE_EXIT();
+	return bSucceed;
 }
-
-// int _tmain(int argc, _TCHAR* argv[])
-// {
-//     SetConsoleTitle( _T("Installing NDIS Intermediate Filter Driver") );
-// 
-//     if( argc < 2 )
-//     {
-//  	   return 0;
-//     }
-// 
-//     if( argc > 2 )
-//     {
-//  	   if( _tcsicmp( argv[2], _T("/v") ) == 0 )
-//  	   {
-//  		   bVerbose = TRUE;
-//  	   }
-//     }
-// 
-//     if( argc > 2 )
-//     {
-//  	   if( _tcsicmp( argv[2], _T("/hide") ) == 0 )
-//  	   {
-//  		   bVerbose = FALSE;
-//  	   }
-//     }
-// 
-//     if( !bVerbose )
-//     {
-//  	   ShowWindow( GetConsoleWindow(), SW_HIDE );
-//     }
-// 
-//     // Handle Driver Install
-//     if( _tcsicmp( argv[1], _T("/Install") ) == 0 )
-//     {
-//  	   return InstallDriver();
-//     }
-// 
-//     // Handle Driver Uninstall
-//     if( _tcsicmp( argv[1], _T("/Uninstall") ) == 0 )
-//     {
-//  	   return UninstallDriver();
-//     }
-// 
-//     return 0;
-// }
 
 BOOL RenableBindings()
 {
 	CComPtr<INetCfg> netcfg;
 	CComPtr<INetCfgLock> lock;
-
 	HRESULT hr;
+
+	TRACE_ENTER();
 
 	hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	if (FAILED(hr))
 	{
-		wprintf(L"CoInitializeEx 0x%08x\n", hr);
+		TRACE_PRINT1("CoInitializeEx: 0x%08x\n", hr);
+		TRACE_EXIT();
 		return 1;
 	}
 
-	BOOL ok = ConnectToNetCfg(NDISLWF_SERVICE_PNP_DEVICE_ID);
+	BOOL bSucceed = ConnectToNetCfg(NDISLWF_SERVICE_PNP_DEVICE_ID, APP_NAME);
+	if (!bSucceed)
+	{
+		TRACE_PRINT1("ConnectToNetCfg: error, PNP Device ID = %s.", NDISLWF_SERVICE_PNP_DEVICE_ID);
+	}
+
+	if (bWiFiService)
+	{
+		bSucceed = ConnectToNetCfg(NDISLWF_SERVICE_PNP_DEVICE_ID_WIFI, APP_NAME);
+		if (!bSucceed)
+		{
+			TRACE_PRINT1("ConnectToNetCfg: error, PNP Device ID = %s.", NDISLWF_SERVICE_PNP_DEVICE_ID_WIFI);
+		}
+	}
 
 	CoUninitialize();
 
-	wprintf(ok ? L"Succeeded.\n" : L"Failed.\n");
-
-	return ok;
+	TRACE_EXIT();
+	return bSucceed;
 }

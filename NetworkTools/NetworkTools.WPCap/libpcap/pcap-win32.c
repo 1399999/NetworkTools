@@ -73,7 +73,7 @@ static int pcap_setnonblock_win32(pcap_t *, int, char *);
 #define SWAPS(_X) ((_X & 0xff) << 8) | (_X >> 8)
 
 /*
- * Header that the WinPcap driver associates to the packets.
+ * Header that the NetworkTools driver associates to the packets.
  * Once was in bpf.h
  */
 struct bpf_hdr {

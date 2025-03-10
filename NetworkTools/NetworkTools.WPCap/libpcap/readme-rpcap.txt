@@ -1,6 +1,6 @@
 ******************** RPCAP AND CODE MODIFICATIONS ********************
 
-These files are the ones which have to be modified when compiling a new release of WinPcap.
+These files are the ones which have to be modified when compiling a new release of NetworkTools.
 
 All the modifications are included within:
 

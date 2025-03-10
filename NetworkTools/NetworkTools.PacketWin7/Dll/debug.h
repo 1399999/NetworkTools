@@ -12,8 +12,8 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the company (CACE Technologies LLC) nor the
- * names of its contributors may be used to endorse or promote products
+ * 3. Neither the name of the company (CACE Technologies LLC) nor the 
+ * names of its contributors may be used to endorse or promote products 
  * derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -33,20 +33,20 @@
 #ifndef __PACKET_DEBUG_393073863432093179878957
 #define __PACKET_DEBUG_393073863432093179878957
 
-#ifdef _DEBUG_TO_FILE
+#if defined(_DBG) || defined(_DEBUG_TO_FILE)
 
 #include <stdio.h>
 #include <windows.h>
 
-extern CHAR g_LogFileName[1024];
+#include <tchar.h>
 
 #pragma warning(push)
 #pragma warning(disable : 4127)
 
-static VOID OutputDebugStringVA(LPCSTR Format, ...)
+static VOID OutputDebugStringV(LPCTSTR Format, ...)
 {
-	FILE* f;
-	SYSTEMTIME LocalTime;
+	FILE *f;											
+	SYSTEMTIME LocalTime;								
 	va_list Marker;
 	DWORD dwThreadId;
 	int loops = 0;
@@ -54,16 +54,18 @@ static VOID OutputDebugStringVA(LPCSTR Format, ...)
 
 	dwThreadId = GetCurrentThreadId();
 
-	va_start(Marker, Format);     /* Initialize variable arguments. */
-
-	GetLocalTime(&LocalTime);
-
+	va_start(Marker, Format); /* Initialize variable arguments. */
+														
+	GetLocalTime(&LocalTime);							
+														
 	do
 	{
 
-		f = fopen(g_LogFileName, "a");
-
-		if (f != NULL)
+#ifdef _CONSOLE
+		if (_tfopen_s(&f, _T("C:\\Program Files\\NetworkTools\\NPFInstall.log"), _T("a")) == 0)
+#else
+		if (_tfopen_s(&f, _T("C:\\Program Files\\NetworkTools\\Packet.log"), _T("a")) == 0)
+#endif
 			break;
 
 		Sleep(0);
@@ -74,19 +76,20 @@ static VOID OutputDebugStringVA(LPCSTR Format, ...)
 			SetLastError(dwLastError);
 			return;
 		}
-	} while (1);
+	}
+	while(1);
 
-	fprintf(f, "[%.08X] %.04u-%.02u-%.02u %.02u:%02u:%02u ",
-		dwThreadId,
-		LocalTime.wYear,
-		LocalTime.wMonth,
-		LocalTime.wDay,
-		LocalTime.wHour,
-		LocalTime.wMinute,
-		LocalTime.wSecond);
-	vfprintf(f, Format, Marker);
-
-	fclose(f);
+	_ftprintf(f, _T("[%.08X] %.04u-%.02u-%.02u %.02u:%02u:%02u "),
+			dwThreadId,
+			LocalTime.wYear,							
+			LocalTime.wMonth,							
+			LocalTime.wDay,								
+			LocalTime.wHour,							
+			LocalTime.wMinute,							
+			LocalTime.wSecond);										
+	_vftprintf(f, Format, Marker);
+	
+	fclose(f);											
 
 
 	SetLastError(dwLastError);
@@ -98,17 +101,17 @@ static VOID OutputDebugStringVA(LPCSTR Format, ...)
 
 #include <strsafe.h>
 
-static VOID OutputDebugStringVA(LPCSTR Format, ...)
+static VOID OutputDebugStringV(LPCTSTR Format, ...)
 {
 	va_list Marker;
-	CHAR string[1024];
+	TCHAR string[1024];
 	DWORD dwLastError = GetLastError();
 
-	va_start(Marker, Format);     /* Initialize variable arguments. */
+	va_start(Marker, Format); /* Initialize variable arguments. */
 
-	StringCchVPrintfA(string, sizeof(string), Format, Marker);
+	StringCchVPrintf(string, sizeof(string), Format, Marker);
 
-	OutputDebugStringA(string);
+	OutputDebugString(string);
 
 	va_end(Marker);
 
@@ -119,19 +122,15 @@ static VOID OutputDebugStringVA(LPCSTR Format, ...)
 
 #if defined(_DBG) || defined(_DEBUG_TO_FILE)
 
-#ifdef _DBG
-#define TRACE_PRINT_DLLMAIN(_x)			OutputDebugStringVA ("    " _x "\n")
-#else
-#define TRACE_PRINT_DLLMAIN(_x)			//we cannot use the _DEBUG_TO_FILE stuff from DllMain!!
-#endif
-
-#define TRACE_ENTER(_x)					OutputDebugStringVA ("--> " _x "\n")
-#define TRACE_EXIT(_x)					OutputDebugStringVA ("<-- " _x "\n")
-#define TRACE_PRINT(_x)					OutputDebugStringVA ("    " _x "\n")
-#define TRACE_PRINT1(_x, _y)			OutputDebugStringVA("    " _x "\n", _y)   		
-#define TRACE_PRINT2(_x, _p1, _p2)		OutputDebugStringVA("    " _x "\n", _p1, _p2)   		
-#define TRACE_PRINT4(_x, _p1, _p2, _p3, _p4) OutputDebugStringVA("    " _x "\n", _p1, _p2, _p3, _p4) 
-#define TRACE_PRINT6(_x, _p1, _p2, _p3, _p4, _p5, _p6) OutputDebugStringVA("    " _x "\n", _p1, _p2, _p3, _p4, _p5, _p6 )
+#define TRACE_ENTER()									OutputDebugStringV(_T("--> ") _T(__FUNCTION__) _T("\n"))
+#define TRACE_EXIT()									OutputDebugStringV(_T("<-- ") _T(__FUNCTION__) _T("\n"))
+#define TRACE_PRINT(_x)									OutputDebugStringV(_T("    ") _T(_x) _T("\n"))
+#define TRACE_PRINT1(_x, _p1)							OutputDebugStringV(_T("    ") _T(_x) _T("\n"), _p1)
+#define TRACE_PRINT2(_x, _p1, _p2)						OutputDebugStringV(_T("    ") _T(_x) _T("\n"), _p1, _p2)
+#define TRACE_PRINT3(_x, _p1, _p2, _p3)					OutputDebugStringV(_T("    ") _T(_x) _T("\n"), _p1, _p2, _p3)
+#define TRACE_PRINT4(_x, _p1, _p2, _p3, _p4)			OutputDebugStringV(_T("    ") _T(_x) _T("\n"), _p1, _p2, _p3, _p4)
+#define TRACE_PRINT5(_x, _p1, _p2, _p3, _p4, _p5)		OutputDebugStringV(_T("    ") _T(_x) _T("\n"), _p1, _p2, _p3, _p4, _p5)
+#define TRACE_PRINT6(_x, _p1, _p2, _p3, _p4, _p5, _p6)	OutputDebugStringV(_T("    ") _T(_x) _T("\n"), _p1, _p2, _p3, _p4, _p5, _p6)
 
 static __forceinline void TRACE_PRINT_OS_INFO()
 {
@@ -144,81 +143,83 @@ static __forceinline void TRACE_PRINT_OS_INFO()
 	dwLastError = GetLastError();
 
 	TRACE_PRINT("********************* OS info.*********************");
-	buffer[size - 1] = 0;
+	buffer[size-1] = 0;
 	size = sizeof(buffer);
-	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"), 0, KEY_READ, &hKey) == ERROR_SUCCESS)
 	{
-		if (RegQueryValueExA(hKey, "PROCESSOR_ARCHITECTURE", 0, &type, (LPBYTE)buffer, &size) == ERROR_SUCCESS && type == REG_SZ)
+		if (RegQueryValueEx(hKey, _T("PROCESSOR_ARCHITECTURE"), 0, &type, (LPBYTE)buffer, &size) == ERROR_SUCCESS && type == REG_SZ)
 		{
-			OutputDebugStringVA("Architecture = %s\n", buffer);
+			OutputDebugStringV(_T("Architecture = %hs\n"), buffer);
 		}
 		else
 		{
-			OutputDebugStringVA("Architecture = <UNKNOWN>\n");
+			OutputDebugStringV(_T("Architecture = <UNKNOWN>\n"));
 		}
-
+		
 		RegCloseKey(hKey);
 	}
 	else
 	{
-		OutputDebugStringVA("Architecture = <UNKNOWN>\n");
+		OutputDebugStringV(_T("Architecture = <UNKNOWN>\n"));
 	}
 
-	buffer[size - 1] = 0;
+	buffer[size-1] = 0;
 	size = sizeof(buffer);
 
-	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"), 0, KEY_READ, &hKey) == ERROR_SUCCESS)
 	{
-		if (RegQueryValueExA(hKey, "CurrentVersion", 0, &type, (LPBYTE)buffer, &size) == ERROR_SUCCESS && type == REG_SZ)
+		if (RegQueryValueEx(hKey, _T("CurrentVersion"), 0, &type,  (LPBYTE)buffer, &size) == ERROR_SUCCESS && type == REG_SZ)
 		{
-			OutputDebugStringVA("Windows version = %s\n", buffer);
+			OutputDebugStringV(_T("Windows version = %hs\n"), buffer);
 		}
 		else
 		{
-			OutputDebugStringVA("Windows version = <UNKNOWN>\n");
+			OutputDebugStringV(_T("Windows version = <UNKNOWN>\n"));
 		}
-
+		
 		RegCloseKey(hKey);
 	}
 	else
 	{
-		OutputDebugStringVA("Windows version = <UNKNOWN>\n");
+		OutputDebugStringV(_T("Windows version = <UNKNOWN>\n"));
 	}
 
-	buffer[size - 1] = 0;
+	buffer[size-1] = 0;
 	size = sizeof(buffer);
-	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+	if(	RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"), 0, KEY_READ, &hKey) == ERROR_SUCCESS)
 	{
-		if (RegQueryValueExA(hKey, "CurrentType", 0, &type, (LPBYTE)buffer, &size) == ERROR_SUCCESS && type == REG_SZ)
+		if (RegQueryValueEx(hKey, _T("CurrentType"), 0, &type,  (LPBYTE)buffer, &size) == ERROR_SUCCESS && type == REG_SZ)
 		{
-			OutputDebugStringVA("Windows CurrentType = %s\n", buffer);
+			OutputDebugStringV(_T("Windows CurrentType = %hs\n"), buffer);
 		}
 		else
 		{
-			OutputDebugStringVA("Windows CurrentType = <UNKNOWN>\n");
+			OutputDebugStringV(_T("Windows CurrentType = <UNKNOWN>\n"));
 		}
-
+		
 		RegCloseKey(hKey);
 	}
 	else
 	{
-		OutputDebugStringVA("Windows CurrentType = <UNKNOWN>\n");
+		OutputDebugStringV(_T("Windows CurrentType = <UNKNOWN>\n"));
 	}
 
-	OutputDebugStringVA("*************************************************** \n");
+	OutputDebugStringV(_T("*************************************************** \n"));
 
 	SetLastError(dwLastError);
 }
 #else
 
-#define TRACE_ENTER(_x)
-#define TRACE_PRINT_DLLMAIN(_x)
-#define TRACE_EXIT(_x) 
+#define TRACE_ENTER()
+#define TRACE_EXIT()
 #define TRACE_PRINT(_x)
-#define TRACE_PRINT1(_x, _y)
+#define TRACE_PRINT1(_x, _p1)
 #define TRACE_PRINT2(_x, _p1, _p2)
-#define TRACE_PRINT4(_x, _p1, _p2, _p3, _p4) 
-#define TRACE_PRINT6(_x, _p1, _p2, _p3, _p4, _p5, _p6) 
+#define TRACE_PRINT3(_x, _p1, _p2, _p3)
+#define TRACE_PRINT4(_x, _p1, _p2, _p3, _p4)
+#define TRACE_PRINT5(_x, _p1, _p2, _p3, _p4, _p5)
+#define TRACE_PRINT6(_x, _p1, _p2, _p3, _p4, _p5, _p6)
+#define TRACE_PRINT_WIDECHAR(_x)
 #define TRACE_PRINT_OS_INFO()
 
 #endif

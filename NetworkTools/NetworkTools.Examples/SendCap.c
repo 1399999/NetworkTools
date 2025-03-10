@@ -78,7 +78,7 @@ void main(int argc, char** argv)
 		sync = FALSE;
 
 	/* Open the capture */
-	/* Create the source string according to the new WinPcap syntax */
+	/* Create the source string according to the new NetworkTools syntax */
 	if (pcap_createsrcstr(source,			// variable that will keep the source string
 		PCAP_SRC_FILE,	// we want to open a file
 		NULL,			// remote host

@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies
- * nor the names of its contributors may be used to endorse or promote
- * products derived from this software without specific prior written
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
+ * nor the names of its contributors may be used to endorse or promote 
+ * products derived from this software without specific prior written 
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -31,17 +31,17 @@
  *
  */
 
- /** @addtogroup NPF
-  *  @{
-  */
+/** @addtogroup NPF 
+ *  @{
+ */
 
-  /** @defgroup NPF_jitter NPF Just-in-time compiler definitions
-   *  @{
-   */
+/** @defgroup NPF_jitter NPF Just-in-time compiler definitions
+ *  @{
+ */
 
-   //
-   // Registers
-   //
+//
+// Registers
+//
 #define EAX 0
 #define ECX 1
 #define EDX 2
@@ -75,12 +75,12 @@ typedef struct binary_stream
 }binary_stream;
 
 
-/*! \brief Prototype of a filtering function created by the jitter.
+/*! \brief Prototype of a filtering function created by the jitter. 
 
   The syntax and the meaning of the parameters is analogous to the one of bpf_filter(). Notice that the filter
   is not among the parameters, because it is hardwired in the function.
 */
-typedef UINT(__cdecl* BPF_filter_function)(PVOID*, ULONG, UINT);
+typedef UINT (__cdecl *BPF_filter_function)(PVOID*, ULONG, UINT);
 
 /*! \brief Prototype of the emit functions.
 
@@ -364,23 +364,23 @@ JIT_BPF_Filter;
  *  @}
  */
 
- /**************************/
- /* Prototypes   		  */
- /**************************/
+/**************************/
+/* Prototypes   		  */
+/**************************/
 
- /** @addtogroup NPF_code
-  *  @{
-  */
+/** @addtogroup NPF_code 
+ *  @{
+ */
 
-  /*!
-	\brief BPF jitter, builds an x86 function from a BPF program.
-	\param fp The BPF pseudo-assembly filter that will be translated into x86 code.
-	\param nins Number of instructions of the input filter.
-	\return The JIT_BPF_Filter structure containing the x86 filtering binary.
+/*!
+  \brief BPF jitter, builds an x86 function from a BPF program.
+  \param fp The BPF pseudo-assembly filter that will be translated into x86 code.
+  \param nins Number of instructions of the input filter.
+  \return The JIT_BPF_Filter structure containing the x86 filtering binary.
 
-	BPF_jitter allocates the buffers for the new native filter and then translates the program pointed by fp
-	calling BPFtoX86().
-  */
+  BPF_jitter allocates the buffers for the new native filter and then translates the program pointed by fp
+  calling BPFtoX86().
+*/ 
 JIT_BPF_Filter* BPF_jitter(struct bpf_insn* fp, INT nins);
 
 /*!
@@ -390,23 +390,23 @@ JIT_BPF_Filter* BPF_jitter(struct bpf_insn* fp, INT nins);
   \param mem Memory used by the x86 function to emulate the RAM of the BPF pseudo processor.
   \return The x86 filtering function.
 
-  This function does the hard work for the JIT compilation. It takes a group of BPF pseudo instructions and
+  This function does the hard work for the JIT compilation. It takes a group of BPF pseudo instructions and 
   through the instruction macros defined in jitter.h it is able to create an function directly executable
   by NPF.
-*/
+*/ 
 BPF_filter_function BPFtoX86(struct bpf_insn* ins, UINT nins, INT* mem);
 /*!
   \brief Deletes a filtering function that was previously created by BPF_jitter().
   \param Filter The filter to destroy.
 
   This function frees the variuos buffers (code, memory, etc.) associated with a filtering function.
-*/
+*/ 
 void BPF_Destroy_JIT_Filter(JIT_BPF_Filter* Filter);
 
 /**
  *  @}
  */
 
- /**
-  *  @}
-  */
+/**
+ *  @}
+ */

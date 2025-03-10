@@ -36,7 +36,7 @@ int main()
 
 	if (i == 0)
 	{
-		printf("\nNo interfaces found! Make sure WinPcap is installed.\n");
+		printf("\nNo interfaces found! Make sure NetworkTools is installed.\n");
 		return -1;
 	}
 
@@ -64,7 +64,7 @@ int main()
 		errbuf			// error buffer
 	)) == NULL)
 	{
-		fprintf(stderr, "\nUnable to open the adapter. %s is not supported by WinPcap\n", d->name);
+		fprintf(stderr, "\nUnable to open the adapter. %s is not supported by NetworkTools\n", d->name);
 		/* Free the device list */
 		pcap_freealldevs(alldevs);
 		return -1;

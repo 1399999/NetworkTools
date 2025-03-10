@@ -309,7 +309,7 @@ README.macosx	- notes on using libpcap on Mac OS X
 README.septel   - notes on using libpcap to capture on Intel/Septel devices
 README.sita	- notes on using libpcap to capture on SITA devices
 README.tru64	- notes on using libpcap on Digital/Tru64 UNIX
-README.Win32	- notes on using libpcap on Win32 systems (with WinPcap)
+README.Win32	- notes on using libpcap on Win32 systems (with NetworkTools)
 SUNOS4		- pre-SunOS 4.1 replacement kernel nit modules
 VERSION		- version of this release
 acconfig.h	- support for post-2.13 autoconf
@@ -334,7 +334,7 @@ fad-gifc.c	- pcap_findalldevs() for systems with only SIOCGIFLIST
 fad-glifc.c	- pcap_findalldevs() for systems with SIOCGLIFCONF
 fad-null.c	- pcap_findalldevs() for systems without capture support
 fad-sita.c	- pcap_findalldevs() for systems with SITA support
-fad-win32.c	- pcap_findalldevs() for WinPcap
+fad-win32.c	- pcap_findalldevs() for NetworkTools
 filtertest.c	- test program for BPF compiler
 findalldevstest.c - test program for pcap_findalldevs()
 gencode.c	- BPF code generation routines
@@ -388,7 +388,7 @@ pcap-snit.c	- SunOS 4.x STREAMS-based Network Interface Tap support
 pcap-snoop.c	- IRIX Snoop network monitoring support
 pcap-usb-linux.c - USB capture support for Linux
 pcap-usb-linux.h - USB capture support for Linux
-pcap-win32.c	- WinPcap capture support
+pcap-win32.c	- NetworkTools capture support
 pcap.3pcap	- manual entry for the library
 pcap.c		- pcap utility routines
 pcap.h		- header for backwards compatibility

@@ -1,0 +1,63 @@
+# Notes:
+#   - Minimal appveyor.yml file is an empty file. All sections are optional.
+#   - Indent each level of configuration with 2 spaces. Do not use tabs!
+#   - All section names are case-sensitive.
+#   - Section names should be unique on each level.
+
+#---------------------------------#
+#      General Configuration      #
+#---------------------------------#
+
+# Version format
+version: 0.10.{build}
+
+# Branches to build
+branches:
+  # Blacklist
+  except:
+    - gh-pages
+
+# Do not build on tags (GitHub only)
+skip_tags: true
+
+#---------------------------------#
+#    Environment Configuration    #
+#---------------------------------#
+
+os: Windows Server 2012
+
+# Clone directory
+clone_folder: C:\NetworkTools
+
+# Environment variables
+environment:
+  SignTool: C:\Program Files (x86)\Windows Kits\10\bin\x64
+
+# Scripts that run after cloning repository
+install:
+  # Clone the submodules
+  - cmd: git submodule update --init --recursive
+  # Install Win-Flex-Bison
+  - cmd: cinst winflexbison -y
+
+#---------------------------------#
+#       Build Configuration       #
+#---------------------------------#
+
+# Scripts to run before build
+# Before_build:
+
+# Scripts to run *after* solution is built and *before* automatic packaging occurs (web apps, NuGet packages, Azure Cloud Services)
+# Before_package:
+
+# Scripts to run after build
+# After_build:
+
+# To run your custom scripts instead of automatic MSBuild
+build_script:
+  - cmd: cd installer
+  - cmd: echo .| Build.bat
+  - cmd: echo .| Deploy.bat
+
+# To disable automatic builds
+# Build: off

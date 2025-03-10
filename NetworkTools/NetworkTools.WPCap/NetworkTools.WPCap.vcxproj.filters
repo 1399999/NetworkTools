@@ -60,7 +60,7 @@
     <ClInclude Include="Win32-Extensions\Win32-Extensions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Downloads\npcap-c1c1e12f85f0daf414dd9ef1647f83d4eee10106\npcap-c1c1e12f85f0daf414dd9ef1647f83d4eee10106\wpcap\libpcap\bpf\net\bpf.h">
+    <ClInclude Include="..\..\..\..\..\..\..\C:\Users\mzheb\source\repos\NetworkTools\NetworkTools\NetworkTools.WPCap\libpcap\bpf\net\bpf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="libpcap\bpf\net\bpf.h">

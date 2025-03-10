@@ -1253,7 +1253,7 @@ pcap_open_dead(int linktype, int snaplen)
 }
 
 /*
- * API compatible with WinPcap's "send a packet" routine - returns -1
+ * API compatible with NetworkTools's "send a packet" routine - returns -1
  * on error, 0 otherwise.
  *
  * XXX - what if we get a short write?
@@ -1323,15 +1323,15 @@ static const char pcap_version_string[] = "libpcap version 1.0 branch 1_0_rel0b 
 
 #ifdef WIN32
 /*
- * XXX - it'd be nice if we could somehow generate the WinPcap and libpcap
- * version numbers when building WinPcap.  (It'd be nice to do so for
+ * XXX - it'd be nice if we could somehow generate the NetworkTools and libpcap
+ * version numbers when building NetworkTools.  (It'd be nice to do so for
  * the packet.dll version number as well.)
  */
 static const char wpcap_version_string[] = "4.1.3";
 static const char pcap_version_string_fmt[] =
-    "WinPcap version %s, based on %s";
+    "NetworkTools version %s, based on %s";
 static const char pcap_version_string_packet_dll_fmt[] =
-    "WinPcap version %s (packet.dll version %s), based on %s";
+    "NetworkTools version %s (packet.dll version %s), based on %s";
 static char *full_pcap_version_string;
 
 const char *
@@ -1347,8 +1347,8 @@ pcap_lib_version(void)
 		packet_version_string = PacketGetVersion();
 		if (strcmp(wpcap_version_string, packet_version_string) == 0) {
 			/*
-			 * WinPcap version string and packet.dll version
-			 * string are the same; just report the WinPcap
+			 * NetworkTools version string and packet.dll version
+			 * string are the same; just report the NetworkTools
 			 * version.
 			 */
 			full_pcap_version_string_len =
@@ -1362,10 +1362,10 @@ pcap_lib_version(void)
 			    pcap_version_string);
 		} else {
 			/*
-			 * WinPcap version string and packet.dll version
+			 * NetworkTools version string and packet.dll version
 			 * string are different; that shouldn't be the
 			 * case (the two libraries should come from the
-			 * same version of WinPcap), so we report both
+			 * same version of NetworkTools), so we report both
 			 * versions.
 			 */
 			full_pcap_version_string_len =

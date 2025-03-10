@@ -2,10 +2,10 @@
 // Microsoft Visual C++ generated include file.
 // Used by NPF6X.rc
 //
-#define WINPCAP_REV 					0
-#define WINPCAP_MINOR   				1
-#define WINPCAP_MAJOR   				4
-#define WINPCAP_BUILD   				2980
+#define NETWORK_TOOLS_REV 					0
+#define NETWORK_TOOLS_MINOR   				1
+#define NETWORK_TOOLS_MAJOR   				4
+#define NETWORK_TOOLS_BUILD   				2980
 
 // Next default values for new objects
 // 

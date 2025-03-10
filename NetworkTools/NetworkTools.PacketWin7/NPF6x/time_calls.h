@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies
- * nor the names of its contributors may be used to endorse or promote
- * products derived from this software without specific prior written
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
+ * nor the names of its contributors may be used to endorse or promote 
+ * products derived from this software without specific prior written 
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -47,16 +47,23 @@
 
 #define TIMESTAMPMODE_SYNCHRONIZATION_ON_CPU_NO_FIXUP		99
 
-#define TIMESTAMPMODE_REGKEY L"TimestampMode"
+extern ULONG g_TimestampMode;
 
-extern ULONG TimestampMode;
+/* Defined in Packet.c/h */
+ULONG
+My_NdisGroupMaxProcessorCount(
+);
+
+/* Defined in Packet.c/h */
+ULONG
+My_KeGetCurrentProcessorNumber(
+);
 
 /*!
   \brief A microsecond precise timestamp.
 
-  included in the sf_pkthdr or the bpf_hdr that NPF associates with every packet.
+  included in the sf_pkthdr or the bpf_hdr that NPF associates with every packet. 
 */
-
 struct timeval
 {
 	long tv_sec;		 ///< seconds
@@ -65,10 +72,13 @@ struct timeval
 
 #endif /*WIN_NT_DRIVER*/
 
+// Maximum CPU core number, the original value is sizeof(KAFFINITY) * 8, but Amazon instance can return 128 cores, so we make NPF_MAX_CPU_NUMBER to 256 for safe.
+#define NPF_MAX_CPU_NUMBER		sizeof(KAFFINITY) * 32
+
 struct time_conv
 {
 	ULONGLONG reference;
-	struct timeval start[32];
+	struct timeval start[NPF_MAX_CPU_NUMBER];
 };
 
 #ifdef WIN_NT_DRIVER
@@ -78,45 +88,6 @@ __inline void TIME_DESYNCHRONIZE(struct time_conv* data)
 	data->reference = 0;
 	//	data->start.tv_sec = 0;
 	//	data->start.tv_usec = 0;
-}
-
-
-__inline void ReadTimeStampModeFromRegistry(PUNICODE_STRING RegistryPath)
-{
-	ULONG NewLength;
-	PWSTR NullTerminatedString;
-	RTL_QUERY_REGISTRY_TABLE Queries[2];
-	ULONG DefaultTimestampMode = DEFAULT_TIMESTAMPMODE;
-
-	NewLength = RegistryPath->Length / 2;
-
-	NullTerminatedString = ExAllocatePoolWithTag(PagedPool, (NewLength + 1) * sizeof(WCHAR), '2TWA');
-
-	if (NullTerminatedString != NULL)
-	{
-		RtlCopyMemory(NullTerminatedString, RegistryPath->Buffer, RegistryPath->Length);
-
-		NullTerminatedString[NewLength] = 0;
-
-		RtlZeroMemory(Queries, sizeof(Queries));
-
-		Queries[0].Flags = RTL_QUERY_REGISTRY_DIRECT;
-		Queries[0].Name = TIMESTAMPMODE_REGKEY;
-		Queries[0].EntryContext = &TimestampMode;
-		Queries[0].DefaultType = REG_DWORD;
-		Queries[0].DefaultData = &DefaultTimestampMode;
-		Queries[0].DefaultLength = sizeof(ULONG);
-
-		if (RtlQueryRegistryValues(RTL_REGISTRY_ABSOLUTE, NullTerminatedString, Queries, NULL, NULL) != STATUS_SUCCESS)
-		{
-			TimestampMode = DEFAULT_TIMESTAMPMODE;
-		}
-
-		RtlWriteRegistryValue(RTL_REGISTRY_ABSOLUTE, NullTerminatedString, TIMESTAMPMODE_REGKEY, REG_DWORD, &TimestampMode, sizeof(ULONG));
-		ExFreePool(NullTerminatedString);
-	}
-	else
-		TimestampMode = DEFAULT_TIMESTAMPMODE;
 }
 
 #pragma optimize ("g",off)  //Due to some weird behaviour of the optimizer of DDK build 2600 
@@ -147,10 +118,10 @@ __inline void SynchronizeOnCpu(struct timeval* start)
 
 	if (start->tv_usec < 0)
 	{
-		start->tv_sec--;
+		start->tv_sec --;
 		start->tv_usec += 1000000;
 	}
-}
+}	
 
 //
 // inline assembler is not supported with the current AMD64 compilers
@@ -190,16 +161,16 @@ __inline VOID TimeSynchronizeRDTSC(struct time_conv* data)
 	start_kqpc = KeQueryPerformanceCounter(&start_freq);
 	__asm
 	{
-		push eax
-		push edx
-		push ecx
-		rdtsc
-		lea ecx, start_ticks
-		mov[ecx + 4], edx
-		mov[ecx], eax
-		pop ecx
-		pop edx
-		pop eax
+	push eax
+	push edx
+	push ecx
+	rdtsc
+	lea ecx, start_ticks
+	mov[ecx + 4], edx
+	mov[ecx], eax
+	pop ecx
+	pop edx
+	pop eax
 	}
 
 	KeLowerIrql(old);
@@ -210,16 +181,16 @@ __inline VOID TimeSynchronizeRDTSC(struct time_conv* data)
 	stop_kqpc = KeQueryPerformanceCounter(&stop_freq);
 	__asm
 	{
-		push eax
-		push edx
-		push ecx
-		rdtsc
-		lea ecx, stop_ticks
-		mov[ecx + 4], edx
-		mov[ecx], eax
-		pop ecx
-		pop edx
-		pop eax
+	push eax
+	push edx
+	push ecx
+	rdtsc
+	lea ecx, stop_ticks
+	mov[ecx + 4], edx
+	mov[ecx], eax
+	pop ecx
+	pop edx
+	pop eax
 	}
 	KeLowerIrql(old);
 
@@ -246,16 +217,16 @@ __inline VOID TimeSynchronizeRDTSC(struct time_conv* data)
 
 	__asm
 	{
-		push eax
-		push edx
-		push ecx
-		rdtsc
-		lea ecx, curr_ticks
-		mov[ecx + 4], edx
-		mov[ecx], eax
-		pop ecx
-		pop edx
-		pop eax
+	push eax
+	push edx
+	push ecx
+	rdtsc
+	lea ecx, curr_ticks
+	mov[ecx + 4], edx
+	mov[ecx], eax
+	pop ecx
+	pop edx
+	pop eax
 	}
 
 	tmp.tv_sec = -(LONG)(curr_ticks / reference);
@@ -289,15 +260,11 @@ __inline VOID TIME_SYNCHRONIZE(struct time_conv* data)
 	if (data->reference != 0)
 		return;
 
-#ifdef NDIS620
-	NumberOfCpus = NdisGroupMaxProcessorCount(ALL_PROCESSOR_GROUPS);
-#else
-	NumberOfCpus = NdisSystemProcessorCount();
-#endif
+	NumberOfCpus = My_NdisGroupMaxProcessorCount();
 
-	if (TimestampMode == TIMESTAMPMODE_SYNCHRONIZATION_ON_CPU_WITH_FIXUP || TimestampMode == TIMESTAMPMODE_SYNCHRONIZATION_ON_CPU_NO_FIXUP)
+	if (g_TimestampMode == TIMESTAMPMODE_SYNCHRONIZATION_ON_CPU_WITH_FIXUP || g_TimestampMode == TIMESTAMPMODE_SYNCHRONIZATION_ON_CPU_NO_FIXUP)
 	{
-		for (i = 0; i < NumberOfCpus; i++)
+		for (i = 0 ; i < NumberOfCpus ; i++)
 		{
 			//
 			// the following cast is needed because KAFFINITY is defined as a 32bit value on x86 and a 64bit integer on x64.
@@ -311,7 +278,7 @@ __inline VOID TIME_SYNCHRONIZE(struct time_conv* data)
 		ZwSetInformationThread(NtCurrentThread(), ThreadAffinityMask, &AffinityMask, sizeof(KAFFINITY));
 		data->reference = 1;
 	}
-	else if (TimestampMode == TIMESTAMPMODE_QUERYSYSTEMTIME)
+	else if (g_TimestampMode == TIMESTAMPMODE_QUERYSYSTEMTIME)
 	{
 		//do nothing
 		data->reference = 1;
@@ -320,18 +287,18 @@ __inline VOID TIME_SYNCHRONIZE(struct time_conv* data)
 		//
 		// This timestamp mode is supported on x86 (32 bit) only
 		//
-#ifdef _X86_
-		if (TimestampMode == TIMESTAMPMODE_RDTSC)
-		{
-			TimeSynchronizeRDTSC(data);
-		}
-		else
-#endif // _X86_
-		{
-			//it should be only the normal case i.e. TIMESTAMPMODE_SINGLESYNCHRONIZATION
-			SynchronizeOnCpu(data->start);
-			data->reference = 1;
-		}
+		#ifdef _X86_
+	if (g_TimestampMode == TIMESTAMPMODE_RDTSC)
+	{
+		TimeSynchronizeRDTSC(data);
+	}
+	else
+		#endif // _X86_
+	{
+		//it should be only the normal case i.e. TIMESTAMPMODE_SINGLESYNCHRONIZATION
+		SynchronizeOnCpu(data->start);
+		data->reference = 1;
+	}
 	return;
 }
 
@@ -352,21 +319,21 @@ __inline void GetTimeKQPC(struct timeval* dst, struct time_conv* data)
 	PTime = KeQueryPerformanceCounter(&TimeFreq);
 	tmp = (LONG)(PTime.QuadPart / TimeFreq.QuadPart);
 
-	if (TimestampMode == TIMESTAMPMODE_SYNCHRONIZATION_ON_CPU_WITH_FIXUP || TimestampMode == TIMESTAMPMODE_SYNCHRONIZATION_ON_CPU_NO_FIXUP)
+	if (g_TimestampMode == TIMESTAMPMODE_SYNCHRONIZATION_ON_CPU_WITH_FIXUP || g_TimestampMode == TIMESTAMPMODE_SYNCHRONIZATION_ON_CPU_NO_FIXUP)
 	{
 		//actually this code is ok only if we are guaranteed that no thread scheduling will take place. 
-		CurrentCpu = KeGetCurrentProcessorNumber();
+		CurrentCpu = My_KeGetCurrentProcessorNumber();
 
 		dst->tv_sec = data->start[CurrentCpu].tv_sec + tmp;
 		dst->tv_usec = data->start[CurrentCpu].tv_usec + (LONG)((PTime.QuadPart % TimeFreq.QuadPart) * 1000000 / TimeFreq.QuadPart);
 
 		if (dst->tv_usec >= 1000000)
 		{
-			dst->tv_sec++;
+			dst->tv_sec ++;
 			dst->tv_usec -= 1000000;
 		}
 
-		if (TimestampMode == TIMESTAMPMODE_SYNCHRONIZATION_ON_CPU_WITH_FIXUP)
+		if (g_TimestampMode == TIMESTAMPMODE_SYNCHRONIZATION_ON_CPU_WITH_FIXUP)
 		{
 			if (old_ts.tv_sec > dst->tv_sec || (old_ts.tv_sec == dst->tv_sec && old_ts.tv_usec > dst->tv_usec))
 				*dst = old_ts;
@@ -382,7 +349,7 @@ __inline void GetTimeKQPC(struct timeval* dst, struct time_conv* data)
 
 		if (dst->tv_usec >= 1000000)
 		{
-			dst->tv_sec++;
+			dst->tv_sec ++;
 			dst->tv_usec -= 1000000;
 		}
 	}
@@ -410,8 +377,8 @@ __inline void GetTimeRDTSC(struct timeval* dst, struct time_conv* data)
 		push ecx
 		rdtsc
 		lea ecx, tmp
-		mov[ecx + 4], edx
-		mov[ecx], eax
+		mov [ecx+4], edx
+		mov [ecx], eax
 		pop ecx
 		pop edx
 		pop eax
@@ -457,20 +424,20 @@ __inline void GET_TIME(struct timeval* dst, struct time_conv* data)
 	// This timestamp mode is supported on x86 (32 bit) only
 	//
 #ifdef _X86_
-	if (TimestampMode == TIMESTAMPMODE_RDTSC)
+	if (g_TimestampMode == TIMESTAMPMODE_RDTSC)
 	{
 		GetTimeRDTSC(dst, data);
 	}
 	else
-#endif // _X86_
-		if (TimestampMode == TIMESTAMPMODE_QUERYSYSTEMTIME)
-		{
-			GetTimeQST(dst, data);
-		}
-		else
-		{
-			GetTimeKQPC(dst, data);
-		}
+		#endif // _X86_
+	if (g_TimestampMode == TIMESTAMPMODE_QUERYSYSTEMTIME)
+	{
+		GetTimeQST(dst, data);
+	}
+	else
+	{
+		GetTimeKQPC(dst, data);
+	}
 }
 
 

@@ -60,7 +60,7 @@
     <ClCompile Include="Dll\WanPacket\WanPacket.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Dll\AdInfo.c">
+    <ClCompile Include="Dll\AdInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Dll\netcfgapi.cpp">

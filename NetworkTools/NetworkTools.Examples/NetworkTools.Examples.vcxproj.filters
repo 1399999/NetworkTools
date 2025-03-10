@@ -108,7 +108,7 @@
     <ClCompile Include="ExamplesPCap\Stats.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ExamplesPCap\winpcap_stress.cpp">
+    <ClCompile Include="ExamplesPCap\NetworkTools_stress.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

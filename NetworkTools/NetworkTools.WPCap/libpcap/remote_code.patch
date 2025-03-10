@@ -301,7 +301,7 @@ diff -urb libpcap-1.0.0/pcap/pcap.h libpcap-1.0.0_remote/pcap/pcap.h
 +#ifdef HAVE_REMOTE
 +	// We have to define the SOCKET here, although it has been defined in sockutils.h
 +	// This is to avoid the distribution of the 'sockutils.h' file around
-+	// (for example in the WinPcap developer's pack)
++	// (for example in the NetworkTools developer's pack)
 +	#ifndef SOCKET
 +		#ifdef WIN32
 +			#define SOCKET unsigned int

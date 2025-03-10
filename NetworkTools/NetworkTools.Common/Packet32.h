@@ -60,6 +60,9 @@ typedef struct _AirpcapHandle* PAirpcapHandle;
 #include <dagc.h>
 #endif /* HAVE_DAG_API */
 
+// Libpcap/wpcap recognizes this macro and knows NetworkTools Packet API is provided for compilation.
+#define HAVE_NETWORK_TOOLS_PACKET_API
+
 // Working modes
 #define PACKET_MODE_CAPT 0x0 ///< Capture mode
 #define PACKET_MODE_STAT 0x1 ///< Statistical mode
@@ -165,8 +168,8 @@ struct bpf_hdr
   \brief Dump packet header.
 
   This structure defines the header associated with the packets in a buffer to be used with PacketSendPackets().
-  It is simpler than the bpf_hdr, because it corresponds to the header associated by WinPcap and libpcap to a
-  packet in a dump file. This makes straightforward sending WinPcap dump files to the network.
+  It is simpler than the bpf_hdr, because it corresponds to the header associated by NetworkTools and libpcap to a
+  packet in a dump file. This makes straightforward sending NetworkTools dump files to the network.
 */
 struct dump_bpf_hdr
 {
@@ -182,7 +185,7 @@ struct dump_bpf_hdr
 
 struct bpf_stat;
 
-#define 	   DOSNAMEPREFIX   TEXT("Packet_")	///< Prefix added to the adapters device names to create the WinPcap devices
+#define 	   DOSNAMEPREFIX   TEXT("Packet_")	///< Prefix added to the adapters device names to create the NetworkTools devices
 #define 	   MAX_LINK_NAME_LENGTH	64			//< Maximum length of the devices symbolic links
 #define 	   NMAX_PACKET 65535
 
@@ -213,7 +216,7 @@ typedef WAN_ADAPTER* PWAN_ADAPTER; ///< Describes an opened wan (dialup, VPN...)
 #define INFO_FLAG_NDISWAN_ADAPTER	1	///< Flag for ADAPTER_INFO: this is a NdisWan adapter, and it's managed by WANPACKET
 #define INFO_FLAG_DAG_CARD			2	///< Flag for ADAPTER_INFO: this is a DAG card
 #define INFO_FLAG_DAG_FILE			6	///< Flag for ADAPTER_INFO: this is a DAG file
-#define INFO_FLAG_DONT_EXPORT		8	///< Flag for ADAPTER_INFO: when this flag is set, the adapter will not be listed or openend by winpcap. This allows to prevent exporting broken network adapters, like for example FireWire ones.
+#define INFO_FLAG_DONT_EXPORT		8	///< Flag for ADAPTER_INFO: when this flag is set, the adapter will not be listed or openend by NetworkTools. This allows to prevent exporting broken network adapters, like for example FireWire ones.
 #define INFO_FLAG_AIRPCAP_CARD		16	///< Flag for ADAPTER_INFO: this is an airpcap card
 #define INFO_FLAG_NPFIM_DEVICE		32
 
@@ -304,11 +307,11 @@ extern "C"
 	 */
 
 	 /*
-	 BOOLEAN QueryWinPcapRegistryStringA(CHAR *SubKeyName,
+	 BOOLEAN QueryNetworkToolsRegistryStringA(CHAR *SubKeyName,
 									  CHAR *Value,
 									  UINT *pValueLen,
 									  CHAR *DefaultVal);
-	 BOOLEAN QueryWinPcapRegistryStringW(WCHAR *SubKeyName,
+	 BOOLEAN QueryNetworkToolsRegistryStringW(WCHAR *SubKeyName,
 									  WCHAR *Value,
 									  UINT *pValueLen,
 									  WCHAR *DefaultVal);
@@ -320,6 +323,7 @@ extern "C"
 
 	PCHAR PacketGetVersion();
 	PCHAR PacketGetDriverVersion();
+	PCHAR PacketGetDriverName();
 	BOOLEAN PacketSetMinToCopy(LPADAPTER AdapterObject, int nbytes);
 	BOOLEAN PacketSetNumWrites(LPADAPTER AdapterObject, int nwrites);
 	BOOLEAN PacketSetMode(LPADAPTER AdapterObject, int mode);
@@ -331,6 +335,10 @@ extern "C"
 	BOOLEAN PacketGetStatsEx(LPADAPTER AdapterObject, struct bpf_stat* s);
 	BOOLEAN PacketSetBuff(LPADAPTER AdapterObject, int dim);
 	BOOLEAN PacketGetNetType(LPADAPTER AdapterObject, NetType* type);
+	BOOLEAN PacketIsLoopbackAdapter(PCHAR AdapterName);
+	int PacketIsMonitorModeSupported(PCHAR AdapterName);
+	int PacketSetMonitorMode(PCHAR AdapterName, int mode);
+	int PacketGetMonitorMode(PCHAR AdapterName);
 	LPADAPTER PacketOpenAdapter(PCHAR AdapterName);
 	BOOLEAN PacketSendPacket(LPADAPTER AdapterObject, LPPACKET pPacket, BOOLEAN Sync);
 	INT PacketSendPackets(LPADAPTER AdapterObject, PVOID PacketBuff, ULONG Size, BOOLEAN Sync);
@@ -339,7 +347,7 @@ extern "C"
 	VOID PacketFreePacket(LPPACKET lpPacket);
 	BOOLEAN PacketReceivePacket(LPADAPTER AdapterObject, LPPACKET lpPacket, BOOLEAN Sync);
 	BOOLEAN PacketSetHwFilter(LPADAPTER AdapterObject, ULONG Filter);
-	BOOLEAN PacketGetAdapterNames(PTSTR pStr, PULONG  BufferSize);
+	BOOLEAN PacketGetAdapterNames(PCHAR pStr, PULONG  BufferSize);
 	BOOLEAN PacketGetNetInfoEx(PCHAR AdapterName, npf_if_addr* buffer, PLONG NEntries);
 	BOOLEAN PacketRequest(LPADAPTER  AdapterObject, BOOLEAN Set, PPACKET_OID_DATA  OidData);
 	HANDLE PacketGetReadEvent(LPADAPTER AdapterObject);

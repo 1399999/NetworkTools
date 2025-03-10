@@ -1,7 +1,7 @@
 --- gencode.c.cvs	2007-06-14 13:54:12.000000000 -0700
 +++ gencode.c	2007-06-14 13:56:27.531250000 -0700
 @@ -24,6 +24,8 @@
-     "@(#) $Header: /usr/cvsroot_private/winpcap/wpcap/libpcap/wlan_filtering.patch,v 1.1 2007/06/18 22:11:49 gianlucav Exp $ (LBL)";
+     "@(#) $Header: /usr/cvsroot_private/NetworkTools/wpcap/libpcap/wlan_filtering.patch,v 1.1 2007/06/18 22:11:49 gianlucav Exp $ (LBL)";
  #endif
  
 +#define ENABLE_WLAN_FILTERING_PATCH

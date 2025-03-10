@@ -45,7 +45,7 @@ main(int argc, char** argv) {
 	u_int inum, i = 0;
 	char errbuf[PCAP_ERRBUF_SIZE];
 
-	printf("kdump: saves the network traffic to file using WinPcap kernel-level dump faeature.\n");
+	printf("kdump: saves the network traffic to file using NetworkTools kernel-level dump faeature.\n");
 	printf("\t Usage: %s [adapter] | dump_file_name max_size max_packs\n", argv[0]);
 	printf("\t Where: max_size is the maximum size that the dump file will reach (0 means no limit)\n");
 	printf("\t Where: max_packs is the maximum number of packets that will be saved (0 means no limit)\n\n");
@@ -72,7 +72,7 @@ main(int argc, char** argv) {
 
 		if (i == 0)
 		{
-			printf("\nNo interfaces found! Make sure WinPcap is installed.\n");
+			printf("\nNo interfaces found! Make sure NetworkTools is installed.\n");
 			return -1;
 		}
 

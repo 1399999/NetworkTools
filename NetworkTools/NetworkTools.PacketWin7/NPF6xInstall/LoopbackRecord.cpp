@@ -13,13 +13,12 @@
 
 #include "LoopbackRecord.h"
 #include "LoopbackRename.h"
+#include "RegUtil.h"
 
-#define			NETWORK_TOOLS_LOOPBACK_ADAPTER_NAME				NPF_DRIVER_NAME_NORMAL_WIDECHAR L" Loopback Adapter"
-#define			NETWORK_TOOLS_LOOPBACK_APP_NAME					NPF_DRIVER_NAME_NORMAL_WIDECHAR L"_Loopback"
-#define			NETWORK_TOOLS_REG_KEY_NAME						L"SOFTWARE\\" NPF_SOFT_REGISTRY_NAME_WIDECHAR
-#define			NETWORK_TOOLS_REG_LOOPBACK_VALUE_NAME			L"Loopback"
+#include "debug.h"
 
-#define			BUF_SIZE 255
+#define			NetworkTools_LOOPBACK_ADAPTER_NAME				NPF_DRIVER_NAME_NORMAL_WIDECHAR L" Loopback Adapter"
+#define			NetworkTools_LOOPBACK_APP_NAME					NPF_DRIVER_NAME_NORMAL_WIDECHAR L"_Loopback"
 
 int g_NetworkToolsAdapterID = -1;
 
@@ -33,17 +32,25 @@ public:
 
 COM::COM()
 {
+	TRACE_ENTER();
+
 	HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
 	if(!SUCCEEDED(hr))
 	{
-		printf("ERROR: CoInitializeEx() failed. Error code: 0x%08x\n", hr);
+		TRACE_PRINT1("CoInitializeEx: error, errCode = 0x%08x.", hr);
 	}
+
+	TRACE_EXIT();
 }
 
 COM::~COM()
 {
+	TRACE_ENTER();
+
 	CoUninitialize();
+
+	TRACE_EXIT();
 }
 
 // RAII helper class
@@ -64,13 +71,15 @@ public:
 
 NetCfg::NetCfg() : m_pINetCfg(0)
 {
+	TRACE_ENTER();
+
 	HRESULT hr = S_OK;
 
 	hr = m_pINetCfg.CoCreateInstance(CLSID_CNetCfg);
 
 	if(!SUCCEEDED(hr))
 	{
-		printf("ERROR: CoCreateInstance() failed. Error code: 0x%08x\n", hr);
+		TRACE_PRINT1("INetCfg::CoCreateInstance: error, errCode = 0x%08x.", hr);
 		throw 1;
 	}
 
@@ -78,15 +87,15 @@ NetCfg::NetCfg() : m_pINetCfg(0)
 
 	if (!SUCCEEDED(hr))
 	{
-		printf("QueryInterface(INetCfgLock) 0x%08x\n", hr);
+		TRACE_PRINT1("INetCfg::QueryInterface: error, errCode = 0x%08x.", hr);
 		throw 2;
 	}
 
 	// Note that this call can block.
-	hr = m_pLock->AcquireWriteLock(INFINITE, NETWORK_TOOLS_LOOPBACK_APP_NAME, NULL);
+	hr = m_pLock->AcquireWriteLock(INFINITE, NetworkTools_LOOPBACK_APP_NAME, NULL);
 	if (!SUCCEEDED(hr))
 	{
-		printf("INetCfgLock::AcquireWriteLock 0x%08x\n", hr);
+		TRACE_PRINT1("INetCfgLock::AcquireWriteLock: error, errCode = 0x%08x.", hr);
 		throw 3;
 	}
 
@@ -94,13 +103,17 @@ NetCfg::NetCfg() : m_pINetCfg(0)
 
 	if(!SUCCEEDED(hr))
 	{
-		printf("ERROR: Initialize() failed. Error code: 0x%08x\n", hr);
+		TRACE_PRINT1("INetCfg::Initialize: error, errCode = 0x%08x.", hr);
 		throw 4;
 	}
+
+	TRACE_EXIT();
 }
 
 NetCfg::~NetCfg()
-{  
+{
+	TRACE_ENTER();
+
 	HRESULT hr = S_OK;
 
 	if(m_pINetCfg)
@@ -108,19 +121,23 @@ NetCfg::~NetCfg()
 		hr = m_pINetCfg->Uninitialize();
 		if(!SUCCEEDED(hr))
 		{
-			printf("ERROR: Uninitialize() failed. Error code: 0x%08x\n", hr);
+			TRACE_PRINT1("INetCfg::Uninitialize: error, errCode = 0x%08x.", hr);
 		}
 
 		hr = m_pLock->ReleaseWriteLock();
 		if (!SUCCEEDED(hr))
 		{
-			printf("INetCfgLock::ReleaseWriteLock 0x%08x\n", hr);
+			TRACE_PRINT1("INetCfgLock::ReleaseWriteLock: error, errCode = 0x%08x.", hr);
 		}
 	}
+
+	TRACE_EXIT();
 }
 
 BOOL EnumerateComponents(CComPtr<INetCfg>& pINetCfg, const GUID* pguidClass)
 {
+	TRACE_ENTER();
+
 	/*	cout << "\n\nEnumerating " << GUID2Str(pguidClass) << " class:\n" << endl;*/
 
 	// IEnumNetCfgComponent provides methods that enumerate the INetCfgComponent interfaces 
@@ -133,7 +150,7 @@ BOOL EnumerateComponents(CComPtr<INetCfg>& pINetCfg, const GUID* pguidClass)
 
 	if(!SUCCEEDED(hr))
 	{
-		printf("ERROR: Failed to get IEnumNetCfgComponent interface pointer\n");
+		TRACE_PRINT1("INetCfg::EnumComponents: error, errCode = 0x%08x.", hr);
 		throw 1;
 	} 
 
@@ -190,24 +207,35 @@ BOOL EnumerateComponents(CComPtr<INetCfg>& pINetCfg, const GUID* pguidClass)
 //		wcout << L"\tPNP Device Node ID: " << wstring(pszPndDevNodeId) << L'\n';
 
 		int iDevID = getIntDevID(pszPndDevNodeId);
+		TRACE_PRINT4("INetCfgComponent::GetPnpDevNodeId: executing, pszPndDevNodeId = %s, iDevID = %d, g_NetworkToolsAdapterID = %d, pszBindName = %ws.",
+			pszPndDevNodeId, iDevID, g_NetworkToolsAdapterID, pszBindName);
 		if (g_NetworkToolsAdapterID == iDevID)
 		{
 			bFound = TRUE;
 
-			hr = pINetCfgComponent->SetDisplayName(NETWORK_TOOLS_LOOPBACK_ADAPTER_NAME);
+			TRACE_PRINT2("INetCfgComponent::SetDisplayName: executing, g_NetworkToolsAdapterID = iDevID = %d, pszBindName = %ws.", g_NetworkToolsAdapterID, pszBindName);
+			hr = pINetCfgComponent->SetDisplayName(NetworkTools_LOOPBACK_ADAPTER_NAME);
 
 			if (hr != S_OK)
 			{
+				TRACE_PRINT1("INetCfgComponent::SetDisplayName: error, errCode = 0x%08x.", hr);
 				bFailed = TRUE;
 			}
 
 			if (!AddFlagToRegistry(pszBindName))
 			{
+				TRACE_PRINT1("AddFlagToRegistry: error, pszBindName = %ws.", pszBindName);
 				bFailed = TRUE;
 			}
 
+// 			if (!AddFlagToRegistry_Service(pszBindName))
+// 			{
+// 				bFailed = TRUE;
+// 			}
+
 			if (!RenameLoopbackNetwork(pszBindName))
 			{
+				TRACE_PRINT1("RenameLoopbackNetwork: error, pszBindName = %ws.", pszBindName);
 				bFailed = TRUE;
 			}
 		}
@@ -218,63 +246,55 @@ BOOL EnumerateComponents(CComPtr<INetCfg>& pINetCfg, const GUID* pguidClass)
 
 		if (bFound)
 		{
-			if (bFailed)
-			{
-				return FALSE;
-			}
-			else
-			{
-				return TRUE;
-			}
+			TRACE_EXIT();
+			return !bFailed;
 		}
 	}
 
+	TRACE_EXIT();
 	return FALSE;
 }
 
 BOOL NetCfg::GetNetworkConfiguration()
-{ 
+{
+	TRACE_ENTER();
 	// get enumeration containing GUID_DEVCLASS_NET class of network components
+	TRACE_EXIT();
 	return EnumerateComponents(m_pINetCfg, &GUID_DEVCLASS_NET);
 }
 
 int getIntDevID(TCHAR strDevID[]) //DevID is in form like: "ROOT\\NET\\0008"
 {
-	int iDevID;
-	_stscanf_s(strDevID, _T("ROOT\\NET\\%04d"), &iDevID);
+	TRACE_ENTER();
+
+	int iDevID = -1;
+	int iMatched = _stscanf_s(strDevID, _T("ROOT\\NET\\%04d"), &iDevID);
+	TRACE_PRINT2("_stscanf_s: iMatched = %d, iDevID = %d.", iMatched, iDevID);
+	if (iMatched != 1)
+		iDevID = -1;
+
+	TRACE_EXIT();
 	return iDevID;
 }
 
-BOOL AddFlagToRegistry(wchar_t strDeviceName[])
+BOOL AddFlagToRegistry(tstring strDeviceName)
 {
-	LONG Status;
-	HKEY hNetworkToolsKey;
+	TRACE_ENTER();
+	TRACE_EXIT();
+	return WriteStrToRegistry(NetworkTools_REG_KEY_NAME, NetworkTools_REG_LOOPBACK_VALUE_NAME, tstring(_T("\\Device\\") + strDeviceName).c_str(), KEY_WRITE | KEY_WOW64_32KEY);
+}
 
-	wchar_t strFullDeviceName[BUF_SIZE];
-	wsprintf(strFullDeviceName, L"\\Device\\%s", strDeviceName);
-	Status = RegOpenKeyExW(HKEY_LOCAL_MACHINE, NETWORK_TOOLS_REG_KEY_NAME, 0, KEY_WRITE | KEY_WOW64_32KEY, &hNetworkToolsKey);
-	if (Status == ERROR_SUCCESS)
-	{
-		Status = RegSetValueExW(hNetworkToolsKey, NETWORK_TOOLS_REG_LOOPBACK_VALUE_NAME, 0, REG_SZ, (PBYTE) strFullDeviceName, (lstrlen(strFullDeviceName) + 1) * sizeof (wchar_t));
-		if (Status != ERROR_SUCCESS)
-		{
-			printf("AddFlagToRegistry: 0x%08x\n", GetLastError());
-			RegCloseKey(hNetworkToolsKey);
-			return FALSE;
-		}
-		RegCloseKey(hNetworkToolsKey);
-	}
-	else
-	{
-		printf("AddFlagToRegistry: 0x%08x\n", GetLastError());
-		return FALSE;
-	}
-
-	return TRUE;
+BOOL AddFlagToRegistry_Service(tstring strDeviceName)
+{
+	TRACE_ENTER();
+	TRACE_EXIT();
+	return WriteStrToRegistry(NetworkTools_SERVICE_REG_KEY_NAME, NetworkTools_REG_LOOPBACK_VALUE_NAME, tstring(_T("\\Device\\") + strDeviceName).c_str(), KEY_WRITE);
 }
 
 BOOL RecordLoopbackDevice(int iNetworkToolsAdapterID)
 {
+	TRACE_ENTER();
+
 	g_NetworkToolsAdapterID = iNetworkToolsAdapterID;
 
 	try
@@ -283,14 +303,18 @@ BOOL RecordLoopbackDevice(int iNetworkToolsAdapterID)
 		NetCfg netCfg;
 		if (!netCfg.GetNetworkConfiguration())
 		{
+			TRACE_PRINT("NetCfg::GetNetworkConfiguration: error.");
+			TRACE_EXIT();
 			return FALSE;
 		}
 	}
 	catch(...)
 	{
-		printf("ERROR: main() caught exception\n");
+		TRACE_PRINT("NetCfg::GetNetworkConfiguration: error (exception).");
+		TRACE_EXIT();
 		return FALSE;
 	}
 
+	TRACE_EXIT();
 	return TRUE;
 }

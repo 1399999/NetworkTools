@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
 <meta name="GENERATOR" content="Microsoft FrontPage 4.0">
 <meta name="ProgId" content="FrontPage.Editor.Document">
-<title>Using WinPcap Remote Capture</title>
+<title>Using NetworkTools Remote Capture</title>
 </head>
 
 <body>
@@ -17,14 +17,14 @@
   <li><a href="#UNIX">Installing the Remote Capture Daemon in UNIX</a></li>
 </ul>
 <hr>
-<p>WinPcap comes with Remote Capture capabilities. This is an highly
+<p>NetworkTools comes with Remote Capture capabilities. This is an highly
 experimental feature that allows to interact to a remote machine and capture
 packets that are being transmitted on the remote network.</p>
 <p>This requires a <b>remote daemon </b>(called <code>rpcapd</code>) which
 performs the capture and sends data back and a <b>local client </b>that sends
 the appropriate commands and receives the captured data.</p>
-<p>WinPcap extends the standard WinPcap code in such a way that all
-WinPcap-based tools can expoit remote capture capabilities. For instance, the
+<p>NetworkTools extends the standard NetworkTools code in such a way that all
+NetworkTools-based tools can expoit remote capture capabilities. For instance, the
 capabillity to interact with a remote daemon are added to the client software
 without any explicit modification to it. Vice versa, the remote daemon must be
 explicitely installed (and configured) on the remote machine.</p>
@@ -53,7 +53,7 @@ Analyzer is the only tool that is able to work in active mode, since it requires
 some modifications to the application code.</p>
 <h2><a name="Config"></a>Configuring the Remote Daemon (rpcapd)</h2>
 <p>The Remote Daemon is a standard Win32 executable running either in console
-mode or as a service. The executable can be found in the <code>WinPcap</code>
+mode or as a service. The executable can be found in the <code>NetworkTools</code>
 folder and it has the following syntax:</p>
 <pre>        rpcapd [-b &lt;address&gt;] [-p &lt;port&gt;] [-6] [-l &lt;host_list&gt;] [-a &lt;host,port&gt;] 
                [-n] [-v] [-d] [-s &lt;file&gt;] [-f &lt;file&gt;]</pre>
@@ -125,7 +125,7 @@ folder and it has the following syntax:</p>
       </td>
       <td>Forces the daemon to run in background, i.e. as a daemon (UNIX only)
         or as a service (Win32 only). <b>Warning</b> (Win32): this switch is
-        provided automatically when WinPcap installs this daemon into the Win32
+        provided automatically when NetworkTools installs this daemon into the Win32
         services (control panel - administrative tools - services).</td>
     </tr>
     <tr>
@@ -151,8 +151,8 @@ folder and it has the following syntax:</p>
   </table>
 </div>
 <h3>Installing the remote daemon</h3>
-<p>The remote daemon is installed automatically when installing WinPcap. The
-installation process places the <code>rpcapd</code> file into the <code>WinPcap</code>
+<p>The remote daemon is installed automatically when installing NetworkTools. The
+installation process places the <code>rpcapd</code> file into the <code>NetworkTools</code>
 folder. This file can be executed either from the command line, or as a service.
 For instance, the installation process updates the list of available services
 list and it creates a new item (<b>Remote Packet Capture Protocol v.0
@@ -295,10 +295,10 @@ machine you want to contact. The following forms are allowed:</p>
   </tr>
 </table>
 <h2><a name="UNIX"></a>Installing the Remote Capture Daemon in UNIX</h2>
-<p>The WinPcap source archive can be compiled in UNIX as well. Currently, remote
+<p>The NetworkTools source archive can be compiled in UNIX as well. Currently, remote
 capture has been tested on Linux and BSD. What you have to do is:</p>
 <ul>
-  <li>download the WinPcap sources</li>
+  <li>download the NetworkTools sources</li>
   <li>unpack the sources
     <ul>
       <li>we suggest to use the <code>unzip -a</code> command in order to
@@ -343,7 +343,7 @@ must either</p>
 function takes several seconds to return. Therefore, programs like Analyzer seem
 to hang up for 20-30 seconds at the beginning of the capture (if this is done
 with BSD as a remote probe). We're investigating to solve this issue.</p>
-<p><i>For any question, please refer to the WinPcap help page.</i></p>
+<p><i>For any question, please refer to the NetworkTools help page.</i></p>
 
 </body>
 

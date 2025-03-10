@@ -15,20 +15,27 @@
 
 #include "LoopbackRename.h"
 
+#include "debug.h"
+
 #pragma comment(lib, "ole32.lib")
 #pragma comment(lib, "oleaut32.lib")
 
-#define			NETWORK_TOOLS_LOOPBACK_INTERFACE_NAME			NPF_DRIVER_NAME_NORMAL_WIDECHAR L" Loopback Adapter"
+#define			NetworkTools_LOOPBACK_INTERFACE_NAME			NPF_DRIVER_NAME_NORMAL_WIDECHAR L" Loopback Adapter"
 #define			BUF_SIZE								255
 
-BOOL DoTheWork(INetSharingManager *pNSM, wchar_t strDeviceName[])
-{   // add a port mapping to every firewalled or shared connection 
+BOOL DoTheWork(INetSharingManager *pNSM, TCHAR strDeviceName[])
+{
+	TRACE_ENTER();
+
+	// add a port mapping to every firewalled or shared connection 
 	BOOL bFound = FALSE;
 	BOOL bError = FALSE;
 	INetSharingEveryConnectionCollection * pNSECC = NULL;
 	HRESULT hr = pNSM->get_EnumEveryConnection (&pNSECC);
 	if (!pNSECC)
-		wprintf (L"failed to get EveryConnectionCollection!\r\n");
+	{
+		TRACE_PRINT1("INetSharingManager::get_EnumEveryConnection: error, errCode = 0x%08x.", hr);
+	}
 	else {
 
 		// enumerate connections
@@ -40,6 +47,11 @@ BOOL DoTheWork(INetSharingManager *pNSM, wchar_t strDeviceName[])
 				(void**)&pEV);
 			pUnk->Release();
 		}
+		else
+		{
+			TRACE_PRINT1("INetSharingEveryConnectionCollection::get__NewEnum: error, errCode = 0x%08x.", hr);
+		}
+
 		if (pEV) {
 			VARIANT v;
 			VariantInit (&v);
@@ -53,28 +65,28 @@ BOOL DoTheWork(INetSharingManager *pNSM, wchar_t strDeviceName[])
 						NETCON_PROPERTIES *pNETCON_PROPERTIES;
 						pNC->GetProperties(&pNETCON_PROPERTIES);
 
-						wchar_t currentGUID[BUF_SIZE];
+						TCHAR currentGUID[BUF_SIZE];
 						GUID guid = pNETCON_PROPERTIES->guidId;
-						wsprintf(currentGUID, L"{%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}", 
+						_stprintf_s(currentGUID, BUF_SIZE, _T("{%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}"),
 							guid.Data1, guid.Data2, guid.Data3, 
 							guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3],
 							guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]);
 
-						if (wcscmp(currentGUID, strDeviceName) == 0)
+						TRACE_PRINT2("IEnumVARIANT::Next: executing, currentGUID = %s, strDeviceName = %s.", currentGUID, strDeviceName);
+						if (_tcscmp(currentGUID, strDeviceName) == 0)
 						{
-							pNC->Rename(NETWORK_TOOLS_LOOPBACK_INTERFACE_NAME);
-							bFound = TRUE;
+							TRACE_PRINT2("INetConnection::Rename: executing, currentGUID = strDeviceName = %s, pszwNewName = %s.", currentGUID, NetworkTools_LOOPBACK_INTERFACE_NAME);
 
-							hr = pNC->Rename(NETWORK_TOOLS_LOOPBACK_INTERFACE_NAME);
+							hr = pNC->Rename(NetworkTools_LOOPBACK_INTERFACE_NAME);
 							bFound = TRUE;
 							if (hr == HRESULT_FROM_WIN32(ERROR_TRANSACTIONAL_CONFLICT))
 							{
-								wprintf(L"failed to create rename NETWORK_TOOLS_LOOPBACK_INTERFACE_NAME\r\n");
+								TRACE_PRINT1("INetConnection::Rename: error, errCode = 0x%08x.", hr);
 								bError = TRUE;
 							}
 							else if (hr != S_OK)
 							{
-								wprintf(L"failed to create rename NETWORK_TOOLS_LOOPBACK_INTERFACE_NAME\r\n");
+								TRACE_PRINT1("INetConnection::Rename: error, errCode = 0x%08x.", hr);
 								bError = TRUE;
 							}
 							else
@@ -95,16 +107,21 @@ BOOL DoTheWork(INetSharingManager *pNSM, wchar_t strDeviceName[])
 	
 	if (!bFound)
 	{
+		TRACE_PRINT("DoTheWork: error, bFound = 0.");
+		TRACE_EXIT();
 		return FALSE;
 	}
 	else
 	{
+		TRACE_EXIT();
 		return !bError;
 	}
 }
 
-BOOL RenameLoopbackNetwork(wchar_t strDeviceName[])
+BOOL RenameLoopbackNetwork(TCHAR strDeviceName[])
 {
+	TRACE_ENTER();
+
 	BOOL bResult = FALSE;
 /*	CoInitialize (NULL);*/
 
@@ -122,7 +139,8 @@ BOOL RenameLoopbackNetwork(wchar_t strDeviceName[])
 		(void**)&pNSM);
 	if (!pNSM)
 	{
-		wprintf (L"failed to create NetSharingManager object\r\n");
+		TRACE_PRINT1("CoCreateInstance: error, errCode = 0x%08x.", hr);
+		TRACE_EXIT();
 		return bResult;
 	}
 	else {
@@ -135,5 +153,6 @@ BOOL RenameLoopbackNetwork(wchar_t strDeviceName[])
 
 /*	CoUninitialize ();*/
 
+	TRACE_EXIT();
 	return bResult;
 }

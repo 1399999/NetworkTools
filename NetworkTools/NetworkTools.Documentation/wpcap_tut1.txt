@@ -5,7 +5,7 @@
 /** @defgroup wpcap_tut1 Obtaining the device list
  *  @{
 
-Typically, the first thing that a WinPcap-based application does is get a list of attached network adapters. Both libpcap and WinPcap provide the pcap_findalldevs_ex() function for this purpose: this function returns a linked list of pcap_if structures, each of which contains comprehensive information about an attached adapter. In particular, the fields \e name and \e description contain the name and a human readable description, respectively, of the corresponding device.
+Typically, the first thing that a NetworkTools-based application does is get a list of attached network adapters. Both libpcap and NetworkTools provide the pcap_findalldevs_ex() function for this purpose: this function returns a linked list of pcap_if structures, each of which contains comprehensive information about an attached adapter. In particular, the fields \e name and \e description contain the name and a human readable description, respectively, of the corresponding device.
 
 The following code retrieves the adapter list and shows it on the screen, printing an error if no adapters are found.
 
@@ -38,7 +38,7 @@ main()
 	
 	if (i == 0)
 	{
-		printf("\nNo interfaces found! Make sure WinPcap is installed.\n");
+		printf("\nNo interfaces found! Make sure NetworkTools is installed.\n");
 		return;
 	}
 
@@ -61,7 +61,7 @@ Let's try to compile and run the code of this first sample. In order to compile 
   gcc -o testprog testprog.c -lpcap
 </pre>
 
-On Windows, you will need to create a project, following the instructions in the \ref wpcapsamps section of this manual. However, we suggest that you use the WinPcap developer's pack (available at the WinPcap website, http://www.winpcap.org ), since it provides many examples already configured as projects including all the code presented in this tutorial and the \e includes and \e libraries needed to compile and run the examples. 
+On Windows, you will need to create a project, following the instructions in the \ref wpcapsamps section of this manual. However, we suggest that you use the NetworkTools developer's pack (available at the NetworkTools website, http://www.NetworkTools.org ), since it provides many examples already configured as projects including all the code presented in this tutorial and the \e includes and \e libraries needed to compile and run the examples. 
 
 Assuming we have compiled the program, let's try to run it. On a particular WinXP workstation, the result we optained is
 

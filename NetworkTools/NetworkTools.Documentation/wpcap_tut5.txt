@@ -5,7 +5,7 @@
 /** @defgroup wpcap_tut5 Filtering the traffic
  *  @{
 
-One of the most powerful features offered by WinPcap (and by libpcap as well) is the filtering engine. It provides a very efficient way to receive subsets of the network traffic, and is (usually) integrated with the capture mechanism provided by WinPcap. The functions used to filter packets are pcap_compile() and pcap_setfilter().
+One of the most powerful features offered by NetworkTools (and by libpcap as well) is the filtering engine. It provides a very efficient way to receive subsets of the network traffic, and is (usually) integrated with the capture mechanism provided by NetworkTools. The functions used to filter packets are pcap_compile() and pcap_setfilter().
 
 pcap_compile() takes a string containing a high-level Boolean (filter) expression and produces a low-level byte code that can be interpreted by the fileter engine in the packet driver. The syntax of the boolean expression can be found in the \ref language section of this documentation.
 

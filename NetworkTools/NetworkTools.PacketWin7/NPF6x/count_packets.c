@@ -62,7 +62,7 @@ uint32 count_packets(uint8* block, uint32 pkt_size, TME_DATA* data, MEM_TYPE* me
 	UNUSED(mem_data);
 	UNUSED(mem_ex);
 
-	counters = (c_p_data*)(block + data->key_len * 4);
+	counters = (c_p_data *)(block + data->key_len * 4);
 
 	counters->bytes += pkt_size;
 	counters->packets++;

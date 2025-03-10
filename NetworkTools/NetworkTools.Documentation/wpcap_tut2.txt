@@ -4,7 +4,7 @@
 /** @defgroup wpcap_tut2 Obtaining advanced information about installed devices
  *  @{
 
-Lesson 1 (\ref wpcap_tut1) demonstrated how to get basic information (i.e. device name and description) about available adapters. Actually, WinPcap provides also other advanced information. In particular, every pcap_if structure returned by pcap_findalldevs_ex() contains also a list of pcap_addr structures, with:
+Lesson 1 (\ref wpcap_tut1) demonstrated how to get basic information (i.e. device name and description) about available adapters. Actually, NetworkTools provides also other advanced information. In particular, every pcap_if structure returned by pcap_findalldevs_ex() contains also a list of pcap_addr structures, with:
 - a list of addresses for that interface.
 - a list of netmasks (each of which corresponds to an entry in the addresses list).
 - a list of broadcast addresses (each of which corresponds to an entry in the addresses list).

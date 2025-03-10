@@ -128,7 +128,7 @@ pcap_if_t *dev;		// Previous device into the pcap_if_t chain
 		if ( (alldevs == NULL) || (*alldevs == NULL) )
 		{
 			snprintf(errbuf, PCAP_ERRBUF_SIZE,
-				"No interfaces found! Make sure libpcap/WinPcap is properly installed"
+				"No interfaces found! Make sure libpcap/NetworkTools is properly installed"
 				" on the local machine.");
 			return -1;
 		}

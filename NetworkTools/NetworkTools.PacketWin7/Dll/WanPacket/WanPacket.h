@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies
- * nor the names of its contributors may be used to endorse or promote
- * products derived from this software without specific prior written
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
+ * nor the names of its contributors may be used to endorse or promote 
+ * products derived from this software without specific prior written 
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -38,7 +38,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
- // Insert your headers here
+// Insert your headers here
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 
 #include <windows.h>
@@ -48,18 +48,18 @@ extern "C" {
 #endif
 
 
-	//BOOLEAN LoadNdisNpp(DWORD Reason);
-	BOOLEAN WanPacketSetBpfFilter(PWAN_ADAPTER pWanAdapter, PUCHAR FilterCode, DWORD Length);
-	PWAN_ADAPTER WanPacketOpenAdapter();
-	BOOLEAN WanPacketCloseAdapter(PWAN_ADAPTER pWanAdapter);
-	BOOLEAN WanPacketSetBufferSize(PWAN_ADAPTER pWanAdapter, DWORD BufferSize);
-	DWORD WanPacketReceivePacket(PWAN_ADAPTER pWanAdapter, PUCHAR Buffer, DWORD BufferSize);
-	BOOLEAN WanPacketSetMinToCopy(PWAN_ADAPTER pWanAdapter, DWORD MinToCopy);
-	BOOLEAN WanPacketGetStats(PWAN_ADAPTER pWanAdapter, struct bpf_stat* s);
-	BOOLEAN WanPacketSetReadTimeout(PWAN_ADAPTER pWanAdapter, DWORD ReadTimeout);
-	BOOLEAN WanPacketSetMode(PWAN_ADAPTER pWanAdapter, DWORD Mode);
-	HANDLE WanPacketGetReadEvent(PWAN_ADAPTER pWanAdapter);
-	BOOLEAN WanPacketTestAdapter();
+//BOOLEAN LoadNdisNpp(DWORD Reason);
+BOOLEAN WanPacketSetBpfFilter(PWAN_ADAPTER pWanAdapter, PUCHAR FilterCode, DWORD Length);
+PWAN_ADAPTER WanPacketOpenAdapter();
+BOOLEAN WanPacketCloseAdapter(PWAN_ADAPTER pWanAdapter);
+BOOLEAN WanPacketSetBufferSize(PWAN_ADAPTER pWanAdapter, DWORD BufferSize);
+DWORD WanPacketReceivePacket(PWAN_ADAPTER pWanAdapter, PUCHAR Buffer, DWORD BufferSize);
+BOOLEAN WanPacketSetMinToCopy(PWAN_ADAPTER pWanAdapter, DWORD MinToCopy);
+BOOLEAN WanPacketGetStats(PWAN_ADAPTER pWanAdapter, struct bpf_stat *s);
+BOOLEAN WanPacketSetReadTimeout(PWAN_ADAPTER pWanAdapter, DWORD ReadTimeout);
+BOOLEAN WanPacketSetMode(PWAN_ADAPTER pWanAdapter, DWORD Mode);
+HANDLE WanPacketGetReadEvent(PWAN_ADAPTER pWanAdapter);
+BOOLEAN WanPacketTestAdapter();
 
 #ifdef __cplusplus
 }
@@ -67,3 +67,5 @@ extern "C" {
 
 
 #endif // !defined(AFX_WANPACKET_H__C87BC2BD_187D_4A72_A5FF_537A9F4B588F__INCLUDED_)
+
+

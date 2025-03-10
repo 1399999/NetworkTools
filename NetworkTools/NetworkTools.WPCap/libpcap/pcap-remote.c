@@ -1119,7 +1119,7 @@ int sockbufsize= 0;
 	// Let's save the socket of the data connection
 	fp->rmt_sockdata= sockdata;
 
-	// Allocates WinPcap/libpcap user buffer, which is a socket buffer in case of a remote capture
+	// Allocates NetworkTools/libpcap user buffer, which is a socket buffer in case of a remote capture
 	// It has the same size of the one used on the other side of the connection
 	fp->bufsize= ntohl(startcapreply.bufsize);
 

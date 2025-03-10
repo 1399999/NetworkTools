@@ -7,20 +7,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkTools.CLI", "Network
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionInstall", "SolutionInstall", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 	ProjectSection(SolutionItems) = preProject
-		build_wpdpack.bat = build_wpdpack.bat
-		build_wpdpack.txt = build_wpdpack.txt
-		create_docs.bat = create_docs.bat
-		create_examples.bat = create_examples.bat
-		create_include.bat = create_include.bat
-		create_lib.bat = create_lib.bat
-		create_web.bat = create_web.bat
-		integrate_libpcap.bat = integrate_libpcap.bat
-		version.h = version.h
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{0D184748-84C3-40F5-B1C2-C82BF818CBC2}"
-	ProjectSection(SolutionItems) = preProject
-		tools\win-setup.ps1 = tools\win-setup.ps1
+		appveyor.yml = appveyor.yml
+		build_sdk.bat = build_sdk.bat
+		SolutionInstall\build_wpdpack.bat = SolutionInstall\build_wpdpack.bat
+		SolutionInstall\build_wpdpack.txt = SolutionInstall\build_wpdpack.txt
+		SolutionInstall\create_docs.bat = SolutionInstall\create_docs.bat
+		SolutionInstall\create_examples.bat = SolutionInstall\create_examples.bat
+		SolutionInstall\create_include.bat = SolutionInstall\create_include.bat
+		SolutionInstall\create_lib.bat = SolutionInstall\create_lib.bat
+		SolutionInstall\create_web.bat = SolutionInstall\create_web.bat
+		SolutionInstall\integrate_libpcap.bat = SolutionInstall\integrate_libpcap.bat
+		SolutionInstall\version.h = SolutionInstall\version.h
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkTools.Common", "NetworkTools.Common\NetworkTools.Common.vcxproj", "{9726FCEA-BA8E-465A-9E08-41EABB1BA212}"
@@ -66,9 +63,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{0D184748-84C3-40F5-B1C2-C82BF818CBC2} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {03057239-B336-4EEB-8C64-EAA9C6C426E9}

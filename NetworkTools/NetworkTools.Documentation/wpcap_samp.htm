@@ -15,13 +15,13 @@ steps:</p>
 <ul>
   <li>Include the file <i>pcap.h</i> at the beginning of every source file that
     uses the functions exported by library.</li>
-  <li>If your program uses Win32 specific functions of WinPcap, remember to include <i>WPCAP</i>
+  <li>If your program uses Win32 specific functions of NetworkTools, remember to include <i>WPCAP</i>
     among the preprocessor definitions.</li>
-  <li>If your program uses the remote capture capabilities of WinPcap, add <i>
+  <li>If your program uses the remote capture capabilities of NetworkTools, add <i>
 	HAVE_REMOTE</i> among the preprocessor definitions. Do <i>not</i> include 
 	remote-ext.h directly in your source files.<li>Set the options of the linker to include the <i>wpcap.lib</i> library
     file specific for your target (x86 or x64). <i>wpcap.lib</i> for x86 can be 
-	found in the \lib folder of the WinPcap developer's 
+	found in the \lib folder of the NetworkTools developer's 
 	pack, <i>wpcap.lib</i> for x64 can
     be found in the \lib\x64 folder.<li>Set the options of the linker to include the winsock library file<i> 
 	ws2_32.lib</i>. This file is distributed with the C compiler
@@ -72,11 +72,11 @@ steps:</p>
   </ul>
 <p>&nbsp;</p>
 <h2>Sample programs</h2>
-<p>A couple of sample programs are provided to show the usage of the WinPcap API. The
-source of the examples, along with all the files needed to compile and run them, can be found in the <a href="http://www.winpcap.org/install/bin">Developer's
+<p>A couple of sample programs are provided to show the usage of the NetworkTools API. The
+source of the examples, along with all the files needed to compile and run them, can be found in the <a href="http://www.NetworkTools.org/install/bin">Developer's
 Pack</a>.&nbsp; For didactic purpose we provide here a browsable version of the 
 code: it is possible to click on the variables and functions to jump the 
-documentation of each of them. For a more complete set of samples, try <a href="group__wpcap__tut.htm">WinPcap
+documentation of each of them. For a more complete set of samples, try <a href="group__wpcap__tut.htm">NetworkTools
 Tutorial Section</a>.</p>
 
 </body>

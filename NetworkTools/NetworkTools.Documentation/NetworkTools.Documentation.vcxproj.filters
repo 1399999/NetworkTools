@@ -33,7 +33,7 @@
     <None Include="packet_samp.htm" />
     <None Include="slides.ppt" />
     <None Include="style.css" />
-    <None Include="WinPcap_docs.html" />
+    <None Include="NetworkTools_docs.html" />
     <None Include="wpcap.htm" />
     <None Include="wpcap_remote.htm" />
     <None Include="wpcap_samp.htm" />

@@ -8,9 +8,9 @@
 </head>
 
 <body>
-<p>This section explains how to compile WinPcap, both the kernel level and
+<p>This section explains how to compile NetworkTools, both the kernel level and
 the user-level portion, on the various Win32 platforms. The source code can be
-found on the <a href="http://www.winpcap.org/">WinPcap website</a>.</p>
+found on the <a href="https://github.com/1399999/NetworkTools">NetworkTools website</a>.</p>
 <h2>Compiling the driver</h2>
 <p>Two main NPF source trees are available for compilation:&nbsp; Windows NTx and Windows 9x. Note that, since the NPF 
 Driver is platform-dependent, it is STRONGLY suggested to compile it for the OS where it will be used, in order to
@@ -41,11 +41,11 @@ vice versa.</p>
     Environment</em> if you want to build a debug version, or <em>Free Build
     Environment</em> if you want to build a release version.
   <li>A command prompt will be opened. Move to the directory PacketNTx inside the
-    WinPcap source folder and type the command<br><br><i>CompileDriver<br></i>
+    NetworkTools source folder and type the command<br><br><i>CompileDriver<br></i>
 	<br>This script will generate the driver (npf.sys). The binary will be put in 
 	one of these folders<ul>
-	<li><i>Free Build Environment: </i>winpcap\PacketNTx\driver\bin\NT4\i386\free</li>
-	<li><i>Checked Build Environment: </i>winpcap\PacketNTx\driver\bin\NT4\i386\checked</li>
+	<li><i>Free Build Environment: </i>NetworkTools\PacketNTx\driver\bin\NT4\i386\free</li>
+	<li><i>Checked Build Environment: </i>NetworkTools\PacketNTx\driver\bin\NT4\i386\checked</li>
 	</ul>
 </ol>
 <p><b>Warning</b>: sometimes, during the compilation of the driver, a lot of
@@ -55,9 +55,9 @@ compilation process continue, they are due to bugs in some DDK versions.</p>
 <p>Software requirements:</p>
 <ul>
 	<li>Microsoft Windows Driver Kit (WDK) 6001.18002. As of release 4.1, 
-	WinPcap is compiled with WDK 6001.18002.</li>
+	NetworkTools is compiled with WDK 6001.18002.</li>
 </ul>
-<p>NOTE: it should be possible to use older DDKs to compile WinPcap, but you 
+<p>NOTE: it should be possible to use older DDKs to compile NetworkTools, but you 
 might need to 
 manually modify the compilation scripts in order to disable PREfast (PREfast is 
 a static code analysis tool shipped with recent versions of the DDK/WDK).</p>
@@ -73,16 +73,16 @@ a static code analysis tool shipped with recent versions of the DDK/WDK).</p>
 	x64 Checked Build Environment </em>if you want to build a debug version.</li>
 	</ul>
 	<li>A command prompt will be opened. Move to the directory PacketNTx inside the
-    WinPcap source folder and type the command<br><br><i>CompileDriver<br></i>
+    NetworkTools source folder and type the command<br><br><i>CompileDriver<br></i>
 	<br>This script will generate the driver (npf.sys). The binary will be put in 
 	one of these folders<ul>
-		<li><i>x86 driver (both Free and Checked Build): </i>winpcap\PacketNTx\driver\bin\i386</li>
-		<li><i>x64 driver (both Free and Checked Build): </i>winpcap\PacketNTx\driver\bin\amd64</li>
+		<li><i>x86 driver (both Free and Checked Build): </i>NetworkTools\PacketNTx\driver\bin\i386</li>
+		<li><i>x64 driver (both Free and Checked Build): </i>NetworkTools\PacketNTx\driver\bin\amd64</li>
 	</ul>
   </ol>
 <h3>Compiling the driver on Windows 9x</h3>
 <p><font color="#FF0000">NOTE: this Windows platform is no longer supported by 
-WinPcap. However, the sources for these operating systems are still available in 
+NetworkTools. However, the sources for these operating systems are still available in 
 the sources package.</font></p>
 <p>To compile the driver for Windows 9x you will need:</p>
 <ul>
@@ -134,7 +134,7 @@ without the copyright information. We don't know the cause of this problem.</p>
 <h2>Compiling packet.dll</h2>
 <p>The source tree for this DLL is located in PacketNTx\dll\.</p>
 <p><font color="#FF0000">NOTE: the 9x family of Windows operating systems is no longer supported 
-by WinPcap. However, the sources for these operating systems are still available 
+by NetworkTools. However, the sources for these operating systems are still available 
 in the sources package.</font></p>
 <p>Software requirements:</p>
 <ul>
@@ -143,7 +143,7 @@ in the sources package.</font></p>
 	maintained.<li>The AirPcap developer's pack from
 	<a href="http://www.cacetech.com/products/airpcap.html">
 	http://www.cacetech.com/products/airpcap.html</a>. The AirPcap developer's 
-	pack needs to be unzipped in a folder in the same folder where the WinPcap 
+	pack needs to be unzipped in a folder in the same folder where the NetworkTools 
 	sources have been unzipped.</ul>
 <p>To compile the PACKET.DLL, load the project <i>packet.sln</i> contained in the directory PacketNTx\dll\project
 in Visual Studio 2005. There are several project 
@@ -180,7 +180,7 @@ files.</p>
 	maintained.<li>The AirPcap developer's pack from
 	<a href="http://www.cacetech.com/products/airpcap.htm">
 	http://www.cacetech.com/products/airpcap.htm</a>. The AirPcap developer's 
-	pack needs to be unzipped in a folder in the same folder where the WinPcap 
+	pack needs to be unzipped in a folder in the same folder where the NetworkTools 
 	sources have been unzipped.There are eight build project configurations:</ul>
 <p>To compile the wpcap.dll, load the project <i>wpcap.sln</i> contained in the directory 
 wpcap\PRJ
@@ -199,8 +199,8 @@ files.</p>
 <p><i>Note</i>: wpcap.dll contains the source code of libpcap from
 <a href="http://www.tcpdump.org">www.tcpdump.org</a>, with some modifications 
 for remote capture. You will be able to include and build a different libpcap 
-version simply copying it in the directory <i>winpcap\wpcap\prj</i> of the 
-WinPcap source code distribution, but you must use the &quot;Debug&quot; or &quot;Release&quot; 
+version simply copying it in the directory <i>NetworkTools\wpcap\prj</i> of the 
+NetworkTools source code distribution, but you must use the &quot;Debug&quot; or &quot;Release&quot; 
 build configurations.<br>
 &nbsp;</p>
 

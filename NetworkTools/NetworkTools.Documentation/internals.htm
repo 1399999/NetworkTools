@@ -8,14 +8,14 @@
 </head>
 
 <body>
-This portion of the manual describes the internal structure and interfaces of WinPcap, 
+This portion of the manual describes the internal structure and interfaces of NetworkTools, 
 starting from the lowest-level module. It is targeted at people that must extend 
 or modify this software, or to the ones interested in how it works. Therefore, 
-developers who just want to use WinPcap in their software don't need to read it.
+developers who just want to use NetworkTools in their software don't need to read it.
 
-<h2>WinPcap structure</h2>
-<p>Quoted from the home page of winpcap:</p>
-<p><i>WinPcap is an architecture for packet capture and network analysis for the
+<h2>NetworkTools structure</h2>
+<p>Quoted from the home page of NetworkTools:</p>
+<p><i>NetworkTools is an architecture for packet capture and network analysis for the
 Win32 platforms. It includes a kernel-level packet filter, a
 low-level dynamic link library (packet.dll), and a high-level and
 system-independent library (wpcap.dll).</i></p>
@@ -23,11 +23,11 @@ system-independent library (wpcap.dll).</i></p>
 that requires a strict interaction with the network adapter and with the
 operating system, in particular with its networking implementation, so a simple
 library is not sufficient.</p>
-<p>The following figure shows the various components of WinPcap:</p>
+<p>The following figure shows the various components of NetworkTools:</p>
 <p align="center">
 <img src="internals-arch.gif" width="280" height="355">
 <p align="center">
-<b>Main components of WinPcap.</b>
+<b>Main components of NetworkTools.</b>
 <p>First, a capture system needs to bypass the operating systems's protocol stack in order to access
 the raw data transiting on the network. This requires a portion
 running inside the kernel of OS, interacting directly with the network interface
@@ -44,7 +44,7 @@ simple to use mechanism to obtain statistics on the traffic (e.g. it is possible
 to obtain the network load or the amount of data exchanged between two hosts).</p>
 <p>Second, the capture system must export an interface that user-level
 applications will use to take advantage of the features provided by the kernel
-driver. WinPcap provides two different libraries: <i>packet.dll</i> and <i>wpcap.dll</i>.&nbsp;</p>
+driver. NetworkTools provides two different libraries: <i>packet.dll</i> and <i>wpcap.dll</i>.&nbsp;</p>
 <p>
 The first one offers a low-level API that can be used to directly access the
 functions of the driver, with a programming interface independent from the

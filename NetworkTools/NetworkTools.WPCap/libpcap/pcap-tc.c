@@ -796,7 +796,7 @@ static int TcInject(pcap_t *p, const void *buf, size_t size)
 	}
 
 	/*
-	 * we assume that the packet is without the checksum, as common with WinPcap
+	 * we assume that the packet is without the checksum, as common with NetworkTools
 	 */
 	memset(&header, 0, sizeof(header));
 

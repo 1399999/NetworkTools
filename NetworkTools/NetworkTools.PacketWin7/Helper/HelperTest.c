@@ -1,9 +1,9 @@
 /***************************************************************************
- * HelperTest.c -- A program used to testHelper.exe						   *
+ * NetworkToolsHelperTest.c -- A program used to test NetworkToolsHelper.exe             *
  * Note: this code is now integrated into packet.dll, this file is only    *
  * used for test. This is for "Admin-only mode", as packet.dll runs on     *
- * non-Admin level and Helper.exe runs on Admin level. If user denies	   *
- * the UAC prompt, Helper.exe will not start.							   *
+ * non-Admin level and NetworkToolsHelper.exe runs on Admin level. If user denies *
+ * the UAC prompt, NetworkToolsHelper.exe will not start.                         *
  *                                                                         *
  * This program is based on Microsoft example:                             *
  * https://msdn.microsoft.com/en-us/library/windows/desktop/aa365592%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
@@ -370,3 +370,4 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
+

@@ -1,16 +1,16 @@
 /*!
 
-\mainpage WinPcap Documentation
+\mainpage NetworkTools Documentation
 
-\image html winpcap.gif
+\image html NetworkTools.gif
 
 \htmlonly
 
 <dl>
   <dt><strong>Authors:</strong></dt>
-  <dd>The WinPcap Team</dd>
+  <dd>The NetworkTools Team</dd>
   <dt><strong>Home page:</strong></dt>
-  <dd><a href="http://www.winpcap.org">http://www.winpcap.org</a></dd>
+  <dd><a href="http://www.NetworkTools.org">http://www.NetworkTools.org</a></dd>
 </dl>
 <hr>
 

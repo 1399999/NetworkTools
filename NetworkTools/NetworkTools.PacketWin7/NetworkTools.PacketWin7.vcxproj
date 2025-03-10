@@ -127,7 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Dll\AdInfo.c" />
+    <ClCompile Include="Dll\AdInfo.cpp" />
     <ClCompile Include="Dll\netcfgapi.cpp" />
     <ClCompile Include="Dll\NpflmExt.c" />
     <ClCompile Include="Dll\Packet32.c" />

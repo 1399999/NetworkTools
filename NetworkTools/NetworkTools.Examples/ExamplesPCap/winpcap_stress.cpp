@@ -1,5 +1,5 @@
 /*============================================================================*
- * FILE: winpcap_stress.c
+ * FILE: NetworkTools_stress.c
  *============================================================================*
  *
  * COPYRIGHT (C) 2006 BY
@@ -18,7 +18,7 @@
  *
  *===========================================================================*
  *
- * This program is a generic "stress test" for winpcap. It creates several threads
+ * This program is a generic "stress test" for NetworkTools. It creates several threads
  * each of which opens an adapter, captures some packets and then closes it.
  * The user can specify:
  *
@@ -136,12 +136,12 @@ UCHAR TxRateInfoTable[] =
 
 void usage()
 {
-	printf("winpcap_stress: utility that stresses winpcap by opening and capturing from multiple adapters at the same time.\n");
-	printf("   Usage: winpcap_stress <nthreads> <adapter_substring_to_match>\n\n"
+	printf("NetworkTools_stress: utility that stresses NetworkTools by opening and capturing from multiple adapters at the same time.\n");
+	printf("   Usage: NetworkTools_stress <nthreads> <adapter_substring_to_match>\n\n"
 		"   Examples:\n"
-		"      winpcap_stress\n"
-		"      winpcap_stress 10\n\n"
-		"      winpcap_stress 10 \\Device\\NPF_{ \n");
+		"      NetworkTools_stress\n"
+		"      NetworkTools_stress 10\n\n"
+		"      NetworkTools_stress 10 \\Device\\NPF_{ \n");
 }
 
 /////////////////////////////////////////////////////////////////////

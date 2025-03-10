@@ -43,7 +43,7 @@
 #include "time_calls.h"
 
 
- /* error codes */
+/* error codes */
 #define		TME_ERROR			0	
 #define		TME_SUCCESS			1
 #define		TME_TRUE			2
@@ -93,9 +93,9 @@
 struct __TME_DATA;
 
 /* TME callback prototypes */
-typedef uint32(*lut_fcn)(uint8* key, struct __TME_DATA* data,
+typedef uint32 (*lut_fcn)(uint8* key, struct __TME_DATA* data,
 	MEM_TYPE* mem_ex, struct time_conv* time_ref);
-typedef uint32(*exec_fcn)(uint8* block, uint32 pkt_size,
+typedef uint32 (*exec_fcn)(uint8* block, uint32 pkt_size,
 	struct __TME_DATA* data, MEM_TYPE* mem_ex, uint8* mem_data);
 
 /* DO NOT MODIFY THIS STRUCTURE!!!! GV */
@@ -149,7 +149,7 @@ static __inline int32 IS_DELETABLE(void* timestamp, TME_DATA* data)
 
 	if (data->enable_deletion == FALSE)
 		return FALSE;
-	if (data->filled_entries < data->max_fill_state)
+	if (data->filled_entries< data->max_fill_state)
 		return FALSE;
 	if ((ts->tv_sec + DELTA_READ) < data->last_read.tv_sec)
 		return TRUE;

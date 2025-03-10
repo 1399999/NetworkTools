@@ -7,6 +7,8 @@
 #include "LoopbackRecord.h"
 #include "LoopbackRename2.h"
 
+#include "debug.h"
+
 #include <shlobj.h>
 
 #define BUF_SIZE 255
@@ -84,8 +86,12 @@ void addDevID_Pre(TCHAR strDevID[]) //DevID is in form like: "ROOT\\NET\\0008"
 
 int getNetworkToolsLoopbackAdapterID()
 {
+	TRACE_ENTER();
+
 	if (g_DevIDCount == g_DevIDCount_Pre)
 	{
+		TRACE_PRINT1("getNetworkToolsLoopbackAdapterID: error, g_DevIDCount = g_DevIDCount_Pre = 0x%d.", g_DevIDCount);
+		TRACE_EXIT();
 		return -1;
 	}
 
@@ -102,10 +108,14 @@ int getNetworkToolsLoopbackAdapterID()
 		}
 		if (found == 0)
 		{
+			TRACE_PRINT1("getNetworkToolsLoopbackAdapterID: succeed, g_DevIDs[i] = 0x%d.", g_DevIDs[i]);
+			TRACE_EXIT();
 			return g_DevIDs[i];
 		}
 	}
 
+	TRACE_PRINT2("getNetworkToolsLoopbackAdapterID: error, g_DevIDCount = 0x%d, g_DevIDCount_Pre = 0x%d.", g_DevIDCount, g_DevIDCount_Pre);
+	TRACE_EXIT();
 	return -1;
 }
 
@@ -536,6 +546,8 @@ Return Value:
 
 --*/
 {
+	TRACE_ENTER();
+
     HDEVINFO devs = INVALID_HANDLE_VALUE;
     IdEntry * templ = NULL;
     int failcode = EXIT_FAIL;
@@ -554,6 +566,7 @@ Return Value:
     UNREFERENCED_PARAMETER(BaseName);
 
     if(!argc) {
+		TRACE_EXIT();
         return EXIT_USAGE;
     }
 
@@ -713,6 +726,9 @@ final:
     if(devs != INVALID_HANDLE_VALUE) {
         SetupDiDestroyDeviceInfoList(devs);
     }
+
+	TRACE_PRINT1("EnumerateDevices: failcode = 0x%d.", failcode);
+	TRACE_EXIT();
     return failcode;
 
 }
@@ -902,51 +918,51 @@ Return Value:
     return EXIT_OK;
 }
 
-int cmdStatus(_In_ LPCTSTR BaseName, _In_opt_ LPCTSTR Machine, _In_ DWORD Flags, _In_ int argc, _In_reads_(argc) PTSTR argv[])
-/*++
-
-Routine Description:
-
-    STATUS <id> ...
-    use EnumerateDevices to do hardwareID matching
-    for each match, dump status to stdout
-    note that we only enumerate present devices
-
-Arguments:
-
-    BaseName  - name of executable
-    Machine   - if non-NULL, remote machine
-    argc/argv - remaining parameters - passed into EnumerateDevices
-
-Return Value:
-
-    EXIT_xxxx
-
---*/
-{
-    GenericContext context;
-    int failcode;
-
-    UNREFERENCED_PARAMETER(Flags);
-
-    if(!argc) {
-        return EXIT_USAGE;
-    }
-
-    context.count = 0;
-    context.control = FIND_DEVICE | FIND_STATUS;
-    failcode = EnumerateDevices(BaseName,Machine,DIGCF_PRESENT,argc,argv,FindCallback,&context);
-
-    if(failcode == EXIT_OK) {
-
-        if(!context.count) {
-            FormatToStream(stdout,Machine?MSG_FIND_TAIL_NONE:MSG_FIND_TAIL_NONE_LOCAL,Machine);
-        } else {
-            FormatToStream(stdout,Machine?MSG_FIND_TAIL:MSG_FIND_TAIL_LOCAL,context.count,Machine);
-        }
-    }
-    return failcode;
-}
+// int cmdStatus(_In_ LPCTSTR BaseName, _In_opt_ LPCTSTR Machine, _In_ DWORD Flags, _In_ int argc, _In_reads_(argc) PTSTR argv[])
+// /*++
+// 
+// Routine Description:
+// 
+//     STATUS <id> ...
+//     use EnumerateDevices to do hardwareID matching
+//     for each match, dump status to stdout
+//     note that we only enumerate present devices
+// 
+// Arguments:
+// 
+//     BaseName  - name of executable
+//     Machine   - if non-NULL, remote machine
+//     argc/argv - remaining parameters - passed into EnumerateDevices
+// 
+// Return Value:
+// 
+//     EXIT_xxxx
+// 
+// --*/
+// {
+//     GenericContext context;
+//     int failcode;
+// 
+//     UNREFERENCED_PARAMETER(Flags);
+// 
+//     if(!argc) {
+//         return EXIT_USAGE;
+//     }
+// 
+//     context.count = 0;
+//     context.control = FIND_DEVICE | FIND_STATUS;
+//     failcode = EnumerateDevices(BaseName,Machine,DIGCF_PRESENT,argc,argv,FindCallback,&context);
+// 
+//     if(failcode == EXIT_OK) {
+// 
+//         if(!context.count) {
+//             FormatToStream(stdout,Machine?MSG_FIND_TAIL_NONE:MSG_FIND_TAIL_NONE_LOCAL,Machine);
+//         } else {
+//             FormatToStream(stdout,Machine?MSG_FIND_TAIL:MSG_FIND_TAIL_LOCAL,context.count,Machine);
+//         }
+//     }
+//     return failcode;
+// }
 
 int cmdUpdate(_In_ LPCTSTR BaseName, _In_opt_ LPCTSTR Machine, _In_ DWORD Flags, _In_ int argc, _In_reads_(argc) PTSTR argv[])
 /*++
@@ -967,6 +983,8 @@ Return Value:
 
 --*/
 {
+	TRACE_ENTER();
+
     HMODULE newdevMod = NULL;
     int failcode = EXIT_FAIL;
     UpdateDriverForPlugAndPlayDevicesProto UpdateFn;
@@ -980,41 +998,59 @@ Return Value:
     UNREFERENCED_PARAMETER(BaseName);
     UNREFERENCED_PARAMETER(Flags);
 
-    if(Machine) {
+    if (Machine)
+	{
         //
         // must be local machine
         //
+		TRACE_PRINT1("cmdUpdate: error, Machine = %s.", Machine);
+		TRACE_EXIT();
         return EXIT_USAGE;
     }
-    if(argc<2) {
+    if (argc < 2)
+	{
         //
         // at least HWID required
         //
+		TRACE_PRINT1("cmdUpdate: error, argc = %d.", argc);
+		TRACE_EXIT();
         return EXIT_USAGE;
     }
     inf = argv[0];
-    if(!inf[0]) {
+    if (!inf[0])
+	{
+		TRACE_PRINT1("cmdUpdate: error, argv[0] = %s.", argv[0]);
+		TRACE_EXIT();
         return EXIT_USAGE;
     }
 
     hwid = argv[1];
-    if(!hwid[0]) {
+    if (!hwid[0])
+	{
+		TRACE_PRINT1("cmdUpdate: error, argv[1] = %s.", argv[1]);
+		TRACE_EXIT();
         return EXIT_USAGE;
     }
     //
     // Inf must be a full pathname
     //
-    res = GetFullPathName(inf,MAX_PATH,InfPath,NULL);
-    if((res >= MAX_PATH) || (res == 0)) {
+    res = GetFullPathName(inf, MAX_PATH, InfPath, NULL);
+    if ((res >= MAX_PATH) || (res == 0))
+	{
         //
         // inf pathname too long
         //
+		TRACE_PRINT1("GetFullPathName: error, res = %d.", res);
+		TRACE_EXIT();
         return EXIT_FAIL;
     }
-    if(GetFileAttributes(InfPath)==(DWORD)(-1)) {
+    if (GetFileAttributes(InfPath) == (DWORD) (-1))
+	{
         //
         // inf doesn't exist
         //
+		TRACE_PRINT1("GetFileAttributes: error, InfPath = %s.", InfPath);
+		TRACE_EXIT();
         return EXIT_FAIL;
     }
     inf = InfPath;
@@ -1024,31 +1060,36 @@ Return Value:
     // make use of UpdateDriverForPlugAndPlayDevices
     //
     newdevMod = LoadLibrary(TEXT("newdev.dll"));
-    if(!newdevMod) {
+    if (!newdevMod)
+	{
         goto final;
     }
-    UpdateFn = (UpdateDriverForPlugAndPlayDevicesProto)GetProcAddress(newdevMod,UPDATEDRIVERFORPLUGANDPLAYDEVICES);
-    if(!UpdateFn)
+    UpdateFn = (UpdateDriverForPlugAndPlayDevicesProto) GetProcAddress(newdevMod, UPDATEDRIVERFORPLUGANDPLAYDEVICES);
+    if (!UpdateFn)
     {
         goto final;
     }
 
-    FormatToStream(stdout,inf ? MSG_UPDATE_INF : MSG_UPDATE,hwid,inf);
+    FormatToStream(stdout, inf ? MSG_UPDATE_INF : MSG_UPDATE, hwid, inf);
 
-    if(!UpdateFn(NULL,hwid,inf,flags,&reboot)) {
+    if (!UpdateFn(NULL, hwid, inf, flags, &reboot))
+	{
         goto final;
     }
 
-    FormatToStream(stdout,MSG_UPDATE_OK);
+    FormatToStream(stdout, MSG_UPDATE_OK);
 
     failcode = reboot ? EXIT_REBOOT : EXIT_OK;
 
 final:
 
-    if(newdevMod) {
+    if (newdevMod)
+	{
         FreeLibrary(newdevMod);
     }
 
+	TRACE_PRINT1("cmdUpdate: failcode = %d.", failcode);
+	TRACE_EXIT();
     return failcode;
 }
 
@@ -1072,6 +1113,8 @@ Return Value:
 
 --*/
 {
+	TRACE_ENTER();
+
     HDEVINFO DeviceInfoSet = INVALID_HANDLE_VALUE;
     SP_DEVINFO_DATA DeviceInfoData;
     GUID ClassGUID;
@@ -1080,52 +1123,70 @@ Return Value:
     TCHAR InfPath[MAX_PATH];
     int failcode = EXIT_FAIL;
     LPCTSTR hwid = NULL;
+	DWORD res;
     LPCTSTR inf = NULL;
 
-    if(Machine) {
+    if (Machine)
+	{
         //
         // must be local machine
         //
+		TRACE_PRINT1("cmdInstall: error, Machine = %s.", Machine);
+		TRACE_EXIT();
         return EXIT_USAGE;
     }
-    if(argc<2) {
+    if (argc < 2)
+	{
         //
         // at least HWID required
         //
+		TRACE_PRINT1("cmdInstall: error, argc = %d.", argc);
+		TRACE_EXIT();
         return EXIT_USAGE;
     }
     inf = argv[0];
-    if(!inf[0]) {
+    if (!inf[0])
+	{
+		TRACE_PRINT1("cmdUpdate: error, argv[0] = %s.", argv[0]);
+		TRACE_EXIT();
         return EXIT_USAGE;
     }
 
     hwid = argv[1];
-    if(!hwid[0]) {
+    if (!hwid[0])
+	{
+		TRACE_PRINT1("cmdUpdate: error, argv[1] = %s.", argv[1]);
+		TRACE_EXIT();
         return EXIT_USAGE;
     }
 
     //
     // Inf must be a full pathname
     //
-    if(GetFullPathName(inf,MAX_PATH,InfPath,NULL) >= MAX_PATH) {
+	res = GetFullPathName(inf, MAX_PATH, InfPath, NULL);
+	if (res >= MAX_PATH)
+	{
         //
         // inf pathname too long
         //
+		TRACE_PRINT1("GetFullPathName: error, res = %d.", res);
+		TRACE_EXIT();
         return EXIT_FAIL;
     }
 
     //
     // List of hardware ID's must be double zero-terminated
     //
-    ZeroMemory(hwIdList,sizeof(hwIdList));
-    if (FAILED(_tcscpy_s(hwIdList,LINE_LEN,hwid))) {
+    ZeroMemory(hwIdList, sizeof(hwIdList));
+    if (FAILED(_tcscpy_s(hwIdList, LINE_LEN, hwid)))
+	{
         goto final;
     }
 
     //
     // Use the INF File to extract the Class GUID.
     //
-    if (!SetupDiGetINFClass(InfPath,&ClassGUID,ClassName,sizeof(ClassName)/sizeof(ClassName[0]),0))
+    if (!SetupDiGetINFClass(InfPath, &ClassGUID, ClassName, sizeof(ClassName) / sizeof(ClassName[0]), 0))
     {
         goto final;
     }
@@ -1133,8 +1194,8 @@ Return Value:
     //
     // Create the container for the to-be-created Device Information Element.
     //
-    DeviceInfoSet = SetupDiCreateDeviceInfoList(&ClassGUID,0);
-    if(DeviceInfoSet == INVALID_HANDLE_VALUE)
+    DeviceInfoSet = SetupDiCreateDeviceInfoList(&ClassGUID, 0);
+    if (DeviceInfoSet == INVALID_HANDLE_VALUE)
     {
         goto final;
     }
@@ -1158,11 +1219,11 @@ Return Value:
     //
     // Add the HardwareID to the Device's HardwareID property.
     //
-    if(!SetupDiSetDeviceRegistryProperty(DeviceInfoSet,
+    if (!SetupDiSetDeviceRegistryProperty(DeviceInfoSet,
         &DeviceInfoData,
         SPDRP_HARDWAREID,
-        (LPBYTE)hwIdList,
-        (lstrlen(hwIdList)+1+1)*sizeof(TCHAR)))
+        (LPBYTE) hwIdList,
+        (lstrlen(hwIdList) + 1 + 1) * sizeof(TCHAR)))
     {
         goto final;
     }
@@ -1196,14 +1257,17 @@ Return Value:
     //
     // update the driver for the device we just created
     //
-    failcode = cmdUpdate(BaseName,Machine,Flags,argc,argv);
+    failcode = cmdUpdate(BaseName, Machine, Flags, argc, argv);
 
 final:
 
-    if (DeviceInfoSet != INVALID_HANDLE_VALUE) {
+    if (DeviceInfoSet != INVALID_HANDLE_VALUE)
+	{
         SetupDiDestroyDeviceInfoList(DeviceInfoSet);
     }
 
+	TRACE_PRINT1("cmdInstall: failcode = %d.", failcode);
+	TRACE_EXIT();
     return failcode;
 }
 
@@ -1227,6 +1291,8 @@ Return Value:
 
 --*/
 {
+	TRACE_ENTER();
+
     GenericContext context;
     TCHAR strRemove[80] = _T("Removed");
     TCHAR strReboot[80] = _T("Removed on reboot");
@@ -1235,16 +1301,22 @@ Return Value:
 
     UNREFERENCED_PARAMETER(Flags);
 
-    if(!argc) {
+    if (!argc)
+	{
         //
         // arguments required
         //
+		TRACE_PRINT1("cmdRemove: error, argc = %d.", argc);
+		TRACE_EXIT();
         return EXIT_USAGE;
     }
-    if(Machine) {
+    if (Machine)
+	{
         //
         // must be local machine as we need to involve class/co installers
         //
+		TRACE_PRINT1("cmdRemove: error, Machine = %s.", Machine);
+		TRACE_EXIT();
         return EXIT_USAGE;
     }
 
@@ -1253,19 +1325,27 @@ Return Value:
     context.strReboot = strReboot;
     context.strSuccess = strRemove;
     context.strFail = strFail;
-    failcode = EnumerateDevices(BaseName,Machine,DIGCF_PRESENT,argc,argv,RemoveCallback,&context);
+    failcode = EnumerateDevices(BaseName, Machine, DIGCF_PRESENT, argc, argv, RemoveCallback, &context);
 
-    if(failcode == EXIT_OK) {
-
-        if(!context.count) {
-            FormatToStream(stdout,MSG_REMOVE_TAIL_NONE);
-        } else if(!context.reboot) {
-            FormatToStream(stdout,MSG_REMOVE_TAIL,context.count);
-        } else {
-            FormatToStream(stdout,MSG_REMOVE_TAIL_REBOOT,context.count);
+    if (failcode == EXIT_OK)
+	{
+        if (!context.count)
+		{
+            FormatToStream(stdout, MSG_REMOVE_TAIL_NONE);
+        }
+		else if (!context.reboot)
+		{
+            FormatToStream(stdout, MSG_REMOVE_TAIL, context.count);
+        }
+		else
+		{
+            FormatToStream(stdout, MSG_REMOVE_TAIL_REBOOT, context.count);
             failcode = EXIT_REBOOT;
         }
     }
+
+	TRACE_PRINT1("cmdRemove: failcode = %d.", failcode);
+	TRACE_EXIT();
     return failcode;
 }
 
@@ -1284,34 +1364,52 @@ Return Value:
 
 BOOL GetLoopbackINFFilePath(TCHAR strLoopbackInfPath[])
 {
+	TRACE_ENTER();
+
 	TCHAR tmp[MAX_PATH];
 	if (!SHGetSpecialFolderPath(NULL, tmp, CSIDL_WINDOWS, FALSE))
 	{
+		TRACE_PRINT("SHGetSpecialFolderPath: error.");
+		TRACE_EXIT();
 		return FALSE;
 	}
 	_stprintf_s(strLoopbackInfPath, MAX_PATH + 30, _T("%s\\inf\\netloop.inf"), tmp);
+
+	TRACE_PRINT1("SHGetSpecialFolderPath: succeed, strLoopbackInfPath = %s.", strLoopbackInfPath);
+	TRACE_EXIT();
 	return TRUE;
 }
 
-BOOL GetConfigFilePath(char strConfigPath[])
+BOOL GetConfigFilePath(TCHAR strConfigPath[])
 {
-	char tmp[MAX_PATH];
-	char drive[_MAX_DRIVE];
-	char dir[_MAX_DIR];
-	if (!GetModuleFileNameA(NULL, tmp, MAX_PATH))
+	TRACE_ENTER();
+
+	TCHAR tmp[MAX_PATH];
+	TCHAR drive[_MAX_DRIVE];
+	TCHAR dir[_MAX_DIR];
+	if (!GetModuleFileName(NULL, tmp, MAX_PATH))
 	{
+		TRACE_PRINT1("GetModuleFileName: error, errCode = 0x%08x.", GetLastError());
+		TRACE_EXIT();
 		return FALSE;
 	}
-	_splitpath_s(tmp, drive, _MAX_DRIVE, dir, _MAX_DIR, NULL, 0, NULL, 0);
-	sprintf_s(strConfigPath, MAX_PATH + 30, "%s%sloopback.ini", drive, dir);
+	_tsplitpath_s(tmp, drive, _MAX_DRIVE, dir, _MAX_DIR, NULL, 0, NULL, 0);
+	_stprintf_s(strConfigPath, MAX_PATH + 30, _T("%s%sloopback.ini"), drive, dir);
+
+	TRACE_PRINT1("GetModuleFileName: succeed, strConfigPath = %s.", strConfigPath);
+	TRACE_EXIT();
 	return TRUE;
 }
 
 BOOL InstallLoopbackDeviceInternal()
 {
+	TRACE_ENTER();
+
 	TCHAR strLoopbackInfPath[MAX_PATH + 30];
 	if (!GetLoopbackINFFilePath(strLoopbackInfPath))
 	{
+		TRACE_PRINT("GetLoopbackINFFilePath: error.");
+		TRACE_EXIT();
 		return FALSE;
 	}
 
@@ -1319,16 +1417,21 @@ BOOL InstallLoopbackDeviceInternal()
 	TCHAR *strArgVs[2] = {strLoopbackInfPath, _T("*msloop")}; // Inf File: netloop.inf, Hardware ID: *msloop
 	if (cmdInstall(_T("devcon.exe"), NULL, 0, 2, strArgVs) == EXIT_OK)
 	{
+		TRACE_EXIT();
 		return TRUE;
 	}
 	else
 	{
+		TRACE_PRINT("cmdInstall: error.");
+		TRACE_EXIT();
 		return FALSE;
 	}
 }
 
 BOOL RemoveLoopbackDeviceInternal(int iDevID)
 {
+	TRACE_ENTER();
+
 	TCHAR strDevID[BUF_SIZE];
 	_stprintf_s(strDevID, BUF_SIZE, _T("@ROOT\\NET\\%04d"), iDevID);
 
@@ -1336,53 +1439,74 @@ BOOL RemoveLoopbackDeviceInternal(int iDevID)
 	TCHAR *strArgVs[1] = {strDevID}; // Device ID: @ROOT\NET\000X
 	if (cmdRemove(_T("devcon.exe"), NULL, 0, 1, strArgVs) == EXIT_OK)
 	{
+		TRACE_EXIT();
 		return TRUE;
 	}
 	else
 	{
+		TRACE_PRINT("cmdRemove: error.");
+		TRACE_EXIT();
 		return FALSE;
 	}
 }
 
 BOOL SaveDevIDToFile(int iDevID)
 {
-	char strLoopbackIDFilePath[MAX_PATH + 30];
+	TRACE_ENTER();
+
+	TCHAR strLoopbackIDFilePath[MAX_PATH + 30];
 	if (!GetConfigFilePath(strLoopbackIDFilePath))
 	{
+		TRACE_PRINT("GetConfigFilePath: error.");
+		TRACE_EXIT();
 		return FALSE;
 	}
 
 	FILE *fp;
-	if ((fp = fopen(strLoopbackIDFilePath, "w")) == NULL)
+	if (_tfopen_s(&fp, strLoopbackIDFilePath, _T("w")) != 0)
 	{
+		TRACE_PRINT1("_tfopen_s: error, errCode = 0x%08x.", errno);
+		TRACE_EXIT();
 		return FALSE;
 	}
-	fprintf(fp, "%d", iDevID);
+	_ftprintf(fp, _T("%d"), iDevID);
 	fclose(fp);
+
+	TRACE_EXIT();
 	return TRUE;
 }
 
 int LoadDevIDFromFile()
 {
-	char strLoopbackIDFilePath[MAX_PATH + 30];
+	TRACE_ENTER();
+
+	TCHAR strLoopbackIDFilePath[MAX_PATH + 30];
 	if (!GetConfigFilePath(strLoopbackIDFilePath))
 	{
+		TRACE_PRINT("GetConfigFilePath: error.");
+		TRACE_EXIT();
 		return FALSE;
 	}
 
 	FILE *fp;
 	int iDevID;
-	if ((fp = fopen(strLoopbackIDFilePath, "r")) == NULL)
+	if (_tfopen_s(&fp, strLoopbackIDFilePath, _T("r")) != 0)
 	{
+		TRACE_PRINT1("_tfopen_s: error, errCode = 0x%08x.", errno);
+		TRACE_EXIT();
 		return -1;
 	}
-	fscanf_s(fp, "%d", &iDevID);
+	_ftscanf_s(fp, _T("%d"), &iDevID);
 	fclose(fp);
+
+	TRACE_EXIT();
 	return iDevID;
 }
 
 BOOL InstallLoopbackAdapter()
 {
+	TRACE_ENTER();
+
 	BOOL isWin10 = IsWindowsWin10();
 
 	if (isWin10)
@@ -1392,12 +1516,16 @@ BOOL InstallLoopbackAdapter()
 
 	if (!InstallLoopbackDeviceInternal())
 	{
+		TRACE_PRINT("InstallLoopbackDeviceInternal: error.");
+		TRACE_EXIT();
 		return FALSE;
 	}
 
 	int iNetworkToolsAdapterID = g_DevInstanceID;
 	if (iNetworkToolsAdapterID == -1)
 	{
+		TRACE_PRINT("iNetworkToolsAdapterID == -1: error.");
+		TRACE_EXIT();
 		return FALSE;
 	}
 
@@ -1407,34 +1535,49 @@ BOOL InstallLoopbackAdapter()
 		{
 			if (!DoRenameLoopbackNetwork2())
 			{
+				TRACE_PRINT("DoRenameLoopbackNetwork2: error.");
+				TRACE_EXIT();
 				return FALSE;
 			}
 		}
 		else
 		{
+			TRACE_PRINT("RecordLoopbackDevice: error.");
+			TRACE_EXIT();
 			return FALSE;
 		}
 	}
 
 	if (!SaveDevIDToFile(iNetworkToolsAdapterID))
 	{
+		TRACE_PRINT("SaveDevIDToFile: error.");
+		TRACE_EXIT();
 		return FALSE;
 	}
+
+	TRACE_EXIT();
 	return TRUE;
 }
 
 BOOL UninstallLoopbackAdapter()
 {
+	TRACE_ENTER();
+
 	int iNetworkToolsAdapterID = LoadDevIDFromFile();
 	if (iNetworkToolsAdapterID == -1)
 	{
+		TRACE_PRINT("iNetworkToolsAdapterID == -1: error.");
+		TRACE_EXIT();
 		return FALSE;
 	}
 
 	if (!RemoveLoopbackDeviceInternal(iNetworkToolsAdapterID))
 	{
+		TRACE_PRINT("RemoveLoopbackDeviceInternal: error.");
+		TRACE_EXIT();
 		return FALSE;
 	}
 
+	TRACE_EXIT();
 	return TRUE;
 }

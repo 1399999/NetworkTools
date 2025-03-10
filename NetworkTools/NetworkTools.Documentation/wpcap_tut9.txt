@@ -4,7 +4,7 @@
 /** @defgroup wpcap_tut9 Gathering Statistics on the network traffic
  *  @{
 
-This lesson shows another advanced feature of WinPcap: the ability to collect statistics about network traffic. The statistical engine makes use of the kernel-level packet filter to efficiently classify the incoming packet.
+This lesson shows another advanced feature of NetworkTools: the ability to collect statistics about network traffic. The statistical engine makes use of the kernel-level packet filter to efficiently classify the incoming packet.
 You can take a look at the \ref NPF if you want to know more details.
 
 In order to use this feature, the programmer must open an adapter and put it in \e statistical \e mode. 

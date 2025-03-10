@@ -18,6 +18,7 @@
 #define _NETCFGAPI_H_INCLUDED
 
 #pragma warning(disable: 4996)
+#pragma warning(disable: 4311 4312)
 #include <iostream>
 #include <tchar.h>
 
@@ -39,7 +40,7 @@ HRESULT HrGetINetCfg(IN BOOL fGetWriteLock, IN LPCTSTR lpszAppName, OUT INetCfg*
 
 HRESULT HrReleaseINetCfg(INetCfg* pnc, BOOL fHasWriteLock);
 
-HRESULT HrInstallNetComponent(IN INetCfg* pnc, IN LPCTSTR szComponentId, IN const GUID* pguildClass, IN LPCTSTR lpszInfFullPath);
+HRESULT HrInstallNetComponent(IN INetCfg* pnc, IN const GUID* pguildClass, IN LPCTSTR lpszInfFullPath);
 
 HRESULT HrInstallComponent(IN INetCfg* pnc, IN LPCTSTR szComponentId, IN const GUID* pguidClass);
 
@@ -47,8 +48,8 @@ HRESULT HrUninstallNetComponent(IN INetCfg* pnc, IN LPCTSTR szComponentId);
 
 VOID ReleaseRef(IUnknown* punk);
 
-BOOL RestartAllBindings(INetCfg* netcfg, PCWSTR name);
+BOOL RestartAllBindings(INetCfg *netcfg, PCWSTR szComponentId);
 
-BOOL ConnectToNetCfg(PCWSTR name);
+BOOL ConnectToNetCfg(PCWSTR lpszPnpID, LPTSTR lpszAppName);
 
 #endif

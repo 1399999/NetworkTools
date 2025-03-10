@@ -1,12 +1,18 @@
 #pragma warning(disable: 4005 4201 4324)
 
 #ifndef _WIN64
-#define WIN32
+	#define WIN32
 #endif
 #define WIN_NT_DRIVER
 
-#define NDIS620 1 //NDIS 6.2 version (for Windows 7) is currently used
-//#define NDIS60 1
+#define NTDDI_WIN7 0x06010000
+#if (NTDDI_VERSION >= NTDDI_WIN7)
+#define NDIS_SUPPORT_NDIS620 1
+#define NDIS620 1 // NDIS 6.2 version (for Windows 7 and later)
+#else
+#define NDIS_SUPPORT_NDIS6 1
+#define NDIS60 1 // NDIS 6.0 version (for Windows Vista and later)
+#endif
 
 // Specify which version of the NDIS contract you will use here.
 // In many cases, 6.0 is the best choice.  You only need to select a later
@@ -24,7 +30,7 @@
 #define NPF_ALLOC_TAG '1234'
 #define NPF_REQUEST_ID '5678'
 
-//#pragma comment(lib, "ndis.lib")
+#define INVALID_HANDLE_VALUE ((HANDLE)(LONG_PTR)-1)
 
 #define WIN9X_COMPAT_SPINLOCK
 
@@ -37,3 +43,4 @@
 #include "macros.h"
 #define NTSTRSAFE_LIB
 #include <ntstrsafe.h>
+

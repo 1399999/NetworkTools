@@ -1,16 +1,16 @@
 /*!
 
-\mainpage WinPcap Documentation
+\mainpage NetworkTools Documentation
 
-\image html winpcap.gif
+\image html NetworkTools.gif
 
 \htmlonly
 
 <dl>
   <dt><strong>Authors:</strong></dt>
-  <dd>The WinPcap Team</dd>
+  <dd>The NetworkTools Team</dd>
   <dt><strong>Home page:</strong></dt>
-  <dd><a href="http://www.winpcap.org">http://www.winpcap.org</a></dd>
+  <dd><a href="http://www.NetworkTools.org">http://www.NetworkTools.org</a></dd>
 </dl>
 <hr>
 
@@ -41,7 +41,7 @@
  - \ref compilation
 - \ref remote
  - \ref remote_struct
- - Exported Functions. For a reference of the functions that support remote capture, see the "Windows-specific Extensions" in the WinPcap \ref wpcapfunc section.
+ - Exported Functions. For a reference of the functions that support remote capture, see the "Windows-specific Extensions" in the NetworkTools \ref wpcapfunc section.
  - \ref remote_pri_struct
 
 \htmlinclude intro.htm

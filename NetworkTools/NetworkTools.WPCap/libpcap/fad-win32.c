@@ -213,7 +213,7 @@ pcap_add_if_win32(pcap_if_t **devlist, char *name, const char *desc,
  * The list, as returned through "alldevsp", may be null if no interfaces
  * were up and could be opened.
  *
- * Win32 implementation, based on WinPcap
+ * Win32 implementation, based on NetworkTools
  */
 int
 pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf)

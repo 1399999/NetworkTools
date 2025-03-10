@@ -57,7 +57,7 @@ typedef BOOL (WINAPI *UpdateDriverForPlugAndPlayDevicesProto)(_In_opt_ HWND hwnd
 // Declarations
 //
 void FormatToStream(_In_ FILE * stream, _In_ DWORD fmt,...);
-int cmdStatus(_In_ LPCTSTR BaseName, _In_opt_ LPCTSTR Machine, _In_ DWORD Flags, _In_ int argc, _In_reads_(argc) PTSTR argv[]);
+/*int cmdStatus(_In_ LPCTSTR BaseName, _In_opt_ LPCTSTR Machine, _In_ DWORD Flags, _In_ int argc, _In_reads_(argc) PTSTR argv[]);*/
 int cmdUpdate(_In_ LPCTSTR BaseName, _In_opt_ LPCTSTR Machine, _In_ DWORD Flags, _In_ int argc, _In_reads_(argc) PTSTR argv[]);
 int cmdInstall(_In_ LPCTSTR BaseName, _In_opt_ LPCTSTR Machine, _In_ DWORD Flags, _In_ int argc, _In_reads_(argc) PTSTR argv[]);
 int cmdRemove(_In_ LPCTSTR BaseName, _In_opt_ LPCTSTR Machine, _In_ DWORD Flags, _In_ int argc, _In_reads_(argc) PTSTR argv[]);
@@ -65,7 +65,7 @@ typedef int (*CallbackFunc)(_In_ HDEVINFO Devs, _In_ PSP_DEVINFO_DATA DevInfo, _
 
 /*BOOL ListLoopbackAdapters();*/
 BOOL GetLoopbackINFFilePath(TCHAR strLoopbackInfPath[]);
-BOOL GetConfigFilePath(char strConfigPath[]);
+BOOL GetConfigFilePath(TCHAR strConfigPath[]);
 BOOL InstallLoopbackDeviceInternal();
 BOOL RemoveLoopbackDeviceInternal(int iDevID);
 BOOL SaveDevIDToFile(int iDevID);

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * @(#) $Header: /usr/cvsroot_private/winpcap/dox/libpcap/incs/pcap.h,v 1.5 2005/11/30 21:48:23 gianlucav Exp $ (LBL)
+ * @(#) $Header: /usr/cvsroot_private/NetworkTools/dox/libpcap/incs/pcap.h,v 1.5 2005/11/30 21:48:23 gianlucav Exp $ (LBL)
  */
 
 

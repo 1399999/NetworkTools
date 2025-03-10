@@ -27,7 +27,7 @@ void main(int argc, char** argv)
 		errbuf				// error buffer
 	)) == NULL)
 	{
-		fprintf(stderr, "\nUnable to open the adapter. %s is not supported by WinPcap\n", argv[1]);
+		fprintf(stderr, "\nUnable to open the adapter. %s is not supported by NetworkTools\n", argv[1]);
 		return;
 	}
 

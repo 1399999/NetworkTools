@@ -54,7 +54,7 @@ int main(int argc, char** argv)
 	struct pcap_pkthdr* header;
 	const u_char* pkt_data;
 
-	printf("pktdump_ex: prints the packets of the network using WinPcap.\n");
+	printf("pktdump_ex: prints the packets of the network using NetworkTools.\n");
 	printf("   Usage: pktdump_ex [-s source]\n\n"
 		"   Examples:\n"
 		"      pktdump_ex -s file://c:/temp/file.acp\n"

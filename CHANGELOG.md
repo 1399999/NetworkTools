@@ -55,3 +55,7 @@ Adds the majority of the libpcap library.
 # Version 0.1.5 [8 March 2025] (Build 0)
 
 Adds any necessary updates for up to Windows 10.
+
+# Version 0.1.6 [9 March 2025] (Build 0)
+
+Adds any necessary updates for up to 2017.

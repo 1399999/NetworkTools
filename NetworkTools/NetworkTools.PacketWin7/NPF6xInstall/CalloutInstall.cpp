@@ -1,5 +1,5 @@
 /*
-	This is used for installing the Windows Filtering Platform (WFP) callout driver, for capturing the loopback traffic, the used INF file is: npf(npcap)_wfp.inf
+	This is used for installing the Windows Filtering Platform (WFP) callout driver, for capturing the loopback traffic, the used INF file is: npf(NetworkTools)_wfp.inf
 */
 
 #include "CalloutInstall.h"
@@ -14,16 +14,20 @@ BOOL isFileExist(TCHAR szFileFullPath[])
 	WIN32_FIND_DATA FindFileData;
 	HANDLE hFind;
 
+	TRACE_ENTER();
+
 	hFind = FindFirstFile(szFileFullPath, &FindFileData);
 	if (hFind == INVALID_HANDLE_VALUE)
 	{
-		//printf("Invalid File Handle. Get Last Error reports %d ", GetLastError());
+		TRACE_PRINT2("FindFirstFile: error, szFileFullPath = %s, errCode = 0x%08x.", szFileFullPath, GetLastError());
+		TRACE_EXIT();
 		return FALSE;
 	}
 	else
 	{
-		//printf("The first file found is %s ", FindFileData.cFileName);
+		TRACE_PRINT1("FindFirstFile: succeed, szFileFullPath = %s.", szFileFullPath);
 		FindClose(hFind);
+		TRACE_EXIT();
 		return TRUE;
 	}
 }
@@ -32,6 +36,8 @@ BOOL InstallWFPCallout()
 {
 	DWORD nResult;
 
+	TRACE_ENTER();
+
 	// Get Path to Service INF File
 	// ----------------------------
 	// The INF file is assumed to be in the same folder as this application...
@@ -40,19 +46,23 @@ BOOL InstallWFPCallout()
 	if (nResult == 0)
 	{
 		TRACE_PRINT("Unable to get WFP callout INF file path");
+		TRACE_EXIT();
 		return FALSE;
 	}
 
 	if (!isFileExist(szFileFullPath))
 	{
 		TRACE_PRINT("WFP callout INF file doesn't exist");
+		TRACE_EXIT();
 		return FALSE;
 	}
 
 	TCHAR szCmd[_MAX_PATH * 2];
 	_stprintf_s(szCmd, _MAX_PATH * 2, TEXT("DefaultInstall 132 %s"), szFileFullPath);
 	InstallHinfSection(NULL, NULL, szCmd, 0);
+	TRACE_PRINT1("InstallHinfSection: executing, szCmd = %s.", szCmd);
 
+	TRACE_EXIT();
 	return TRUE;
 }
 
@@ -60,6 +70,8 @@ BOOL UninstallWFPCallout()
 {
 	DWORD nResult;
 
+	TRACE_ENTER();
+
 	// Get Path to Service INF File
 	// ----------------------------
 	// The INF file is assumed to be in the same folder as this application...
@@ -68,18 +80,22 @@ BOOL UninstallWFPCallout()
 	if (nResult == 0)
 	{
 		TRACE_PRINT("Unable to get WFP callout INF file path");
+		TRACE_EXIT();
 		return FALSE;
 	}
 
 	if (!isFileExist(szFileFullPath))
 	{
 		TRACE_PRINT("WFP callout INF file doesn't exist");
+		TRACE_EXIT();
 		return FALSE;
 	}
 
 	TCHAR szCmd[_MAX_PATH * 2];
 	_stprintf_s(szCmd, _MAX_PATH * 2, TEXT("DefaultUninstall 132 %s"), szFileFullPath);
 	InstallHinfSection(NULL, NULL, szCmd, 0);
+	TRACE_PRINT1("InstallHinfSection: executing, szCmd = %s.", szCmd);
 
+	TRACE_EXIT();
 	return TRUE;
 }

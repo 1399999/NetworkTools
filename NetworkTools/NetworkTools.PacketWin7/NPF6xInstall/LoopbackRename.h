@@ -7,4 +7,6 @@
 
 #include "..\..\Common\WpcapNames.h"
 
-BOOL RenameLoopbackNetwork(wchar_t strDeviceName[]);
+#include <tchar.h>
+
+BOOL RenameLoopbackNetwork(TCHAR strDeviceName[]);

@@ -552,7 +552,7 @@ int pcap_minor_version(pcap_t* p);
 	   pcap_open_offline(), or NULL,  if  a  network  device  was
 	   opened with pcap_open_live().
 	   \deprecated Due to incompatibilities between the C Runtime (CRT) used to
-	   compile WinPcap and the one used by WinPcap-based applications, this function
+	   compile NetworkTools and the one used by NetworkTools-based applications, this function
 	   may return an invalid FILE pointer, i.e. a descriptor that causes all the standard I/O stream
 	   functions (ftell, fseek, fclose...) to fail. The function is still available for
 	   backwards binary compatibility, only.
@@ -687,7 +687,7 @@ int pcap_offline_filter(struct bpf_program* prog, const struct pcap_pkthdr* head
 
 /*! \brief Save a capture to file.
 
-  \note: this function does not work in current version of WinPcap.
+  \note: this function does not work in current version of NetworkTools.
 
 pcap_live_dump() dumps the network traffic from an interface to
 a file. Using this function the dump is performed at kernel level, therefore it is more efficient than using
@@ -714,7 +714,7 @@ int pcap_live_dump(pcap_t* p, char* filename, int maxsize, int maxpacks);
 
 /*! \brief Return the status of the kernel dump process, i.e. tells if one of the limits defined with pcap_live_dump() has been reached.
 
-	\note: this function does not work in current version of WinPcap.
+	\note: this function does not work in current version of NetworkTools.
 
 pcap_live_dump_ended() informs the user about the limits that were set with a previous call to
 pcap_live_dump() on the interface pointed by p: if the return value is nonzero, one of the limits has been
@@ -833,7 +833,7 @@ pcap_sendqueue_queue() adds a packet at the end of the send queue pointed by the
 pkt_header points to a pcap_pkthdr structure with the timestamp and the length of the packet, pkt_data
 points to a buffer with the data of the packet.
 
-The pcap_pkthdr structure is the same used by WinPcap and libpcap to store the packets in a file,
+The pcap_pkthdr structure is the same used by NetworkTools and libpcap to store the packets in a file,
 therefore sending a capture file is straightforward.
 'Raw packet' means that the sending application will have to include the protocol headers, since every packet
 is sent to the network 'as is'. The CRC of the packets needs not to be calculated, because it will be
@@ -892,7 +892,7 @@ u_int pcap_sendqueue_transmit(pcap_t* p, pcap_send_queue* queue, int sync);
 	Vice versa, the output that comes from pcap_findalldevs() must be formatted with the new
 	pcap_createsrcstr() before passing the source identifier to the pcap_open().
 
-	\param source: a char* buffer that keeps the 'source localtion', according to the new WinPcap
+	\param source: a char* buffer that keeps the 'source localtion', according to the new NetworkTools
 	syntax. This source will be examined looking for adapters (local or remote) (e.g. source
 	can be 'rpcap://' for local adapters or 'rpcap://host:port' for adapters on a remote host)
 	or pcap files (e.g. source can be 'file://c:/myfolder/').<br>
@@ -919,7 +919,7 @@ u_int pcap_sendqueue_transmit(pcap_t* p, pcap_send_queue* queue, int sync);
 
 	The error message is returned in the 'errbuf' variable. An error could be due to
 	several reasons:
-	- libpcap/WinPcap was not installed on the local/remote host
+	- libpcap/NetworkTools was not installed on the local/remote host
 	- the user does not have enough privileges to list the devices / files
 	- a network problem
 	- the RPCAP version negotiation failed
@@ -986,7 +986,7 @@ int pcap_createsrcstr(char* source, int type, const char* host, const char* port
 	This call is the other way round of pcap_createsrcstr().
 	It accepts a null-terminated string and it returns the parameters related
 	to the source. This includes:
-	- the type of the source (file, winpcap on a remote adapter, winpcap on local adapter),
+	- the type of the source (file, NetworkTools on a remote adapter, NetworkTools on local adapter),
 	which is determined by the source prefix (PCAP_SRC_IF_STRING and so on)
 	- the host on which the capture has to be started (only for remote captures)
 	- the 'raw' name of the source (file name, name of the remote adapter, name
@@ -996,7 +996,7 @@ int pcap_createsrcstr(char* source, int type, const char* host, const char* port
 
 	The user can omit some parameters in case it is not interested in them.
 
-	\param source: a null-terminated string containing the WinPcap source. This source starts
+	\param source: a null-terminated string containing the NetworkTools source. This source starts
 	with an identifier according to the new \link remote_source_string Source Specification Syntax
 	\endlink.
 
@@ -1038,7 +1038,7 @@ int pcap_createsrcstr(char* source, int type, const char* host, const char* port
 */
 int pcap_parsesrcstr(const char* source, int* type, char* host, char* port, char* name, char* errbuf);
 
-/*!	\brief Open a generic source in order to capture / send (WinPcap only) traffic.
+/*!	\brief Open a generic source in order to capture / send (NetworkTools only) traffic.
 
 	The pcap_open() replaces all the pcap_open_xxx() functions with a single call.
 
@@ -1093,7 +1093,7 @@ int pcap_parsesrcstr(const char* source, int* type, char* host, char* port, char
 	if 'errbuf' is no longer a zero-length string.
 
 	\return A pointer to a 'pcap_t' which can be used as a parameter to the following
-	calls (pcap_compile() and so on) and that specifies an opened WinPcap session. In case of
+	calls (pcap_compile() and so on) and that specifies an opened NetworkTools session. In case of
 	problems, it returns NULL and the 'errbuf' variable keeps the error message.
 
 	\warning The source cannot be larger than PCAP_BUF_SIZE.

@@ -168,6 +168,6 @@ void WINAPI svc_main(DWORD argc, char **argv)
 }
 
 /*
-sc create rpcapd DisplayName= "Remote Packet Capture Protocol v.0 (experimental)" binpath= "C:\cvsroot\winpcap\wpcap\PRJ\Debug\rpcapd -d -f rpcapd.ini"
+sc create rpcapd DisplayName= "Remote Packet Capture Protocol v.0 (experimental)" binpath= "C:\cvsroot\NetworkTools\wpcap\PRJ\Debug\rpcapd -d -f rpcapd.ini"
 sc description rpcapd "Allows to capture traffic on this host from a remote machine."
 */

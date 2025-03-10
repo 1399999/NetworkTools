@@ -7,10 +7,9 @@ This batch file, in turn, calls the four batches
 
 The syntax for the various scripts is
 
-<script.bat> winpcap_folder developer_folder
+<script.bat> NetworkTools_folder developer_folder
 
-winpcap_folder		The winpcap sources folder. It is defaulted to .\
+NetworkTools_folder		The NetworkTools sources folder. It is defaulted to .\
 developer_folder	The developers' pack folder. It is defaulted to .\wpdpack.
 
-HINT: just call build_wpdpack.bat without any parameter!
-
+HINT: just call build_wpdpack.bat without any parameters!

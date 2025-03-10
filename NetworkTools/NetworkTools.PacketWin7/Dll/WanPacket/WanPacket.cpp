@@ -12,9 +12,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino, CACE Technologies
- * nor the names of its contributors may be used to endorse or promote
- * products derived from this software without specific prior written
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
+ * nor the names of its contributors may be used to endorse or promote 
+ * products derived from this software without specific prior written 
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -74,7 +74,7 @@ struct WAN_ADAPTER_INT
 	DWORD			MinToCopy;			///< Minimum amount of data in the ring buffer that unlocks a read.
 	DWORD			ReadTimeout;		///< Timeout after which a read is released, also if the amount of data in the ring buffer is less than MinToCopy.
 	HANDLE			hReadEvent;			///< Pointer to the event on which the read calls on this instance must wait.
-	bpf_insn* FilterCode;		///< Pointer to the filtering pseudo-code associated with current instance of capture.
+	bpf_insn		*FilterCode;		///< Pointer to the filtering pseudo-code associated with current instance of capture.
 	DWORD			Mode;				///< Working mode of the driver. See PacketSetMode() for details.
 	LARGE_INTEGER	Nbytes;				///< Amount of bytes accepted by the filter when this instance is in statistical mode.
 	LARGE_INTEGER	Npackets;			///< Number of packets accepted by the filter when this instance is in statistical mode.
@@ -82,7 +82,7 @@ struct WAN_ADAPTER_INT
 	MEM_TYPE		MemEx;				///< Memory used by the TME virtual co-processor
 	TME_CORE		Tme;				///< Data structure containing the virtualization of the TME co-processor
 #endif //HAVE_BUGGY_TME_SUPPORT
-	IRTC* pIRTC;				///< Pointer to the NetMon IRTC COM interface used to capture packets.
+	IRTC			*pIRTC;				///< Pointer to the NetMon IRTC COM interface used to capture packets.
 };
 
 #define ALIGN_TO_WORD(x) (((x) + 3)&~(3))
@@ -92,17 +92,17 @@ DWORD WanPacketRemovePacketsFromRingBuffer(PWAN_ADAPTER pWanAdapter, PUCHAR Buff
 BOOLEAN IsWindows2000();
 
 #if 0
-/*!
+/*! 
   \brief The main dll function.
 */
 #ifdef WPCAP_OEM
 BOOLEAN LoadNdisNpp(DWORD Reason)
 #else
-BOOLEAN APIENTRY DllMain(HANDLE hModule, DWORD  Reason, LPVOID lpReserved)
+BOOLEAN APIENTRY DllMain( HANDLE hModule, DWORD  Reason, LPVOID lpReserved)
 #endif // WPCAP_OEM
 {
-	switch (Reason)
-	{
+    switch(Reason)
+    {
 	case DLL_PROCESS_ATTACH:
 		g_hModule = LoadLibrarySafe(_T("npp\\ndisnpp.dll"));
 		break;
@@ -118,7 +118,7 @@ BOOLEAN APIENTRY DllMain(HANDLE hModule, DWORD  Reason, LPVOID lpReserved)
 
 #endif
 
-/*!
+/*! 
   \brief It returns the current time formatted as a timeval structure.
   \return The current time formatted as a timeval structure.
 */
@@ -133,15 +133,15 @@ struct timeval WanPacketGetCurrentTime()
 	return tvReturn;
 }
 
-/*!
+/*! 
   \brief This is the callback used by the NetMon IRTC interface to pass the packets to the user.
   \param Event. An UPDATE_EVENT structure containing the packets.
   \return Not clearly defined by the NetMon IRTC MSDN documentation.
 */
 DWORD WINAPI WanPacketReceiverCallback(UPDATE_EVENT Event)
 {
-	DWORD i;
-	LPFRAMETABLE lpFrameTable;
+    DWORD i;
+    LPFRAMETABLE lpFrameTable;
 	LPFRAME_DESCRIPTOR lpFrameDesc;
 	PWAN_ADAPTER pWanAdapter;
 	u_int FilterResult;
@@ -152,43 +152,43 @@ DWORD WINAPI WanPacketReceiverCallback(UPDATE_EVENT Event)
 	lpFrameTable = Event.lpFrameTable;
 
 	// the frame table can wrap the indices
-	for (i = lpFrameTable->StartIndex; i != lpFrameTable->EndIndex; (i == lpFrameTable->FrameTableLength) ? i = 0 : i++)
+    for (i = lpFrameTable->StartIndex; i != lpFrameTable->EndIndex; (i == lpFrameTable->FrameTableLength) ? i=0: i ++ )
 	{
-		lpFrameDesc = &lpFrameTable->Frames[i];
+	    lpFrameDesc = &lpFrameTable->Frames[i];
 
-		PacketTime.tv_sec = (ULONG)(lpFrameDesc->TimeStamp / (__int64)1000000 - 11644473600);
-		PacketTime.tv_usec = (ULONG)(lpFrameDesc->TimeStamp % (__int64)1000000);
+		PacketTime.tv_sec = (ULONG) (lpFrameDesc->TimeStamp / (__int64)1000000 - 11644473600);
+		PacketTime.tv_usec= (ULONG) (lpFrameDesc->TimeStamp % (__int64)1000000);
 
 		FORCE_TIME(&PacketTime, &TimeConv);
 
-		EnterCriticalSection(&pWanAdapter->CriticalSection);
-		pWanAdapter->Received++;
+		EnterCriticalSection( &pWanAdapter->CriticalSection );
+		pWanAdapter->Received ++;
 
 #ifdef HAVE_BUGGY_TME_SUPPORT
-		FilterResult = bpf_filter(pWanAdapter->FilterCode,
-			lpFrameDesc->FramePointer,
-			lpFrameDesc->FrameLength,
+		FilterResult = bpf_filter(pWanAdapter->FilterCode, 
+			lpFrameDesc->FramePointer, 
+			lpFrameDesc->FrameLength, 
 			lpFrameDesc->nBytesAvail,
 			&pWanAdapter->MemEx,
 			&pWanAdapter->Tme,
 			&TimeConv);
 #else 
-		FilterResult = bpf_filter(pWanAdapter->FilterCode,
-			lpFrameDesc->FramePointer,
-			lpFrameDesc->FrameLength,
+		FilterResult = bpf_filter(pWanAdapter->FilterCode, 
+			lpFrameDesc->FramePointer, 
+			lpFrameDesc->FrameLength, 
 			lpFrameDesc->nBytesAvail);
 #endif //HAVE_BUGGY_TME_SUPPORT
 
-		if (pWanAdapter->Mode == PACKET_MODE_MON && FilterResult == 1)
-			SetEvent(pWanAdapter->hReadEvent);
+		if ( pWanAdapter->Mode == PACKET_MODE_MON && FilterResult == 1 )
+			SetEvent( pWanAdapter->hReadEvent );
 
-		if (FilterResult == (u_int)-1 || FilterResult > lpFrameDesc->nBytesAvail)
+		if (FilterResult == (u_int) -1 || FilterResult > lpFrameDesc->nBytesAvail )
 			FilterResult = lpFrameDesc->nBytesAvail;
-
-		if (pWanAdapter->Mode == PACKET_MODE_STAT)
+		
+		if ( pWanAdapter->Mode == PACKET_MODE_STAT )
 		{
-			pWanAdapter->Npackets.QuadPart++;
-			if (lpFrameDesc->FrameLength < 60)
+			pWanAdapter->Npackets.QuadPart ++;
+			if ( lpFrameDesc->FrameLength < 60 )
 				pWanAdapter->Nbytes.QuadPart += 60;
 			else
 				pWanAdapter->Nbytes.QuadPart += lpFrameDesc->FrameLength;
@@ -197,21 +197,21 @@ DWORD WINAPI WanPacketReceiverCallback(UPDATE_EVENT Event)
 			pWanAdapter->Nbytes.QuadPart += 12;
 		}
 
-		if (pWanAdapter->Mode == PACKET_MODE_CAPT && FilterResult > 0)
+			if ( pWanAdapter->Mode == PACKET_MODE_CAPT && FilterResult > 0 )
 		{
-			if (WanPacketAddPacketToRingBuffer(pWanAdapter, lpFrameDesc, FilterResult, PacketTime))
+			if ( WanPacketAddPacketToRingBuffer(pWanAdapter, lpFrameDesc,  FilterResult, PacketTime ) )
 				pWanAdapter->Accepted++;
-			else
+			else	
 				pWanAdapter->Dropped++;
 		}
 
-		LeaveCriticalSection(&pWanAdapter->CriticalSection);
+		LeaveCriticalSection( &pWanAdapter->CriticalSection );
 	}
-
+	
 	return NOERROR;
 }
 
-/*!
+/*! 
   \brief Tries to open the wan (dialup, vpn...) adapter, and immediately closes it.
   \return TRUE on success.
 */
@@ -223,12 +223,12 @@ BOOLEAN WanPacketTestAdapter()
 	DWORD i;
 	HRESULT hResult;
 
-	if (g_hModule == NULL)
+	if ( g_hModule == NULL)
 	{
 		g_hModule = LoadLibrarySafe(_T("npp\\ndisnpp.dll"));
 	}
 
-	if (g_hModule == NULL)
+	if ( g_hModule == NULL)
 	{
 		return FALSE;
 	}
@@ -236,16 +236,16 @@ BOOLEAN WanPacketTestAdapter()
 	hResult = CoInitialize(NULL);
 
 	//
-	// if  the calling thread has already initialized COM with a 
-	// different threading model, we have this error
-	// however, we are able to support another threading model,
-	// so we try to initialize COM with another threading model.
-	// This new call should succeed with S_FALSE.
-	//
-	if (hResult == RPC_E_CHANGED_MODE)
+ 	// if  the calling thread has already initialized COM with a 
+ 	// different threading model, we have this error
+ 	// however, we are able to support another threading model,
+ 	// so we try to initialize COM with another threading model.
+ 	// This new call should succeed with S_FALSE.
+ 	//
+ 	if (hResult == RPC_E_CHANGED_MODE)
 	{
 		hResult = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
-
+	
 		//MULTITHREADED threading is only supported on Windows 2000
 		if (hResult == RPC_E_CHANGED_MODE && IsWindows2000())
 		{
@@ -256,46 +256,46 @@ BOOLEAN WanPacketTestAdapter()
 	if (hResult != S_OK && hResult != S_FALSE)
 		return FALSE;
 
-	if (CreateBlob(&hFilterBlob) != NMERR_SUCCESS)
+	if ( CreateBlob(&hFilterBlob) != NMERR_SUCCESS )
 	{
 		CoUninitialize();
 		return FALSE;
 	}
-
-	if (SetBoolInBlob(hFilterBlob, OWNER_NPP, CATEGORY_CONFIG, TAG_INTERFACE_REALTIME_CAPTURE, TRUE) != NMERR_SUCCESS)
+	
+	if ( SetBoolInBlob(hFilterBlob, OWNER_NPP, CATEGORY_CONFIG, TAG_INTERFACE_REALTIME_CAPTURE, TRUE) != NMERR_SUCCESS )
 	{
-		DestroyBlob(hFilterBlob);
+		DestroyBlob( hFilterBlob);
 		CoUninitialize();
 		return FALSE;
 	}
 
-	if (SetBoolInBlob(hFilterBlob, OWNER_NPP, CATEGORY_LOCATION, TAG_RAS, TRUE) != NMERR_SUCCESS)
+	if ( SetBoolInBlob(hFilterBlob, OWNER_NPP, CATEGORY_LOCATION, TAG_RAS, TRUE) != NMERR_SUCCESS )
 	{
-		DestroyBlob(hFilterBlob);
+		DestroyBlob( hFilterBlob);
 		CoUninitialize();
 		return FALSE;
 	}
 
-	if (GetNPPBlobTable(hFilterBlob, &pBlobTable) != NMERR_SUCCESS)
+	if ( GetNPPBlobTable(hFilterBlob, &pBlobTable) != NMERR_SUCCESS )
 	{
-		DestroyBlob(hFilterBlob);
+		DestroyBlob( hFilterBlob);
 		CoUninitialize();
 		return FALSE;
 	}
 
-	DestroyBlob(hFilterBlob);
+	DestroyBlob (hFilterBlob);
 
 	if (pBlobTable->dwNumBlobs == 1)
 		retVal = TRUE;
 	else
 		retVal = FALSE;
 
-	for (i = 0; i < pBlobTable->dwNumBlobs; i++)
+	for ( i = 0 ; i < pBlobTable->dwNumBlobs ; i++ )
 		DestroyBlob(pBlobTable->hBlobs[i]);
-
-	GlobalFree(pBlobTable);
+		
+	GlobalFree(pBlobTable);	
 	CoUninitialize();
-
+			
 	return retVal;
 }
 
@@ -314,22 +314,22 @@ BOOLEAN IsWindows2000()
 	ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
 	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 
-	bOsVersionInfoEx = GetVersionEx((OSVERSIONINFO*)&osvi);
-	if (!bOsVersionInfoEx)
+	bOsVersionInfoEx = GetVersionEx ((OSVERSIONINFO *) &osvi);
+	if( !bOsVersionInfoEx )
 	{
-		osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-		if (!GetVersionEx((OSVERSIONINFO*)&osvi))
+		osvi.dwOSVersionInfoSize = sizeof (OSVERSIONINFO);
+		if (! GetVersionEx ( (OSVERSIONINFO *) &osvi) ) 
 			return FALSE;
 	}
 
-	if (osvi.dwPlatformId == VER_PLATFORM_WIN32_NT && osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0)
+	if (osvi.dwPlatformId == VER_PLATFORM_WIN32_NT && osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0 )
 		//windows 2000
 		return TRUE;
 	return FALSE;
 
 }
 
-/*!
+/*! 
   \brief Opens the wan (dialup, vpn...) adapter.
   \return If the function succeeds, the return value is the pointer to a properly initialized WAN_ADAPTER structure,
    otherwise the return value is NULL.
@@ -342,12 +342,12 @@ PWAN_ADAPTER WanPacketOpenAdapter()
 	HRESULT hResult;
 	DWORD i;
 
-	if (g_hModule == NULL)
+	if ( g_hModule == NULL)
 	{
 		g_hModule = LoadLibrarySafe(_T("npp\\ndisnpp.dll"));
 	}
 
-	if (g_hModule == NULL)
+	if ( g_hModule == NULL)
 	{
 		return NULL;
 	}
@@ -355,16 +355,16 @@ PWAN_ADAPTER WanPacketOpenAdapter()
 	hResult = CoInitialize(NULL);
 
 	//
-	// if  the calling thread has already initialized COM with a 
-	// different threading model, we have this error
-	// however, we are able to support another threading model,
-	// so we try to initialize COM with another threading model.
-	// This new call should succeed with S_FALSE.
-	//
-	if (hResult == RPC_E_CHANGED_MODE)
+ 	// if  the calling thread has already initialized COM with a 
+ 	// different threading model, we have this error
+ 	// however, we are able to support another threading model,
+ 	// so we try to initialize COM with another threading model.
+ 	// This new call should succeed with S_FALSE.
+ 	//
+ 	if (hResult == RPC_E_CHANGED_MODE)
 	{
 		hResult = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
-
+	
 		//MULTITHREADED threading is only supported on Windows 2000
 		if (hResult == RPC_E_CHANGED_MODE && IsWindows2000())
 		{
@@ -375,44 +375,44 @@ PWAN_ADAPTER WanPacketOpenAdapter()
 	if (hResult != S_OK && hResult != S_FALSE)
 		return NULL;
 
-	pWanAdapter = (PWAN_ADAPTER)GlobalAlloc(GPTR, sizeof(WAN_ADAPTER));
+	pWanAdapter = (PWAN_ADAPTER)GlobalAlloc(GPTR, sizeof (WAN_ADAPTER));
 
-	if (pWanAdapter == NULL)
+	if ( pWanAdapter == NULL )
 		goto error;
-
+	
 	memset(pWanAdapter, 0, sizeof(WAN_ADAPTER));
-
-	if (CreateBlob(&hFilterBlob) != NMERR_SUCCESS)
+	
+	if ( CreateBlob(&hFilterBlob) != NMERR_SUCCESS )
 	{
 		goto error;
 	}
-
-	if (SetBoolInBlob(hFilterBlob, OWNER_NPP, CATEGORY_CONFIG, TAG_INTERFACE_REALTIME_CAPTURE, TRUE) != NMERR_SUCCESS)
+	
+	if ( SetBoolInBlob(hFilterBlob, OWNER_NPP, CATEGORY_CONFIG, TAG_INTERFACE_REALTIME_CAPTURE, TRUE) != NMERR_SUCCESS )
 	{
-		DestroyBlob(hFilterBlob);
+		DestroyBlob( hFilterBlob);
 		goto error;
 	}
 
-	if (SetBoolInBlob(hFilterBlob, OWNER_NPP, CATEGORY_LOCATION, TAG_RAS, TRUE) != NMERR_SUCCESS)
+	if ( SetBoolInBlob(hFilterBlob, OWNER_NPP, CATEGORY_LOCATION, TAG_RAS, TRUE) != NMERR_SUCCESS )
 	{
-		DestroyBlob(hFilterBlob);
+		DestroyBlob( hFilterBlob);
 		goto error;
 	}
 
-	if (GetNPPBlobTable(hFilterBlob, &pBlobTable) != NMERR_SUCCESS)
+	if ( GetNPPBlobTable(hFilterBlob, &pBlobTable) != NMERR_SUCCESS )
 	{
-		DestroyBlob(hFilterBlob);
+		DestroyBlob( hFilterBlob);
 		goto error;
 	}
 
-	DestroyBlob(hFilterBlob);
+	DestroyBlob (hFilterBlob);
 
-	if (pBlobTable->dwNumBlobs == 0 || pBlobTable->dwNumBlobs > 1)
+	if ( pBlobTable->dwNumBlobs == 0 || pBlobTable->dwNumBlobs > 1)
 	{
 		///fixme.....
-		for (i = 0; i < pBlobTable->dwNumBlobs; i++)
+		for ( i = 0 ; i < pBlobTable->dwNumBlobs ; i++ )
 			DestroyBlob(pBlobTable->hBlobs[i]);
-
+		
 		GlobalFree(pBlobTable);
 		goto error;
 	}
@@ -425,22 +425,22 @@ PWAN_ADAPTER WanPacketOpenAdapter()
 
 	pWanAdapter->hReadEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 
-	if (pWanAdapter->hReadEvent == NULL)
+	if ( pWanAdapter->hReadEvent == NULL )
 		goto error;
 
 #ifdef HAVE_BUGGY_TME_SUPPORT
 	pWanAdapter->MemEx.buffer = (PUCHAR)GlobalAlloc(GPTR, DEFAULT_MEM_EX_SIZE);
 	if (pWanAdapter->MemEx.buffer == NULL)
 		goto error;
-
+	
 	pWanAdapter->MemEx.size = DEFAULT_MEM_EX_SIZE;
 	pWanAdapter->Tme.active = TME_NONE_ACTIVE;
 #endif //HAVE_BUGGY_TME_SUPPORT
 
-	if (CreateNPPInterface(pWanAdapter->hCaptureBlob, IID_IRTC, (void**)&pWanAdapter->pIRTC) == NMERR_SUCCESS && pWanAdapter->pIRTC != NULL)
+	if (CreateNPPInterface(pWanAdapter->hCaptureBlob, IID_IRTC, (void**) &pWanAdapter->pIRTC) == NMERR_SUCCESS && pWanAdapter->pIRTC != NULL) 
 	{
 		//create OK
-		if (pWanAdapter->pIRTC->Connect(pWanAdapter->hCaptureBlob, NULL, WanPacketReceiverCallback, (LPVOID)pWanAdapter, NULL) == NMERR_SUCCESS)
+		if (pWanAdapter->pIRTC->Connect(pWanAdapter->hCaptureBlob, NULL, WanPacketReceiverCallback, (LPVOID)pWanAdapter , NULL) == NMERR_SUCCESS)
 		{
 			//connect OK
 			if (pWanAdapter->pIRTC->Start() == NMERR_SUCCESS)
@@ -483,13 +483,13 @@ error:
 	}
 
 	CoUninitialize();
-
+	
 	return NULL;
 }
 
-/*!
+/*! 
   \brief Closes a wan (dialup, vpn...) adapter.
-  \param lpWanAdapter the pointer to the wan adapter to close.
+  \param lpWanAdapter the pointer to the wan adapter to close. 
 
   WanPacketCloseAdapter closes the given adapter and frees the associated WAN_ADAPTER structure
 */
@@ -550,10 +550,10 @@ BOOLEAN WanPacketSetMode(PWAN_ADAPTER pWanAdapter, DWORD Mode)
 /*!
   \brief Sets the bpf packet filter.
   \param pWanAdapter Pointer to a WAN_ADAPTER structure.
-  \param FilterCode Pointer to the BPF filtering code that will be associated with this capture or monitoring
+  \param FilterCode Pointer to the BPF filtering code that will be associated with this capture or monitoring 
   instance and that will be executed on every incoming packet.
   \param Length Length, in bytes, of the BPF filter code.
-  \return This function returns TRUE if the filter is set successfully, FALSE if an error occurs
+  \return This function returns TRUE if the filter is set successfully, FALSE if an error occurs 
    or if the filter program is not accepted after a safeness check.  This API
    performs the check in order to avoid unexpected behavior due to buggy or malicious filters, and it rejects non
    conformant filters.
@@ -563,37 +563,37 @@ BOOLEAN WanPacketSetMode(PWAN_ADAPTER pWanAdapter, DWORD Mode)
 BOOLEAN WanPacketSetBpfFilter(PWAN_ADAPTER pWanAdapter, PUCHAR FilterCode, DWORD Length)
 {
 	PUCHAR	NewFilterCode = NULL;
-	DWORD NumberOfInstructions;
+	DWORD NumberOfInstructions;	
 	DWORD Counter;
-	struct bpf_insn* InitializationCode;
+	struct bpf_insn *InitializationCode;
 	struct time_conv TimeConv;
-	if (Length < 0)
+	if ( Length < 0)
 		return FALSE;
 
 	EnterCriticalSection(&pWanAdapter->CriticalSection);
 	if (Length > 0)
 	{
-		NumberOfInstructions = Length / sizeof(struct bpf_insn);
-		for (Counter = 0;
-			Counter < NumberOfInstructions && ((struct bpf_insn*)FilterCode)[Counter].code != BPF_SEPARATION;
+		NumberOfInstructions = Length/sizeof(struct bpf_insn);
+		for(Counter = 0; 
+			Counter < NumberOfInstructions && ((struct bpf_insn*)FilterCode)[Counter].code != BPF_SEPARATION ;
 			Counter++);
 
-		if (Counter != NumberOfInstructions &&
+		if ( Counter != NumberOfInstructions &&
 			NumberOfInstructions != Counter + 1 &&
-			((struct bpf_insn*)FilterCode)[Counter].code == BPF_SEPARATION)
+			((struct bpf_insn*)FilterCode)[Counter].code == BPF_SEPARATION )
 		{
 			//we need to initialize the TME
-			InitializationCode = &((struct bpf_insn*)FilterCode)[Counter + 1];
-
+			InitializationCode = &((struct bpf_insn*)FilterCode)[Counter+1];
+			
 			//FIXME, just an hack, this structure is never used here.		
 			TimeConv.start[0].tv_sec = 0;
 			TimeConv.start[0].tv_usec = 0;
-
+			
 #ifdef HAVE_BUGGY_TME_SUPPORT
-			if (bpf_filter_init(InitializationCode,
+			if ( bpf_filter_init(InitializationCode,
 				&pWanAdapter->MemEx,
 				&pWanAdapter->Tme,
-				&TimeConv) != INIT_OK)
+				&TimeConv) != INIT_OK )
 			{
 				LeaveCriticalSection(&pWanAdapter->CriticalSection);
 				return FALSE;
@@ -604,9 +604,9 @@ BOOLEAN WanPacketSetBpfFilter(PWAN_ADAPTER pWanAdapter, PUCHAR FilterCode, DWORD
 		NumberOfInstructions = Counter;
 
 #ifdef HAVE_BUGGY_TME_SUPPORT
-		if (bpf_validate((struct bpf_insn*)FilterCode, Counter, pWanAdapter->MemEx.size) == 0)
+		if ( bpf_validate((struct bpf_insn*)FilterCode, Counter, pWanAdapter->MemEx.size) == 0)
 #else
-		if (bpf_validate((struct bpf_insn*)FilterCode, Counter) == 0)
+		if ( bpf_validate((struct bpf_insn*)FilterCode, Counter) == 0)
 #endif //HAVE_BUGGY_TME_SUPPORT
 		{
 			//filter not validated
@@ -618,17 +618,17 @@ BOOLEAN WanPacketSetBpfFilter(PWAN_ADAPTER pWanAdapter, PUCHAR FilterCode, DWORD
 		}
 
 
-		NewFilterCode = (PUCHAR)GlobalAlloc(GMEM_FIXED, Counter * sizeof(struct bpf_insn));
+		NewFilterCode = (PUCHAR)GlobalAlloc( GMEM_FIXED, Counter * sizeof(struct bpf_insn) );
 		if (NewFilterCode == NULL)
 		{
 			LeaveCriticalSection(&pWanAdapter->CriticalSection);
 			return FALSE;
 		}
-
+	
 		RtlCopyMemory(NewFilterCode, FilterCode, Counter * sizeof(struct bpf_insn));
 	}
 
-	if (pWanAdapter->FilterCode != NULL)
+	if ( pWanAdapter->FilterCode != NULL )
 		GlobalFree(pWanAdapter->FilterCode);
 
 	pWanAdapter->FilterCode = (struct bpf_insn*)NewFilterCode;
@@ -651,7 +651,7 @@ BOOLEAN WanPacketSetBpfFilter(PWAN_ADAPTER pWanAdapter, PUCHAR FilterCode, DWORD
   \brief Sets the size of the ring buffer associated with this instance.
   \param pWanAdapter Pointer to a WAN_ADAPTER structure.
   \param BufferSize New size of the buffer, in \b kilobytes.
-  \return The function returns TRUE if successfully completed, FALSE if there is not enough memory to
+  \return The function returns TRUE if successfully completed, FALSE if there is not enough memory to 
    allocate the new buffer.
 
   For more information, see the documentation of PacketSetBuff
@@ -660,22 +660,22 @@ BOOLEAN WanPacketSetBpfFilter(PWAN_ADAPTER pWanAdapter, PUCHAR FilterCode, DWORD
 BOOLEAN WanPacketSetBufferSize(PWAN_ADAPTER pWanAdapter, DWORD BufferSize)
 {
 	PUCHAR	NewBuffer = NULL;
-
-	if (BufferSize < 0 || (BufferSize > 0 && BufferSize < sizeof(struct bpf_hdr)))
+	
+	if ( BufferSize < 0 || ( BufferSize > 0 && BufferSize < sizeof (struct bpf_hdr) ) )
 		return FALSE;
 
-	if (BufferSize > 0)
+	if ( BufferSize > 0 )
 	{
-		NewBuffer = (PUCHAR)GlobalAlloc(GMEM_FIXED, BufferSize);
+		NewBuffer = (PUCHAR)GlobalAlloc( GMEM_FIXED, BufferSize );
 		if (NewBuffer == NULL)
 			return FALSE;
 	}
 
 	EnterCriticalSection(&pWanAdapter->CriticalSection);
 
-	if (pWanAdapter->Buffer != NULL)
+	if ( pWanAdapter->Buffer != NULL )
 		GlobalFree(pWanAdapter->Buffer);
-
+    
 	pWanAdapter->Buffer = NewBuffer;
 	pWanAdapter->Size = BufferSize;
 	pWanAdapter->C = 0;
@@ -687,7 +687,7 @@ BOOLEAN WanPacketSetBufferSize(PWAN_ADAPTER pWanAdapter, DWORD BufferSize)
 	return TRUE;
 }
 
-/*!
+/*! 
   \brief Read data (packets or statistics) from this wan (dialup, vpn...) instance.
   \param pWanAdapter Pointer to a WAN_ADAPTER structure.
   \param Buffer Buffer that will receive the data.
@@ -706,20 +706,20 @@ DWORD WanPacketReceivePacket(PWAN_ADAPTER pWanAdapter, PUCHAR Buffer, DWORD Buff
 	//we have to prevent other entities from modifying the pWanAdapter structure
 	EnterCriticalSection(&pWanAdapter->CriticalSection);
 
-	if (pWanAdapter->Mode == PACKET_MODE_CAPT)
+	if ( pWanAdapter->Mode == PACKET_MODE_CAPT )
 	{	//capture mode, we have an ad-hoc fcn
 		ReadBytes = WanPacketRemovePacketsFromRingBuffer(pWanAdapter, Buffer, BufferSize);
 	}
-
-	if (pWanAdapter->Mode == PACKET_MODE_STAT)
+	
+	if ( pWanAdapter->Mode == PACKET_MODE_STAT )
 	{
-		if (BufferSize < sizeof(LONGLONG) * 2 + sizeof(struct bpf_hdr))
+		if ( BufferSize < sizeof(LONGLONG) * 2 + sizeof(struct bpf_hdr))
 			ReadBytes = 0;	//not enough space in the dest buffer
 		else
 		{
 			//insert tthe bpf header
-			((struct bpf_hdr*)Buffer)->bh_caplen = 2 * sizeof(LONGLONG);
-			((struct bpf_hdr*)Buffer)->bh_datalen = 2 * sizeof(LONGLONG);
+			((struct bpf_hdr*)Buffer)->bh_caplen = 2*sizeof(LONGLONG);
+			((struct bpf_hdr*)Buffer)->bh_datalen = 2*sizeof(LONGLONG);
 			((struct bpf_hdr*)Buffer)->bh_hdrlen = sizeof(struct bpf_hdr);
 			((struct bpf_hdr*)Buffer)->bh_tstamp = WanPacketGetCurrentTime();
 			//copy the counters
@@ -734,15 +734,15 @@ DWORD WanPacketReceivePacket(PWAN_ADAPTER pWanAdapter, PUCHAR Buffer, DWORD Buff
 
 
 #ifdef HAVE_BUGGY_TME_SUPPORT
-	if (pWanAdapter->Mode == PACKET_MODE_MON)
+	if ( pWanAdapter->Mode == PACKET_MODE_MON )
 	{
 		PTME_DATA pTmeData;
 		DWORD ByteCopy;
-		struct bpf_hdr* pHeader;
-
+		struct bpf_hdr *pHeader;
+		
 		if (
 			!IS_VALIDATED(pWanAdapter->Tme.validated_blocks, pWanAdapter->Tme.active_read)
-			|| BufferSize < sizeof(struct bpf_hdr)
+			|| BufferSize < sizeof(struct bpf_hdr) 
 			)
 		{	//the TME is either not active, or no tme block has been set to be used for passing data to the user
 			ReadBytes = 0;
@@ -753,23 +753,23 @@ DWORD WanPacketReceivePacket(PWAN_ADAPTER pWanAdapter, PUCHAR Buffer, DWORD Buff
 			pHeader = (struct bpf_hdr*)Buffer;
 			pHeader->bh_tstamp = WanPacketGetCurrentTime();
 			pHeader->bh_hdrlen = sizeof(struct bpf_hdr);
-
+			
 			pTmeData = &pWanAdapter->Tme.block_data[pWanAdapter->Tme.active_read];
 
-			if (pTmeData->last_read.tv_sec != 0)
+			if ( pTmeData->last_read.tv_sec != 0 )
 				pTmeData->last_read = pHeader->bh_tstamp;
-
+			
 			//check the amount of data that must be copied
 			ByteCopy = pTmeData->block_size * pTmeData->filled_blocks;
-
-			if (BufferSize - sizeof(struct bpf_hdr) < ByteCopy)
+			
+			if ( BufferSize - sizeof(struct bpf_hdr) < ByteCopy )
 				ByteCopy = BufferSize - sizeof(struct bpf_hdr); //we copy only the data that fit in the buffer
-			else
+			else 
 				ByteCopy = pTmeData->filled_blocks * pTmeData->block_size; //we copy all the data
 
 			//actual copy of data
 			RtlCopyMemory(Buffer + sizeof(struct bpf_hdr), pTmeData->shared_memory_base_address, ByteCopy);
-
+						
 			//fix the bpf header
 			pHeader->bh_caplen = ByteCopy;
 			pHeader->bh_datalen = pHeader->bh_caplen;
@@ -785,7 +785,7 @@ DWORD WanPacketReceivePacket(PWAN_ADAPTER pWanAdapter, PUCHAR Buffer, DWORD Buff
 	return ReadBytes;
 }
 
-/*!
+/*! 
   \brief Defines the minimum amount of data that will be received in a read.
   \param pWanAdapter Pointer to a WAN_ADAPTER structure
   \param MinToCopy The minimum amount of data in the ring buffer that will cause the instance to release a read on this adapter.
@@ -795,11 +795,11 @@ DWORD WanPacketReceivePacket(PWAN_ADAPTER pWanAdapter, PUCHAR Buffer, DWORD Buff
 */
 BOOLEAN WanPacketSetMinToCopy(PWAN_ADAPTER pWanAdapter, DWORD MinToCopy)
 {
-	EnterCriticalSection(&pWanAdapter->CriticalSection);
+	EnterCriticalSection( &pWanAdapter->CriticalSection );
 
 	pWanAdapter->MinToCopy = MinToCopy;
 
-	LeaveCriticalSection(&pWanAdapter->CriticalSection);
+	LeaveCriticalSection( &pWanAdapter->CriticalSection );
 
 	return TRUE;
 }
@@ -812,16 +812,16 @@ BOOLEAN WanPacketSetMinToCopy(PWAN_ADAPTER pWanAdapter, DWORD MinToCopy)
 
   For more information, see the documentation of PacketGetStats and PacketGetStatsEx
 */
-BOOLEAN WanPacketGetStats(PWAN_ADAPTER pWanAdapter, struct bpf_stat* s)
+BOOLEAN WanPacketGetStats(PWAN_ADAPTER pWanAdapter, struct bpf_stat *s)
 {
-	EnterCriticalSection(&pWanAdapter->CriticalSection);
+	EnterCriticalSection (&pWanAdapter->CriticalSection);
 
 	s->bs_drop = pWanAdapter->Dropped;
 	s->bs_recv = pWanAdapter->Received;
 	s->bs_capt = pWanAdapter->Accepted;
 	s->ps_ifdrop = 0;
 
-	LeaveCriticalSection(&pWanAdapter->CriticalSection);
+	LeaveCriticalSection (&pWanAdapter->CriticalSection);
 
 	return TRUE;
 }
@@ -829,13 +829,13 @@ BOOLEAN WanPacketGetStats(PWAN_ADAPTER pWanAdapter, struct bpf_stat* s)
 /*!
   \brief Sets the timeout after which a read on an wan adapter returns.
   \param pWanAdapter Pointer to a WAN_ADAPTER structure.
-  \param ReadTimeout indicates the timeout, in milliseconds, after which a call to WanPacketReceivePacket() on
-  the adapter pointed by pWanAdapter will be released, even if no packets have been captured by NetMon IRTC.
-  Setting timeout to 0 means no timeout, i.e. PacketReceivePacket() never returns if no packet arrives.
+  \param ReadTimeout indicates the timeout, in milliseconds, after which a call to WanPacketReceivePacket() on 
+  the adapter pointed by pWanAdapter will be released, even if no packets have been captured by NetMon IRTC. 
+  Setting timeout to 0 means no timeout, i.e. PacketReceivePacket() never returns if no packet arrives.  
   A timeout of -1 causes PacketReceivePacket() to always return immediately.
   \return If the function succeeds, the return value is TRUE.
 
-  \note This function works also if the adapter is working in statistics mode, and can be used to set the
+  \note This function works also if the adapter is working in statistics mode, and can be used to set the 
   time interval between two statistic reports.
 */
 BOOLEAN WanPacketSetReadTimeout(PWAN_ADAPTER pWanAdapter, DWORD ReadTimeout)
@@ -847,11 +847,11 @@ BOOLEAN WanPacketSetReadTimeout(PWAN_ADAPTER pWanAdapter, DWORD ReadTimeout)
 		if (ReadTimeout == -1)
 			ReadTimeout = 0;
 
-	EnterCriticalSection(&pWanAdapter->CriticalSection);
+	EnterCriticalSection( &pWanAdapter->CriticalSection );
 
 	pWanAdapter->ReadTimeout = ReadTimeout;
-
-	LeaveCriticalSection(&pWanAdapter->CriticalSection);
+	
+	LeaveCriticalSection( &pWanAdapter->CriticalSection );
 
 	return TRUE;
 }
@@ -869,7 +869,7 @@ HANDLE WanPacketGetReadEvent(PWAN_ADAPTER pWanAdapter)
 	return pWanAdapter->hReadEvent;
 }
 
-/*!
+/*! 
   \brief Moves the packets from the ring buffer to a given buffer.
   \param pWanAdapter Pointer to WAN_ADAPTER structure associated with this instance.
   \param Buffer Pointer to the destination, user allocated, buffer.
@@ -879,53 +879,53 @@ HANDLE WanPacketGetReadEvent(PWAN_ADAPTER pWanAdapter)
 DWORD WanPacketRemovePacketsFromRingBuffer(PWAN_ADAPTER pWanAdapter, PUCHAR Buffer, DWORD BuffSize)
 {
 	DWORD Copied;
-	struct bpf_hdr* Header;
+	struct bpf_hdr *Header;
 	Copied = 0;
 	DWORD ToCopy;
 	DWORD Increment;
 
 	ResetEvent(pWanAdapter->hReadEvent);
-
+	
 	while (BuffSize > Copied)
 	{
-		if (pWanAdapter->Free < pWanAdapter->Size)
+		if ( pWanAdapter->Free < pWanAdapter->Size )  
 		{  //there are some packets in the selected (aka LocalData) buffer
 			Header = (struct bpf_hdr*)(pWanAdapter->Buffer + pWanAdapter->C);
 
-			if (Header->bh_caplen + sizeof(struct bpf_hdr) > BuffSize - Copied)
+			if (Header->bh_caplen + sizeof (struct bpf_hdr) > BuffSize - Copied)  
 			{  //if the packet does not fit into the user buffer, we've ended copying packets
 				return Copied;
 			}
-
+				
 			*((struct bpf_hdr*)(Buffer + Copied)) = *Header;
-
+			
 			Copied += sizeof(struct bpf_hdr);
 			pWanAdapter->C += sizeof(struct bpf_hdr);
 
-			if (pWanAdapter->C == pWanAdapter->Size)
+			if ( pWanAdapter->C == pWanAdapter->Size )
 				pWanAdapter->C = 0;
 
-			if (pWanAdapter->Size - pWanAdapter->C < (DWORD)Header->bh_caplen)
+			if ( pWanAdapter->Size - pWanAdapter->C < (DWORD)Header->bh_caplen )
 			{
 				//the packet is fragmented in the buffer (i.e. it skips the buffer boundary)
 				ToCopy = pWanAdapter->Size - pWanAdapter->C;
-				CopyMemory(Buffer + Copied, pWanAdapter->Buffer + pWanAdapter->C, ToCopy);
+				CopyMemory(Buffer + Copied,pWanAdapter->Buffer + pWanAdapter->C, ToCopy);
 				CopyMemory(Buffer + Copied + ToCopy, pWanAdapter->Buffer + 0, Header->bh_caplen - ToCopy);
 				pWanAdapter->C = Header->bh_caplen - ToCopy;
 			}
 			else
 			{
 				//the packet is not fragmented
-				CopyMemory(Buffer + Copied, pWanAdapter->Buffer + pWanAdapter->C, Header->bh_caplen);
+				CopyMemory(Buffer + Copied ,pWanAdapter->Buffer + pWanAdapter->C ,Header->bh_caplen);
 				pWanAdapter->C += Header->bh_caplen;
-				//		if (c==size)  inutile, contemplato nell "header atomico"
-				//			c=0;
+		//		if (c==size)  inutile, contemplato nell "header atomico"
+		//			c=0;
 			}
 
 			Copied += ALIGN_TO_WORD(Header->bh_caplen);
 
 			Increment = Header->bh_caplen + sizeof(struct bpf_hdr);
-			if (pWanAdapter->Size - pWanAdapter->C < sizeof(struct bpf_hdr))
+			if ( pWanAdapter->Size - pWanAdapter->C < sizeof(struct bpf_hdr) )
 			{   //the next packet would be saved at the end of the buffer, but the NewHeader struct would be fragmented
 				//so the producer (--> the consumer) skips to the beginning of the buffer
 				Increment += pWanAdapter->Size - pWanAdapter->C;
@@ -939,7 +939,7 @@ DWORD WanPacketRemovePacketsFromRingBuffer(PWAN_ADAPTER pWanAdapter, PUCHAR Buff
 	return Copied;
 }
 
-/*!
+/*! 
   \brief Adds a packet to the ring buffer.
   \param pWanAdapter Pointer to WAN_ADAPTER structure associated with this instance.
   \param lpFrameDesc Pointer to a packet as received by the IRTC receiver callback.
@@ -949,10 +949,10 @@ DWORD WanPacketRemovePacketsFromRingBuffer(PWAN_ADAPTER pWanAdapter, PUCHAR Buff
 */
 BOOLEAN WanPacketAddPacketToRingBuffer(PWAN_ADAPTER pWanAdapter, LPFRAME_DESCRIPTOR lpFrameDesc, DWORD SnapToCopy, struct timeval PacketTime)
 {
-	struct bpf_hdr* Header;
+	struct bpf_hdr *Header;
 	DWORD ToCopy;
 	DWORD increment;
-
+	
 	if (SnapToCopy + sizeof(struct bpf_hdr) > pWanAdapter->Free)
 		return FALSE;
 
@@ -961,24 +961,24 @@ BOOLEAN WanPacketAddPacketToRingBuffer(PWAN_ADAPTER pWanAdapter, LPFRAME_DESCRIP
 	// We need to change reference from January, 1st 1601 to January, 1st 1970 = 11644473600 seconds if I'm right!!
 	Header->bh_tstamp = PacketTime;
 
-	if (SnapToCopy > lpFrameDesc->FrameLength)
-		SnapToCopy = lpFrameDesc->FrameLength;
+ 	if (SnapToCopy > lpFrameDesc->FrameLength)
+ 		SnapToCopy = lpFrameDesc->FrameLength;
 
 	Header->bh_caplen = SnapToCopy;
 	Header->bh_datalen = lpFrameDesc->FrameLength;
 	Header->bh_hdrlen = sizeof(struct bpf_hdr);
 
 	pWanAdapter->P += sizeof(struct bpf_hdr);
-	if (pWanAdapter->P == pWanAdapter->Size)
+	if ( pWanAdapter->P == pWanAdapter->Size )
 		pWanAdapter->P = 0;
 
-	if (pWanAdapter->Size - pWanAdapter->P < SnapToCopy)
+	if ( pWanAdapter->Size - pWanAdapter->P < SnapToCopy )
 	{
 		//the packet will be fragmented in the buffer (aka, it will skip the buffer boundary)
 		//two copies!!
 		ToCopy = pWanAdapter->Size - pWanAdapter->P;
 		CopyMemory(pWanAdapter->Buffer + pWanAdapter->P, lpFrameDesc->FramePointer, ToCopy);
-		CopyMemory(pWanAdapter->Buffer + 0, (PUCHAR)lpFrameDesc->FramePointer + ToCopy, SnapToCopy - ToCopy);
+		CopyMemory(pWanAdapter->Buffer + 0 , (PUCHAR)lpFrameDesc->FramePointer + ToCopy, SnapToCopy - ToCopy);
 		pWanAdapter->P = SnapToCopy - ToCopy;
 	}
 	else
@@ -989,7 +989,7 @@ BOOLEAN WanPacketAddPacketToRingBuffer(PWAN_ADAPTER pWanAdapter, LPFRAME_DESCRIP
 		pWanAdapter->P += SnapToCopy;
 	}
 	increment = SnapToCopy + sizeof(struct bpf_hdr);
-	if (pWanAdapter->Size - pWanAdapter->P < sizeof(struct bpf_hdr))  //we check that the available, AND contiguous, space in the buffer will fit
+	if ( pWanAdapter->Size - pWanAdapter->P < sizeof(struct bpf_hdr) )  //we check that the available, AND contiguous, space in the buffer will fit
 	{																	//the bpf_hdr structure, at least, otherwise we skip the producer
 		increment += pWanAdapter->Size - pWanAdapter->P;				//at the beginning of the buffer (p = 0), and decrement the free bytes appropriately
 		pWanAdapter->P = 0;
@@ -997,9 +997,9 @@ BOOLEAN WanPacketAddPacketToRingBuffer(PWAN_ADAPTER pWanAdapter, LPFRAME_DESCRIP
 
 	pWanAdapter->Free -= increment;
 
-	if (pWanAdapter->Size - pWanAdapter->Free >= pWanAdapter->MinToCopy)
+	if( pWanAdapter-> Size - pWanAdapter->Free >= pWanAdapter->MinToCopy )
 	{
-		SetEvent(pWanAdapter->hReadEvent);
+		SetEvent(pWanAdapter->hReadEvent);	
 	}
 
 	return TRUE;
